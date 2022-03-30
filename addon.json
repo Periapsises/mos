@@ -1,0 +1,9 @@
+{
+    "title": "Mos6502",
+    "type": "ServerContent",
+    "tags": ["fun", "build"],
+    "ignore": [
+        "*.md",
+        ".git"
+    ]
+}
