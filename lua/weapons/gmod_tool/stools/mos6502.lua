@@ -38,16 +38,25 @@ function TOOL:LeftClick( trace )
     undo.Finish()
 end
 
+local function openEditor() end
+
+if SERVER then
+    openEditor = function( ply )
+        net.Start( "mos_editor_open" )
+        net.Send( ply )
+    end
+end
+
 function TOOL:RightClick( trace )
     local ply = self:GetOwner()
     local ent = trace.Entity
 
     if IsValid( ent ) and ent:GetClass() == "mos6502" then
         if gamemode.Call( "CanTool", ply, trace ) ~= false then
-            
+            openEditor( ply )
         end
     else
-
+        openEditor( ply )
     end
 
     return false
