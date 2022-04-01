@@ -3,44 +3,62 @@ if SERVER then
 end
 
 include( "mos/editor/filebrowser.lua" )
+include( "mos/editor/codentry.lua" )
 
-local editorWidth = CreateConVar( "mos_editor_width", 960, FCVAR_ARCHIVE, "The width of the Mos Editor", 240 )
-local editorHeight = CreateConVar( "mos_editor_height", 540, FCVAR_ARCHIVE, "The height of the Mos Editor", 135 )
+local defaultWidth, defaultHeight = ScrW() / 3 * 2, ScrH() / 3 * 2
+local defaultX, defaultY = defaultWidth / 4, defaultHeight / 4
+
+local editorWidth = CreateConVar( "mos_editor_width", defaultWidth, FCVAR_ARCHIVE, "The width of the Mos Editor", 240 )
+local editorHeight = CreateConVar( "mos_editor_height", defaultHeight, FCVAR_ARCHIVE, "The height of the Mos Editor", 135 )
+
+local editorPosX = CreateConVar( "mos_editor_pos_x", defaultX, FCVAR_ARCHIVE, "The x position of the Mos Editor" )
+local editorPosY = CreateConVar( "mos_editor_pos_y", defaultY, FCVAR_ARCHIVE, "The y position of the Mos Editor" )
 
 local PANEL = {}
 
 function PANEL:Init()
-    self:SetTitle( "Mos6502 Editor" )
-
+    local x, y = editorPosX:GetInt(), editorPosY:GetInt()
     local w, h = editorWidth:GetInt(), editorHeight:GetInt()
 
+    self:SetTitle( "Mos6502 Editor" )
+    self:SetPos( x, y )
     self:SetSize( w, h )
-    self:Center()
     self:SetSizable( true )
 
-    local divider = vgui.Create( "DHorizontalDivider", self )
-    divider:Dock( FILL )
-    divider:SetLeftWidth( 240 )
+    local hDivider = vgui.Create( "DHorizontalDivider", self )
+    hDivider:Dock( FILL )
 
     local browser = vgui.Create( "MosFileBrowser" )
+    hDivider:SetLeft( browser )
 
-    local right = vgui.Create( "DPanel" )
-    divider:SetLeft( browser )
-    divider:SetRight( right )
+    function browser:Paint( w, h )
+        surface.SetDrawColor( Color( 20, 20, 20 ) )
+        surface.DrawRect( 0, 0, w, h )
+    end
 
-    local options = vgui.Create( "DPanel", right )
-    options:SetTall( 24 )
-    options:Dock( TOP )
+    local container = vgui.Create( "DPanel" )
+    hDivider:SetRight( container )
 
-    local entry = vgui.Create( "RichText", right )
-    entry:Dock( FILL )
+    local vDivider = vgui.Create( "DVerticalDivider", container )
+    vDivider:Dock( FILL )
+
+    local entry = vgui.Create( "MosCodeEntry" )
+    vDivider:SetTop( entry )
+
+    vDivider:SetTopHeight( 600 )
+    hDivider:SetLeftWidth( 240 )
+
+    self._PerformLayout = self.PerformLayout
+    function self:PerformLayout( ... )
+        editorWidth:SetInt( self:GetWide() )
+        editorHeight:SetInt( self:GetTall() )
+        editorPosX:SetInt( self:GetX() )
+        editorPosY:SetInt( self:GetY() )
+
+        return self:_PerformLayout( ... )
+    end
 
     self.entry = entry
-end
-
-function PANEL:OnSizeChanged( width, height )
-    editorWidth:SetInt( width )
-    editorHeight:SetInt( height )
 end
 
 function PANEL:Open()
