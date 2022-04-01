@@ -1,4 +1,5 @@
 local parser = {}
+Mos.parser = parser
 
 local tokenization = {}
 
@@ -18,7 +19,13 @@ tokenization[1] = {
     ["^,"]              = {type = "comma"},
     ["^[%(%)]"]         = {type = "paren"},
     ["^%.%a+"]          = {type = "directive"},
-    ["^#%a+"]           = {type = "preprocessor", extra = true},
+    ["^#%a+"]           = {type = "preprocessor", extra = true, func = function(token, tokens)
+        if not tokens.extra then return end
+
+        tokens:insert( {type = "hash", value = "#"} )
+        tokens:insert( {type = "identifier", value = string.sub( token.value, 2 )} )
+        return true
+    end},
     ["^\""]             = {type = "string.start", state = 2},
     ["^'"]              = {type = "string.start", state = 3},
     ["^//"]             = {type = "comment", state = 4},
