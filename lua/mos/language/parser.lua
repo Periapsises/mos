@@ -3,68 +3,97 @@ Mos.parser = parser
 
 local tokenization = {}
 
-tokenization[1] = {
-    ["^\n"]             = {type = "newline", extra = false},
-    ["^ +"]             = {type = "whitespace"},
-    ["^:"]              = {type = "colon", func = function( token, tokens )
-        if not tokens:get( 0, "instruction" ) then return end
-        tokens:get( 0 ).type = "label"
-    end},
-    ["^[_%a][_%w]*"]    = {type = "instruction", extra = true, func = function( token, tokens )
-        if not tokens.extra then return end
-        token.type = "identifier"
-    end},
-    ["^%d+"]            = {type = "number"},
-    ["^0[bdhxBDHX]%d+"] = {type = "number", func = function( token, tokens ) token.format = token.value[2] end},
-    ["^,"]              = {type = "comma"},
-    ["^[%(%)]"]         = {type = "paren"},
-    ["^%.%a+"]          = {type = "directive"},
-    ["^#%a+"]           = {type = "preprocessor", extra = true, func = function(token, tokens)
-        if not tokens.extra then return end
+local prepStart     = "preprocessor.start"
+local prepDirective = "preprocessor.directive"
+local prepComment   = "preprocessor.comment"
+local prepShort     = "preprocessor.shortcut"
 
-        tokens:insert( {type = "hash", value = "#"} )
-        tokens:insert( {type = "identifier", value = string.sub( token.value, 2 )} )
+local newline    = "operator.newline"
+local whitespace = "operator.whitespace"
+local colon      = "operator.colon"
+local comma      = "operator.comma"
+local lparen     = "operator.paren.left"
+local rparen     = "operator.paren.right"
+local hash       = "operator.hash"
+
+local lquote = "string.start"
+local rquote = "string.end"
+local text   = "string.text"
+local escape = "string.escape"
+
+local number = "number"
+
+local label       = "identifier.label"
+local instruction = "identifier.instruction"
+local name        = "identifier.name"
+
+tokenization[1] = {
+    ["^\n"]             = {type = newline, extra = false},
+    ["^ +"]             = {type = whitespace},
+    ["^:"]              = {type = colon, func = function( token, tokens )
+        if not tokens:get( 0, instruction ) then return end
+        tokens:get( 0 ).type = label
+    end},
+    ["^[_%a][_%w]*"]    = {type = instruction, extra = true, func = function( token, tokens )
+        if not tokens.extra then return end
+        token.type = name
+    end},
+    ["^%d+"]            = {type = number},
+    ["^0[bdhxBDHX]%d+"] = {type = number, func = function( token, tokens ) token.format = token.value[2] end},
+    ["^,"]              = {type = comma},
+    ["^[%(]"]           = {type = lparen},
+    ["^[%)]"]           = {type = rparen},
+    ["^%.%a+"]          = {type = prepShort},
+    ["^#%a+"]           = {type = prepStart, extra = true, func = function(token, tokens)
+        if not tokens.extra then
+            tokens:insert( {type = prepStart, value = "#"} )
+            tokens:insert( {type = prepDirective, value = string.sub( token.value, 2 )} )
+        else
+            tokens:insert( {type = hash, value = "#"} )
+            tokens:insert( {type = name, value = string.sub( token.value, 2 )} )
+        end
+
         return true
     end},
-    ["^\""]             = {type = "string.start", state = 2},
-    ["^'"]              = {type = "string.start", state = 3},
-    ["^//"]             = {type = "comment", state = 4},
-    ["^/%*"]            = {type = "comment", state = 5}
+    ["^\""]             = {type = lquote, state = 2},
+    ["^'"]              = {type = lquote, state = 3},
+    ["^//"]             = {type = prepComment, state = 4},
+    ["^/%*"]            = {type = prepComment, state = 5}
 }
 
 tokenization[2] = {
-    ["^[^\"\n\\]+"] = {type = "string.text"},
-    ["^\\."] = {type = "string.escape"},
-    ["^\""] = {type = "string.end", state = 1},
-    ["^\n"] = {type = "newline", state = 1}
+    ["^[^\"\n\\]+"] = {type = text},
+    ["^\\."] = {type = escape},
+    ["^\""] = {type = rquote, state = 1},
+    ["^\n"] = {type = newline, state = 1}
 }
 
 tokenization[3] = {
-    ["^[^\\'\n]+"] = {type = "string.text"},
-    ["^\\."] = {type = "string.escape"},
-    ["^'"] = {type = "string.end", state = 1},
-    ["^\n"] = {type = "newline", state = 1}
+    ["^[^\\'\n]+"] = {type = text},
+    ["^\\."] = {type = escape},
+    ["^'"] = {type = rquote, state = 1},
+    ["^\n"] = {type = newline, state = 1}
 }
 
 tokenization[4] = {
-    ["^\n"] = {type = "newline", state = 1},
-    ["^[^\n ]+"] = {type = "comment"},
-    ["^ +"] = {type = "whitespace"}
+    ["^\n"] = {type = newline, state = 1},
+    ["^[^\n ]+"] = {type = prepComment},
+    ["^ +"] = {type = whitespace}
 }
 
 tokenization[5] = {
-    ["^\n"] = {type = "newline"},
+    ["^\n"] = {type = newline},
     -- Can't match more than 1 character at the time, otherwise the parser misses the end of comment (*/)
     -- Instead we use a function that tries to add characters to the pervious token if it is a comment
-    ["^[^\n ]"] = {type = "comment", func = function( token, tokens )
-        local comment = tokens:get( 0, "comment" )
+    ["^[^\n ]"] = {type = prepComment, func = function( token, tokens )
+        local comment = tokens:get( 0, prepComment )
         if not comment then return end
 
         comment.value = comment.value .. token.value
         return true
     end},
-    ["^%*/"] = {type = "comment", state = 1},
-    ["^ +"] = {type = "whitespace"}
+    ["^%*/"] = {type = prepComment, state = 1},
+    ["^ +"] = {type = whitespace}
 }
 
 function parser:tokenize( text, startPos, endPos, callback )
@@ -127,3 +156,25 @@ end
 function parser:validate( tokens )
 
 end
+
+parser.tokenTypes = {
+    preprocessor = prepStart,
+    directive = prepDirective,
+    shortcut = prepShort,
+    comment = prepComment,
+    newline = newline,
+    whitespace = whitespace,
+    colon = colon,
+    comma = comma,
+    lparen = lparen,
+    rparen = rparen,
+    hash = hash,
+    lquote = lquote,
+    rquote = rquote,
+    text = text,
+    escape = escape,
+    number = number,
+    label = label,
+    instruction = instruction,
+    name = name
+}

@@ -1,4 +1,6 @@
 include( "mos/language/parser.lua" )
+local parser = Mos.parser
+local tokenType = parser.tokenTypes
 
 surface.CreateFont( "MosEditorFont", {
     font = "Courier New",
@@ -32,24 +34,25 @@ function PANEL:Init()
 end
 
 local theme = {
-    comment = Color( 100, 200, 75 ),
-    label = Color( 250, 175, 50 ),
-    instruction = Color( 100, 125, 255 ),
-    number = Color( 250, 100, 100 ),
-    ["string.start"] = Color( 75, 255, 75 ),
-    ["string.end"] = Color( 75, 255, 75 ),
-    ["string.text"] = Color( 125, 255, 125 ),
-    ["string.escape"] = Color( 255, 255, 150 ),
-    directive = Color( 100, 200, 255 ),
-    preprocessor = Color( 255, 255, 100 ),
-    identifier = Color( 175, 125, 225 )
+    [tokenType.comment]       = Color( 100, 200, 75 ),
+    [tokenType.label]         = Color( 250, 175, 50 ),
+    [tokenType.instruction]   = Color( 100, 125, 255 ),
+    [tokenType.number]        = Color( 250, 100, 100 ),
+    [tokenType.lquote]        = Color( 75, 255, 75 ),
+    [tokenType.rquote]        = Color( 75, 255, 75 ),
+    [tokenType.text]          = Color( 125, 255, 125 ),
+    [tokenType.escape]        = Color( 255, 255, 150 ),
+    [tokenType.shortcut]      = Color( 100, 200, 255 ),
+    [tokenType.preprocessor]  = Color( 255, 255, 100 ),
+    [tokenType.directive]     = Color( 255, 255, 150 ),
+    [tokenType.name]          = Color( 175, 125, 225 )
 }
 
 function PANEL:Paint( w, h )
     surface.SetDrawColor( Color( 20, 20, 20 ) )
     surface.DrawRect( 0, 0, w, h )
 
-    local tokens = Mos.parser:tokenize( self:GetValue() )
+    local tokens = parser:tokenize( self:GetValue() )
     local drawLine = 1
 
     surface.SetFont( "MosEditorFont" )
@@ -59,7 +62,7 @@ function PANEL:Paint( w, h )
         surface.SetTextColor( ( theme[token.type] or Color( 255, 255, 255 ) ):Unpack() )
         surface.DrawText( token.value )
 
-        if token.type == "newline" then
+        if token.type == tokenType.newline then
             drawLine = drawLine + charHeight + 1
             surface.SetTextPos( 3, drawLine )
         end
