@@ -3,7 +3,7 @@ if SERVER then
 end
 
 include( "mos/editor/filebrowser.lua" )
-include( "mos/editor/codentry.lua" )
+include( "mos/editor/mostextentry.lua" )
 
 local defaultWidth, defaultHeight = ScrW() / 3 * 2, ScrH() / 3 * 2
 local defaultX, defaultY = defaultWidth / 4, defaultHeight / 4
@@ -42,8 +42,9 @@ function PANEL:Init()
     local vDivider = vgui.Create( "DVerticalDivider", container )
     vDivider:Dock( FILL )
 
-    local entry = vgui.Create( "MosCodeEntry" )
+    local entry = vgui.Create( "MosTextEntry" )
     vDivider:SetTop( entry )
+    entry:Dock( FILL )
 
     vDivider:SetTopHeight( 600 )
     hDivider:SetLeftWidth( 240 )

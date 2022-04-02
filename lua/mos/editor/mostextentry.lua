@@ -1,10 +1,10 @@
 include( "mos/language/parser.lua" )
 
 surface.CreateFont( "MosEditorFont", {
-    font = "Courier New", --  Use the font-name which is shown to you by your operating system Font Viewer, not the file name
+    font = "Courier New",
     extended = false,
-    size = 24,
-    weight = 600,
+    size = 20,
+    weight = 520,
     blursize = 0,
     scanlines = 0,
     antialias = true,
@@ -25,17 +25,15 @@ local PANEL = {}
 
 function PANEL:Init()
     self:SetMultiline( true )
+    self:SetFontInternal( "MosEditorFont" )
 
-    self.line = 0
-    self.chars = 0
+    self.line = 1
+    self.char = 0
 end
 
 function PANEL:Paint( w, h )
     surface.SetDrawColor( Color( 20, 20, 20 ) )
     surface.DrawRect( 0, 0, w, h )
-
-    surface.SetDrawColor( Color( 255, 255, 255 ) )
-    surface.DrawLine( 64, 0, 64, h )
 
     local tokens = Mos.parser:tokenize( self:GetValue() )
 
@@ -53,30 +51,46 @@ function PANEL:Paint( w, h )
         identifier = Color( 175, 125, 225 )
     }
 
-    local x, y = 68, 0
+    local drawLine = 1
+
+    surface.SetFont( "MosEditorFont" )
+    surface.SetTextPos( 3, drawLine )
 
     for _, token in ipairs( tokens ) do
-        x = x + draw.SimpleText( token.value, "MosEditorFont", x, y, theme[token.type] or Color( 255, 255, 255 ) )
+        surface.SetTextColor( ( theme[token.type] or Color( 255, 255, 255 ) ):Unpack() )
+        surface.DrawText( token.value )
 
         if token.type == "newline" then
-            x = 68
-            y = y + charHeight
+            drawLine = drawLine + charHeight + 1
+            surface.SetTextPos( 3, drawLine )
         end
     end
 
-    local pos = self:GetCaretPos()
-
-    surface.SetDrawColor( Color( 255, 255, 255 ) )
-    surface.DrawRect( 68 + ( pos - self.chars ) * charWidth, self.line * charHeight, 2, 24 )
+    self:DrawTextEntryText( Color( 0, 0, 0, 0 ), Color( 185, 207, 255), Color( 255, 255, 255, 255 ) )
 
     return true
 end
 
-function PANEL:OnKeyCodeTyped( key )
-    if key == KEY_ENTER then
-        self.line = self.line + 1
-        self.chars = string.len( self:GetValue() ) + 1
+SEARCH_LEFT = -1
+SEARCH_RIGHT = 1
+
+function PANEL:SearchChar( pos, char, direction )
+    local text = self:GetValue()
+    local count = 0
+
+    while text[pos] ~= "" do
+        if text[pos] == char then
+            return true, count
+        end
+
+        count = count + direction
+        pos = pos + direction
     end
+
+    return false, count
 end
 
-vgui.Register( "MosCodeEntry", PANEL, "TextEntry" )
+function PANEL:OnKeyCodeTyped( code )
+end
+
+vgui.Register( "MosTextEntry", PANEL, "TextEntry" )
