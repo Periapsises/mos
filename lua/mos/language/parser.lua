@@ -33,15 +33,17 @@ tokenization[1] = {
 }
 
 tokenization[2] = {
-    ["^[^\\\"]+"] = {type = "string.text"},
+    ["^[^\"\n\\]+"] = {type = "string.text"},
     ["^\\."] = {type = "string.escape"},
-    ["^\""] = {type = "string.end", state = 1}
+    ["^\""] = {type = "string.end", state = 1},
+    ["^\n"] = {type = "newline", state = 1}
 }
 
 tokenization[3] = {
-    ["^[^\\']+"] = {type = "string.text"},
+    ["^[^\\'\n]+"] = {type = "string.text"},
     ["^\\."] = {type = "string.escape"},
-    ["^'"] = {type = "string.end", state = 1}
+    ["^'"] = {type = "string.end", state = 1},
+    ["^\n"] = {type = "newline", state = 1}
 }
 
 tokenization[4] = {
