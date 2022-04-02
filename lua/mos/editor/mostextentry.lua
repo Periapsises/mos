@@ -31,26 +31,25 @@ function PANEL:Init()
     self.char = 0
 end
 
+local theme = {
+    comment = Color( 100, 200, 75 ),
+    label = Color( 250, 175, 50 ),
+    instruction = Color( 100, 125, 255 ),
+    number = Color( 250, 100, 100 ),
+    ["string.start"] = Color( 75, 255, 75 ),
+    ["string.end"] = Color( 75, 255, 75 ),
+    ["string.text"] = Color( 125, 255, 125 ),
+    ["string.escape"] = Color( 255, 255, 150 ),
+    directive = Color( 100, 200, 255 ),
+    preprocessor = Color( 255, 255, 100 ),
+    identifier = Color( 175, 125, 225 )
+}
+
 function PANEL:Paint( w, h )
     surface.SetDrawColor( Color( 20, 20, 20 ) )
     surface.DrawRect( 0, 0, w, h )
 
     local tokens = Mos.parser:tokenize( self:GetValue() )
-
-    local theme = {
-        comment = Color( 100, 200, 75 ),
-        label = Color( 250, 175, 50 ),
-        instruction = Color( 100, 125, 255 ),
-        number = Color( 250, 100, 100 ),
-        ["string.start"] = Color( 75, 255, 75 ),
-        ["string.end"] = Color( 75, 255, 75 ),
-        ["string.text"] = Color( 125, 255, 125 ),
-        ["string.escape"] = Color( 255, 255, 150 ),
-        directive = Color( 100, 200, 255 ),
-        preprocessor = Color( 255, 255, 100 ),
-        identifier = Color( 175, 125, 225 )
-    }
-
     local drawLine = 1
 
     surface.SetFont( "MosEditorFont" )
@@ -91,6 +90,15 @@ function PANEL:SearchChar( pos, char, direction )
 end
 
 function PANEL:OnKeyCodeTyped( code )
+    if code == KEY_TAB then
+        local pos = self:GetCaretPos()
+        local text = self:GetValue()
+
+        self:SetText( string.sub( text, 1, pos ) .. "    " .. string.sub( text, pos + 1 ) )
+        self:SetCaretPos( pos + 4 )
+
+        return true
+    end
 end
 
 vgui.Register( "MosTextEntry", PANEL, "TextEntry" )
