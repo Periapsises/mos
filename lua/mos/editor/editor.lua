@@ -35,11 +35,6 @@ function PANEL:Init()
     local tab = tabContainer:CreateTab()
     tab:SetFile( "default.txt" )
 
-    function tabContainer:Paint( w, h )
-        surface.SetDrawColor( 64, 64, 64, 255 )
-        surface.DrawRect( 0, 0, w, h )
-    end
-
     local dhtml = vgui.Create( "DHTML", self )
     dhtml:Dock( FILL )
     dhtml:OpenURL( "https://periapsises.github.io/" )

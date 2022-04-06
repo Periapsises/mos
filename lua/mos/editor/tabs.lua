@@ -52,6 +52,11 @@ function CONTAINER:Init()
     self:Receiver( "MosEditor_TabDragNDrop", self.DoDrop )
 end
 
+function CONTAINER:Paint( w, h )
+    surface.SetDrawColor( 64, 64, 64, 255 )
+    surface.DrawRect( 0, 0, w, h )
+end
+
 function CONTAINER:DoDrop( panel, panels, dropped, index, x, y )
 
 end
