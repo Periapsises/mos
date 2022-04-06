@@ -19,6 +19,10 @@ function PANEL:Init()
     local x, y = editorPosX:GetInt(), editorPosY:GetInt()
     local w, h = editorWidth:GetInt(), editorHeight:GetInt()
 
+    local browser = vgui.Create( "MosFileBrowser", self )
+    browser:Dock( LEFT )
+    browser:SetWide( 256 )
+
     self:SetTitle( "Mos6502 Editor" )
     self:SetPos( x, y )
     self:SetSize( w, h )
@@ -31,6 +35,11 @@ end
 
 function PANEL:Open()
     self:MakePopup()
+end
+
+function PANEL:Paint( w, h )
+    surface.SetDrawColor( 32, 32, 32, 255 )
+    surface.DrawRect( 0, 0, w, h )
 end
 
 vgui.Register( "MosEditor", PANEL, "DFrame" )

@@ -168,4 +168,12 @@ function PANEL:DoRightClick( node )
     menu:Open()
 end
 
+function PANEL:Paint( w, h )
+    surface.SetDrawColor( 16, 16, 16, 255 )
+    surface.DrawRect( 0, 0, w, h )
+
+    return true
+end
+
+
 vgui.Register( "MosFileBrowser", PANEL, "DTree" )
