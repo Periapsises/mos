@@ -3,6 +3,7 @@ if SERVER then
 end
 
 include( "mos/editor/filebrowser.lua" )
+include( "mos/editor/tabs.lua" )
 
 local defaultWidth, defaultHeight = ScrW() / 3 * 2, ScrH() / 3 * 2
 local defaultX, defaultY = defaultWidth / 4, defaultHeight / 4
@@ -19,14 +20,25 @@ function PANEL:Init()
     local x, y = editorPosX:GetInt(), editorPosY:GetInt()
     local w, h = editorWidth:GetInt(), editorHeight:GetInt()
 
-    local browser = vgui.Create( "MosFileBrowser", self )
-    browser:Dock( LEFT )
-    browser:SetWide( 256 )
-
     self:SetTitle( "Mos6502 Editor" )
     self:SetPos( x, y )
     self:SetSize( w, h )
     self:SetSizable( true )
+
+    local browser = vgui.Create( "MosFileBrowser", self )
+    browser:Dock( LEFT )
+    browser:SetWide( 256 )
+
+    local tabContainer = vgui.Create( "MosTabContainer", self )
+    tabContainer:Dock( TOP )
+    tabContainer:SetTall( 32 )
+    local tab = tabContainer:CreateTab()
+    tab:SetFile( "default.txt" )
+
+    function tabContainer:Paint( w, h )
+        surface.SetDrawColor( 64, 64, 64, 255 )
+        surface.DrawRect( 0, 0, w, h )
+    end
 
     local dhtml = vgui.Create( "DHTML", self )
     dhtml:Dock( FILL )
