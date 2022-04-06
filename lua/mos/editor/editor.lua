@@ -3,7 +3,6 @@ if SERVER then
 end
 
 include( "mos/editor/filebrowser.lua" )
-include( "mos/editor/mostextentry.lua" )
 
 local defaultWidth, defaultHeight = ScrW() / 3 * 2, ScrH() / 3 * 2
 local defaultX, defaultY = defaultWidth / 4, defaultHeight / 4
@@ -25,46 +24,13 @@ function PANEL:Init()
     self:SetSize( w, h )
     self:SetSizable( true )
 
-    local hDivider = vgui.Create( "DHorizontalDivider", self )
-    hDivider:Dock( FILL )
-
-    local browser = vgui.Create( "MosFileBrowser" )
-    hDivider:SetLeft( browser )
-
-    function browser:Paint( w, h )
-        surface.SetDrawColor( Color( 20, 20, 20 ) )
-        surface.DrawRect( 0, 0, w, h )
-    end
-
-    local container = vgui.Create( "DPanel" )
-    hDivider:SetRight( container )
-
-    local vDivider = vgui.Create( "DVerticalDivider", container )
-    vDivider:Dock( FILL )
-
-    local entry = vgui.Create( "MosTextEntry" )
-    vDivider:SetTop( entry )
-    entry:Dock( FILL )
-
-    vDivider:SetTopHeight( 600 )
-    hDivider:SetLeftWidth( 240 )
-
-    self._PerformLayout = self.PerformLayout
-    function self:PerformLayout( ... )
-        editorWidth:SetInt( self:GetWide() )
-        editorHeight:SetInt( self:GetTall() )
-        editorPosX:SetInt( self:GetX() )
-        editorPosY:SetInt( self:GetY() )
-
-        return self:_PerformLayout( ... )
-    end
-
-    self.entry = entry
+    local dhtml = vgui.Create( "DHTML", self )
+    dhtml:Dock( FILL )
+    dhtml:OpenURL( "https://periapsises.github.io/" )
 end
 
 function PANEL:Open()
     self:MakePopup()
-    self.entry:RequestFocus()
 end
 
 vgui.Register( "MosEditor", PANEL, "DFrame" )
