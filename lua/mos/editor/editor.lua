@@ -3,6 +3,7 @@ if SERVER then
 end
 
 include( "mos/editor/filebrowser.lua" )
+include( "mos/editor/tabs.lua" )
 
 local defaultWidth, defaultHeight = ScrW() / 3 * 2, ScrH() / 3 * 2
 local defaultX, defaultY = defaultWidth / 4, defaultHeight / 4
@@ -19,18 +20,28 @@ function PANEL:Init()
     local x, y = editorPosX:GetInt(), editorPosY:GetInt()
     local w, h = editorWidth:GetInt(), editorHeight:GetInt()
 
-    local browser = vgui.Create( "MosFileBrowser", self )
-    browser:Dock( LEFT )
-    browser:SetWide( 256 )
-
     self:SetTitle( "Mos6502 Editor" )
     self:SetPos( x, y )
     self:SetSize( w, h )
     self:SetSizable( true )
 
+    local browser = vgui.Create( "MosFileBrowser", self )
+    browser:Dock( LEFT )
+    browser:SetWide( 256 )
+
+    local tabHandler = Mos.tabs:getHandler( self )
+    tabHandler.panel:Dock( TOP )
+    tabHandler.panel:SetTall( 31 )
+
+    local tab = tabHandler:CreateTab()
+    tab:SetMode( "edit" )
+
     local dhtml = vgui.Create( "DHTML", self )
     dhtml:Dock( FILL )
     dhtml:OpenURL( "https://periapsises.github.io/" )
+    dhtml:AddFunction( "glua", "onSave", function( content )
+        tabHandler:saveActive( content )
+    end )
 end
 
 function PANEL:Open()
