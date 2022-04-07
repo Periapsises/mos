@@ -20,10 +20,48 @@ function PANEL:Init()
     local x, y = editorPosX:GetInt(), editorPosY:GetInt()
     local w, h = editorWidth:GetInt(), editorHeight:GetInt()
 
-    self:SetTitle( "Mos6502 Editor" )
+    self:SetTitle( "" )
     self:SetPos( x, y )
     self:SetSize( w, h )
     self:SetSizable( true )
+    self:SetScreenLock( true )
+    -- TODO: Uncomment this when releasing (Only for testing purpose)
+    --self:SetDeleteOnClose( false )
+    self:ShowCloseButton( false )
+
+    local header = vgui.Create( "DPanel", self )
+    header:SetSize( w, 26 )
+    header:SetPaintBackground( false )
+
+    local icon = vgui.Create( "DImage", header )
+    icon:SetSize( 16, 16 )
+    icon:DockMargin( 5, 5, 5, 5 )
+    icon:Dock( LEFT )
+    icon:SetImage( "icon16/tag.png" )
+
+    local closeButton = vgui.Create( "DButton", header )
+    closeButton:SetSize( 52, 26 )
+    closeButton:Dock( RIGHT )
+    closeButton:SetText( "" )
+    closeButton.editor = self
+
+    function closeButton:Paint( w, h )
+        if self:IsHovered() then
+            surface.SetDrawColor( 255, 50, 50, 255 )
+            surface.DrawRect( 0, 0, w, h )
+        end
+
+        draw.NoTexture()
+        surface.SetDrawColor( 150, 150, 150, 255 )
+        surface.DrawTexturedRectRotated( w / 2, h / 2, 16, 3, 45 )
+        surface.DrawTexturedRectRotated( w / 2, h / 2, 15, 3, 135 )
+
+        return true
+    end
+
+    function closeButton:OnMousePressed()
+        self.editor:Close()
+    end
 
     local browser = vgui.Create( "MosFileBrowser", self )
     browser:Dock( LEFT )
@@ -45,6 +83,7 @@ function PANEL:Init()
 end
 
 function PANEL:Open()
+    self:SetVisible( true )
     self:MakePopup()
 end
 
