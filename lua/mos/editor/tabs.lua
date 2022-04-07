@@ -2,7 +2,57 @@ local tabs = {}
 Mos.tabs = tabs
 
 --------------------------------------------------
+-- API
+
+tabs.__index = tabs
+
+function tabs:getHandler( parent )
+    local handler = {}
+    handler.panel = vgui.Create( "MosTabContainer", parent )
+
+    return setmetatable( handler, self )
+end
+
+function tabs:CreateTab()
+    local tab = vgui.Create( "MosEditorTab", self.panel )
+    tab:Dock( LEFT )
+    tab:SetSize( 128, self.panel:GetTall() )
+    tab:Droppable( "MosEditor_TabDragNDrop" )
+
+    self.activeTab = tab
+
+    return tab
+end
+
+function tabs:saveActive( content )
+    if not self.activeTab then return end
+
+    -- TODO: Add save to new file feature
+    if not self.activeTab.file then return end
+
+    file.Write( self.activeTab.file, content )
+end
+
+--------------------------------------------------
 -- Tab
+
+surface.CreateFont( "MosTabName_Preview", {
+    font = "Verdana",
+    extended = false,
+    size = 13,
+    weight = 500,
+    blursize = 0,
+    scanlines = 0,
+    antialias = true,
+    underline = false,
+    italic = true,
+    strikeout = false,
+    symbol = false,
+    rotary = false,
+    shadow = false,
+    additive = false,
+    outline = false,
+} )
 
 local TAB = {}
 
@@ -16,6 +66,9 @@ function TAB:Init()
     local label = vgui.Create( "DLabel", self )
     label:Dock( LEFT )
     label:SetText( "Unknown" )
+    label:SetFont( "MosTabName_Preview" )
+
+    self.mode = "preview"
 
     self.label = label
     self.icon = icon
@@ -41,6 +94,16 @@ function TAB:SetFile( path )
     self.icon:SetImage( "icon16/page_code.png" )
 end
 
+function TAB:SetMode( mode )
+    self.mode = mode
+
+    if mode == "edit" then
+        self.label:SetFont( "DermaDefault" )
+    elseif mode == "preview" then
+        self.label:SetFont( "MosTabName_Preview" )
+    end
+end
+
 vgui.Register( "MosEditorTab", TAB, "DPanel" )
 
 --------------------------------------------------
@@ -59,15 +122,6 @@ end
 
 function CONTAINER:DoDrop( panel, panels, dropped, index, x, y )
 
-end
-
-function CONTAINER:CreateTab()
-    local tab = vgui.Create( "MosEditorTab", self )
-    tab:Dock( LEFT )
-    tab:SetSize( 128, self:GetTall() )
-    tab:Droppable( "MosEditor_TabDragNDrop" )
-
-    return tab
 end
 
 vgui.Register( "MosTabContainer", CONTAINER, "DPanel" )

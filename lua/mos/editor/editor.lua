@@ -29,15 +29,19 @@ function PANEL:Init()
     browser:Dock( LEFT )
     browser:SetWide( 256 )
 
-    local tabContainer = vgui.Create( "MosTabContainer", self )
-    tabContainer:Dock( TOP )
-    tabContainer:SetTall( 32 )
-    local tab = tabContainer:CreateTab()
-    tab:SetFile( "default.txt" )
+    local tabHandler = Mos.tabs:getHandler( self )
+    tabHandler.panel:Dock( TOP )
+    tabHandler.panel:SetTall( 31 )
+
+    local tab = tabHandler:CreateTab()
+    tab:SetMode( "edit" )
 
     local dhtml = vgui.Create( "DHTML", self )
     dhtml:Dock( FILL )
     dhtml:OpenURL( "https://periapsises.github.io/" )
+    dhtml:AddFunction( "glua", "onSave", function( content )
+        tabHandler:saveActive( content )
+    end )
 end
 
 function PANEL:Open()
