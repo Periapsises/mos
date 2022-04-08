@@ -18,10 +18,18 @@ function tabs:CreateTab()
     tab:Dock( LEFT )
     tab:SetSize( 128, self.panel:GetTall() )
     tab:Droppable( "MosEditor_TabDragNDrop" )
-
-    self.activeTab = tab
+    tab.handler = self
+    tab:SetActive( true )
 
     return tab
+end
+
+function tabs:SetActive( tab )
+    if self.activeTab then
+        self.activeTab:SetActive( false )
+    end
+
+    self.activeTab = tab
 end
 
 --------------------------------------------------
@@ -48,6 +56,8 @@ surface.CreateFont( "MosTabName_Preview", {
 local TAB = {}
 
 function TAB:Init()
+    self:SetText( "" )
+
     local icon = vgui.Create( "DImage", self )
     icon:Dock( LEFT )
     icon:DockMargin( 0, 0, 8, 0 )
@@ -65,12 +75,15 @@ function TAB:Init()
     self.icon = icon
 end
 
+function TAB:DoClick()
+    self:SetActive( true )
+end
+
 function TAB:Paint( w, h )
-    surface.SetDrawColor( 200, 200, 200, 255 )
-    surface.DrawRect( 0, 0, w, h )
+    if not self.active then return end
 
     surface.SetDrawColor( 32, 32, 32, 255 )
-    surface.DrawRect( 1, 1, w - 2, h - 2 )
+    surface.DrawRect( 0, 0, w, h )
 end
 
 function TAB:PerformLayout()
@@ -83,6 +96,13 @@ function TAB:SetFile( path )
 
     self.label:SetText( string.GetFileFromFilename( path ) .. "  " )
     self.icon:SetImage( "icon16/page_code.png" )
+end
+
+function TAB:SetActive( active )
+    self.active = active
+
+    if not active then return end
+    self.handler:SetActive( self )
 end
 
 function TAB:SetMode( mode )
@@ -107,7 +127,7 @@ function TAB:SetChanged( changed )
     self.changed = changed
 end
 
-vgui.Register( "MosEditorTab", TAB, "DPanel" )
+vgui.Register( "MosEditorTab", TAB, "DButton" )
 
 --------------------------------------------------
 -- Tab container
