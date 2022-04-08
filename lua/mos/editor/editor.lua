@@ -63,6 +63,17 @@ function PANEL:Init()
         self.editor:Close()
     end
 
+    local footer = vgui.Create( "DPanel", self )
+    footer:SetTall( 24 )
+    footer:Dock( BOTTOM )
+
+    function footer:Paint( w, h )
+        surface.SetDrawColor( 16, 16, 16, 255 )
+        surface.DrawRect( 0, 0, w, h )
+
+        return true
+    end
+
     local browser = vgui.Create( "MosFileBrowser", self )
     browser:Dock( LEFT )
     browser:SetWide( 256 )
@@ -89,6 +100,25 @@ function PANEL:Init()
 
         -- TODO: Add save to new file feature
         if not tabHandler.activeTab.file then return end
+
+        surface.PlaySound( "ambient/water/drip3.wav" )
+
+        local saveNotif = vgui.Create( "DLabel", footer )
+        saveNotif:SetSize( 64, 24 )
+        saveNotif:SetFont( "DermaDefaultBold" )
+        saveNotif:SetText( "Saved" )
+        saveNotif:SetTextColor( Color( 255, 255, 255 ) )
+        saveNotif.SetColor = saveNotif.SetBGColor
+        saveNotif:SetContentAlignment( 5 )
+        saveNotif:SetPaintBackgroundEnabled( true )
+        saveNotif:SetBGColor( Color( 255, 255, 255 ) )
+        saveNotif:SetX( footer:GetWide() )
+        saveNotif:MoveBy( -64, 0, 0.1, 0, -1, function()
+            timer.Simple( 1, function()
+                saveNotif:MoveBy( 64, 0, 0.1, 0, -1, function() saveNotif:Remove() end )
+            end )
+        end )
+        saveNotif:ColorTo( Color( 150, 255, 150 ), 0.25 )
 
         tabHandler.activeTab:SetChanged( false )
         file.Write( tabHandler.activeTab.file, content )
