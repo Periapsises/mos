@@ -87,8 +87,11 @@ function PANEL:Init()
     dhtml:AddFunction( "GLua", "onSave", function( content )
         if not tabHandler.activeTab then return end
 
+        -- TODO: Add save to new file feature
+        if not tabHandler.activeTab.file then return end
+
         tabHandler.activeTab:SetChanged( false )
-        tabHandler:SaveActive( content )
+        file.Write( tabHandler.activeTab.file, content )
     end )
 
     self.tabHandler = tabHandler

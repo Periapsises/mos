@@ -24,15 +24,6 @@ function tabs:CreateTab()
     return tab
 end
 
-function tabs:SaveActive( content )
-    if not self.activeTab then return end
-
-    -- TODO: Add save to new file feature
-    if not self.activeTab.file then return end
-
-    file.Write( self.activeTab.file, content )
-end
-
 --------------------------------------------------
 -- Tab
 
