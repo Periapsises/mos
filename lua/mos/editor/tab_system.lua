@@ -34,6 +34,7 @@ function Tabs:AddTab( filepath )
 
     local tab = vgui.Create( "MosEditor_Tab", self.container )
     tab:SetFile( filepath )
+    tab:Dock( LEFT )
 
     table.insert( self.tabs, tab )
     self.files[filepath or tostring( tab )] = tab
