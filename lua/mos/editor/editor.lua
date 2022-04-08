@@ -77,8 +77,15 @@ function PANEL:Init()
     local dhtml = vgui.Create( "DHTML", self )
     dhtml:Dock( FILL )
     dhtml:OpenURL( "https://periapsises.github.io/" )
-    dhtml:AddFunction( "glua", "onSave", function( content )
-        tabHandler:saveActive( content )
+
+    dhtml:AddFunction( "GLua", "onTextChanged", function( text, changed )
+        if not tabHandler.activeTab then return end
+
+        tabHandler.activeTab:SetChanged( changed )
+    end )
+
+    dhtml:AddFunction( "GLua", "onSave", function( content )
+        tabHandler:SaveActive( content )
     end )
 
     self.tabHandler = tabHandler

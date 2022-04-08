@@ -24,7 +24,7 @@ function tabs:CreateTab()
     return tab
 end
 
-function tabs:saveActive( content )
+function tabs:SaveActive( content )
     if not self.activeTab then return end
 
     -- TODO: Add save to new file feature
@@ -90,7 +90,7 @@ end
 function TAB:SetFile( path )
     self.file = path
 
-    self.label:SetText( string.GetFileFromFilename( path ) )
+    self.label:SetText( string.GetFileFromFilename( path ) .. "  " )
     self.icon:SetImage( "icon16/page_code.png" )
 end
 
@@ -102,6 +102,18 @@ function TAB:SetMode( mode )
     elseif mode == "preview" then
         self.label:SetFont( "MosTabName_Preview" )
     end
+end
+
+function TAB:SetChanged( changed )
+    if self.changed ~= changed then
+        if changed then
+            self.label:SetText( string.sub( self.label:GetText(), 1, -2 ) .. "*" )
+        else
+            self.label:SetText( string.sub( self.label:GetText(), 1, -2 ) .. " " )
+        end
+    end
+
+    self.changed = changed
 end
 
 vgui.Register( "MosEditorTab", TAB, "DPanel" )
