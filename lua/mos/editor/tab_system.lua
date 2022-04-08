@@ -18,6 +18,7 @@ function Tabs:CreateHandler( parent )
     handler.container.handler = handler
     handler.tabs = {}
     handler.files = {}
+    handler.history = {}
 
     return setmetatable( handler, self )
 end
@@ -56,20 +57,55 @@ end
 function Tabs:SelectTab( tab )
     if self.activeTab == tab then return end
 
-    if self.activeTab then
-        self.activeTab:Deselect()
+    local oldtab = self.activeTab
+
+    if oldtab then
+        oldtab:Deselect()
     end
 
-    self:OnTabChanged( self.activeTab, tab )
     self.activeTab = tab
+    if tab.historyIndex then
+        table.remove( self.history, tab.historyIndex )
+    end
+    tab.historyIndex = table.insert( self.history, tab )
+    self:OnTabChanged( oldtab, tab )
 end
 
 --[[
-    * TabHandler:OnTabChanged( oldtab, newtab )
+    * TabHandler:RemoveTab( tab )
+
+    ? Removes a tab from the handler and goes back to the last opened tab
+    ? Calls TabHandler:OnTabRemoved()
+]]
+function Tabs:RemoveTab( tab )
+    if self.container:IsMarkedForDeletion() then return end
+
+    table.remove( self.history, tab.historyIndex )
+
+    if tab.file then
+        self.files[tab.file] = nil
+    end
+
+    if self.activeTab == tab then
+        self.history[#self.history]:Select()
+    end
+
+    self:OnTabRemoved( tab )
+end
+
+--[[
+    * TabHandler:OnTabChanged( oldTab, newTab )
 
     ? Runs when the active tab is changed
 ]]
-function Tabs:OnTabChanged( oldtab, newtab ) end
+function Tabs:OnTabChanged( oldTab, newTab ) end
+
+--[[
+    * TabHandler:OnTabRemoved( tab )
+
+    ? Runs when a tab is removed
+]]
+function Tabs:OnTabRemoved( tab ) end
 
 --------------------------------------------------
 -- Tab Container Panel
@@ -111,8 +147,9 @@ function TAB:Init()
     closeButton:Dock( RIGHT )
     closeButton:SetText( "" )
 
-    -- TODO: Add close tab functionality
-    function closeButton:DoClick() end
+    function closeButton.DoClick()
+        self:Remove()
+    end
 
     function closeButton:Paint( w, h )
         local parent = self:GetParent()
@@ -136,6 +173,10 @@ function TAB:Init()
     self.label = label
 
     self:CalculateSize()
+end
+
+function TAB:OnRemove()
+    self:GetHandler():RemoveTab( self )
 end
 
 --? Icons and text inside are 16 pixels tall and must remain in the center.
