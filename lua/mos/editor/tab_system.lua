@@ -30,7 +30,10 @@ end
 ]]
 function Tabs:AddTab( filepath )
     if filepath and self.files[filepath] then
-        return self.files[filepath]
+        local tab = self.files[filepath]
+        tab:Select()
+
+        return tab
     end
 
     local tab = vgui.Create( "MosEditor_Tab", self.container )
@@ -180,6 +183,7 @@ end
 function TAB:SetFile( filepath )
     local name = filepath and string.GetFileFromFilename( filepath ) or "Unknown"
     self.label:SetText( name )
+    self.file = filepath
 
     self:CalculateSize()
 end

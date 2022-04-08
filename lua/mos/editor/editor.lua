@@ -85,8 +85,6 @@ function PANEL:Init()
     tabs.container:Dock( TOP )
     tabs.container:SetTall( 32 )
 
-    tabs:AddTab()
-
     local dhtml = vgui.Create( "DHTML", self )
     dhtml:Dock( FILL )
     dhtml:OpenURL( "https://periapsises.github.io/" )
@@ -123,6 +121,12 @@ function PANEL:Init()
         tabs.activeTab:SetChanged( false )
         file.Write( tabs.activeTab.file, content )
     end )
+
+    function tabs:OnTabChanged( oldtab, newtab )
+        dhtml:QueueJavascript( "Editor.setCode( '" .. ( file.Read( newtab.file or "mos6502/asm/default.asm.txt", "DATA" ) or "" ) .. "' )" )
+    end
+
+    tabs:AddTab()
 
     self.tabs = tabs
     self.dhtml = dhtml
