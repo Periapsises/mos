@@ -15,6 +15,7 @@ Tabs.__index = Tabs
 function Tabs:CreateHandler( parent )
     local handler = {}
     handler.container = vgui.Create( "MosEditor_TabContainer", parent )
+    handler.container.handler = handler
     handler.tabs = {}
     handler.files = {}
 
@@ -35,11 +36,29 @@ function Tabs:AddTab( filepath )
     local tab = vgui.Create( "MosEditor_Tab", self.container )
     tab:SetFile( filepath )
     tab:Dock( LEFT )
+    tab:Select()
 
     table.insert( self.tabs, tab )
     self.files[filepath or tostring( tab )] = tab
 
     return tab
+end
+
+--[[
+    * TabHandler:SelectTab( tab )
+
+    ? Sets a new tab as active and cleans up the previously selected tab
+    ? Calls TabHandler:OnTabChanged()
+]]
+function Tabs:SelectTab( tab )
+    if self.activeTab == tab then return end
+
+    if self.activeTab then
+        self.activeTab:Deselect()
+    end
+
+    self:OnTabChanged( self.activeTab, tab )
+    self.activeTab = tab
 end
 
 --[[
@@ -139,6 +158,23 @@ function TAB:Paint( w, h )
 
     surface.SetDrawColor( 32, 32, 32, 255 )
     surface.DrawRect( 0, 0, w, h )
+end
+
+function TAB:DoClick()
+    self:Select()
+end
+
+function TAB:GetHandler()
+    return self:GetParent().handler
+end
+
+function TAB:Select()
+    self.isActive = true
+    self:GetHandler():SelectTab( self )
+end
+
+function TAB:Deselect()
+    self.isActive = false
 end
 
 function TAB:SetFile( filepath )

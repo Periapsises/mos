@@ -93,8 +93,6 @@ function PANEL:Init()
 
     dhtml:AddFunction( "GLua", "onTextChanged", function( text, changed )
         if not tabs.activeTab then return end
-
-        tabs.activeTab:SetChanged( changed )
     end )
 
     dhtml:AddFunction( "GLua", "onSave", function( content )
