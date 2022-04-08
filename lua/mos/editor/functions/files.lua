@@ -1,7 +1,14 @@
 local fileFunctions = {}
 
-function fileFunctions.open( node )
+function fileFunctions.open( node, setEditMode )
+    local tab = Mos.editor.panel.tabHandler:CreateTab()
+    tab:SetFile( node:GetFileName() )
 
+    if setEditMode then
+        tab:SetMode( "edit" )
+    end
+
+    Mos.editor.panel.dhtml:QueueJavascript( "Editor.setCode( '" .. file.Read( node:GetFileName(), "DATA" ) .. "' )" )
 end
 
 function fileFunctions.rename( node )

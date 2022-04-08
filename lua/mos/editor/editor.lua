@@ -80,6 +80,9 @@ function PANEL:Init()
     dhtml:AddFunction( "glua", "onSave", function( content )
         tabHandler:saveActive( content )
     end )
+
+    self.tabHandler = tabHandler
+    self.dhtml = dhtml
 end
 
 function PANEL:Open()

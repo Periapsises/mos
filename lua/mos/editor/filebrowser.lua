@@ -44,7 +44,7 @@ function PANEL:DoRightClick( node )
     local menu = vgui.Create( "DMenu", self:GetParent() )
 
     if node:GetFileName() then
-        menu:AddOption( "Open", function() fileFunctions.open( node ) end )
+        menu:AddOption( "Open", function() fileFunctions.open( node, true ) end )
         menu:AddOption( "Rename", function() fileFunctions.rename( node ) end )
 
         menu:AddSpacer()
