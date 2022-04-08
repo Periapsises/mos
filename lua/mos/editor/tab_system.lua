@@ -12,9 +12,9 @@ Tabs.__index = Tabs
     ? Creates a new Tab Handler as well as it's container panel.
     ? Inherits the functions of the Tabs API
 ]]
-function Tabs:CreateHandler()
+function Tabs:CreateHandler( parent )
     local handler = {}
-    handler.container = vgui.Create( "MosEditor_TabContainer" )
+    handler.container = vgui.Create( "MosEditor_TabContainer", parent )
     handler.tabs = {}
     handler.files = {}
 
@@ -28,7 +28,7 @@ end
     ? the specified filepath.
 ]]
 function Tabs:AddTab( filepath )
-    if self.files[filepath] then
+    if filepath and self.files[filepath] then
         return self.files[filepath]
     end
 
@@ -36,7 +36,7 @@ function Tabs:AddTab( filepath )
     tab:SetFile( filepath )
 
     table.insert( self.tabs, tab )
-    self.files[filepath] = tab
+    self.files[filepath or tostring( tab )] = tab
 
     return tab
 end
@@ -66,6 +66,7 @@ local TAB = {}
 
 function TAB:Init()
     self:SetText( "" )
+    self:SetTall( self:GetParent():GetTall() )
 
     local icon = vgui.Create( "DImage", self )
     icon:SetSize( 16, 16 )
@@ -87,6 +88,8 @@ function TAB:Init()
 
     self.icon = icon
     self.label = label
+
+    self:CalculateSize()
 end
 
 --? Icons and text inside are 16 pixels tall and must remain in the center.
@@ -100,14 +103,16 @@ end
 --? Calculates the width of the tab to fit all the content inside
 --? Then invalidate the layout to update it
 function TAB:CalculateSize()
-    local width = 32 + self.label:GetTextSize()
+    -- Padding + Space between elements + Two icons = 16 + ( 8 + 16 ) + ( 2 * 16 ) = 72
+    local width = 72 + self.label:GetTextSize()
     self:SetWide( width )
 
     self:InvalidateLayout()
 end
 
 function TAB:SetFile( filepath )
-    self.label:SetText( string.GetFileFromFilename( filepath ) )
+    local name = filepath and string.GetFileFromFilename( filepath ) or "Unknown"
+    self.label:SetText( name )
 
     self:CalculateSize()
 end
