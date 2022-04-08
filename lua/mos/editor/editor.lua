@@ -123,8 +123,6 @@ function PANEL:Init()
     end )
 
     function tabs:OnTabChanged( oldTab, newTab )
-        print( "Switching to tab: " .. newTab.label:GetText() )
-
         local text = file.Read( newTab.file or "mos6502/asm/default.asm.txt", "DATA" ) or ""
         dhtml:QueueJavascript( "Editor.setCode(`" .. text .. "`);" )
     end
