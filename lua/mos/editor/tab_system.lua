@@ -57,6 +57,11 @@ function CONTAINER:Init()
 
 end
 
+function CONTAINER:Paint( w, h )
+    surface.SetDrawColor( 64, 64, 64, 255 )
+    surface.DrawRect( 0, 0, w, h )
+end
+
 vgui.Register( "MosEditor_TabContainer", CONTAINER, "DPanel" )
 
 --------------------------------------------------
@@ -86,6 +91,24 @@ function TAB:Init()
     -- TODO: Add close tab functionality
     function closeButton:DoClick() end
 
+    function closeButton:Paint( w, h )
+        local parent = self:GetParent()
+        local shouldPaintBackground = self:IsHovered() or parent:IsHovered()
+
+        if shouldPaintBackground then
+            draw.RoundedBox( 4, 0, 0, w, h, Color( 64, 64, 64, 255 ) )
+        end
+
+        if not shouldPaintBackground and not parent.isActive then return end
+
+        draw.NoTexture()
+        surface.SetDrawColor( 128, 128, 128, 255 )
+        surface.DrawTexturedRectRotated( w / 2, h / 2, 10, 2, 45 )
+        surface.DrawTexturedRectRotated( w / 2, h / 2, 2, 10, 45 )
+    end
+
+    self.isActive = true
+
     self.icon = icon
     self.label = label
 
@@ -108,6 +131,13 @@ function TAB:CalculateSize()
     self:SetWide( width )
 
     self:InvalidateLayout()
+end
+
+function TAB:Paint( w, h )
+    if not self.isActive then return end
+
+    surface.SetDrawColor( 32, 32, 32, 255 )
+    surface.DrawRect( 0, 0, w, h )
 end
 
 function TAB:SetFile( filepath )
