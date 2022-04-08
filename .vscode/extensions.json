@@ -1,5 +1,7 @@
 {
     "recommendations": [
-        "aaron-bond.better-comments"
+        "aaron-bond.better-comments",
+        "goz3rr.vscode-glualint",
+        "venner.vscode-glua-enhanced"
     ]
 }
