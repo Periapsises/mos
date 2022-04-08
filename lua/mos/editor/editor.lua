@@ -123,7 +123,8 @@ function PANEL:Init()
     end )
 
     function tabs:OnTabChanged( oldtab, newtab )
-        dhtml:QueueJavascript( "Editor.setCode( '" .. ( file.Read( newtab.file or "mos6502/asm/default.asm.txt", "DATA" ) or "" ) .. "' )" )
+        local text = file.Read( newtab.file or "mos6502/asm/default.asm.txt", "DATA" ) or ""
+        dhtml:QueueJavascript( "Editor.setCode(`" .. text .. "`);" )
     end
 
     tabs:AddTab()
