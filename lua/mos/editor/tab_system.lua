@@ -65,11 +65,51 @@ vgui.Register( "MosEditor_TabContainer", CONTAINER, "DPanel" )
 local TAB = {}
 
 function TAB:Init()
+    self:SetText( "" )
 
+    local icon = vgui.Create( "DImage", self )
+    icon:SetSize( 16, 16 )
+    icon:DockMargin( 0, 0, 8, 0 )
+    icon:Dock( LEFT )
+    icon:SetImage( "icon16/page_white.png" )
+
+    local label = vgui.Create( "DLabel", self )
+    label:Dock( LEFT )
+    label:SetText( "Unknown" )
+
+    local closeButton = vgui.Create( "DButton", self )
+    closeButton:SetSize( 16, 16 )
+    closeButton:Dock( RIGHT )
+    closeButton:SetText( "" )
+
+    -- TODO: Add close tab functionality
+    function closeButton:DoClick() end
+
+    self.icon = icon
+    self.label = label
+end
+
+--? Icons and text inside are 16 pixels tall and must remain in the center.
+--? Here we calculate the padding needed to achieve that
+function TAB:PerformLayout()
+    local padding = math.max( self:GetTall() - 16, 0 ) / 2
+
+    self:DockPadding( 8, padding, 8, padding )
+end
+
+--? Calculates the width of the tab to fit all the content inside
+--? Then invalidate the layout to update it
+function TAB:CalculateSize()
+    local width = 32 + self.label:GetTextSize()
+    self:SetWide( width )
+
+    self:InvalidateLayout()
 end
 
 function TAB:SetFile( filepath )
+    self.label:SetText( string.GetFileFromFilename( filepath ) )
 
+    self:CalculateSize()
 end
 
 vgui.Register( "MosEditor_Tab", TAB, "DButton" )
