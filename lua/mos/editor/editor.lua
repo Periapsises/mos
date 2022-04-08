@@ -85,6 +85,9 @@ function PANEL:Init()
     end )
 
     dhtml:AddFunction( "GLua", "onSave", function( content )
+        if not tabHandler.activeTab then return end
+
+        tabHandler.activeTab:SetChanged( false )
         tabHandler:SaveActive( content )
     end )
 
