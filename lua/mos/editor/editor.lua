@@ -85,7 +85,7 @@ function PANEL:Init()
     tabs.container:Dock( TOP )
     tabs.container:SetTall( 32 )
 
-    local tab = tabs:AddTab()
+    tabs:AddTab()
 
     local dhtml = vgui.Create( "DHTML", self )
     dhtml:Dock( FILL )
