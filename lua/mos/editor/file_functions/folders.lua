@@ -8,7 +8,7 @@ local FolderFunctions = Mos.FileSystem.FolderFunctions
     @param FolderNode node - The node pointing to the folder to which the file will be added
 ]]
 function FolderFunctions:AddFile( node )
-    local new = node:AddNode( "", "icon16/page_code.png" )
+    local new = node:AddNode( "", "icon16/page_white.png" )
     new:ExpandTo( true )
 
     local entry = vgui.Create( "DTextEntry", new )
@@ -17,22 +17,17 @@ function FolderFunctions:AddFile( node )
     entry:RequestFocus()
 
     function entry:OnEnter()
-        local text = self:GetValue()
+        local fileName = self:GetValue()
 
-        if text == "" then
+        if fileName == "" then
             return self:Remove()
         end
 
-        if not string.EndsWith( text, ".txt" ) then
-            text = text .. ".txt"
-        end
-
-        local path = node:GetFolder() .. "/" .. text
+        fileName = Mos.FileSystem:GetSanitizedPath( fileName )
+        local path = node:GetFolder() .. "/" .. fileName
 
         file.Write( path, "" )
-        new:SetFileName( text )
-
-        new.Label:SetText( text )
+        new:SetFileName( path )
 
         self:Remove()
     end
