@@ -4,6 +4,7 @@
     "tags": ["fun", "build"],
     "ignore": [
         "*.md",
-        ".git"
+        ".git",
+        ".vscode"
     ]
 }

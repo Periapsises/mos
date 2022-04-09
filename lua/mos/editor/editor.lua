@@ -2,8 +2,11 @@ if SERVER then
     return util.AddNetworkString( "mos_editor_open" )
 end
 
+Mos.Editor = Mos.Editor or {}
+local Editor = Mos.Editor
+
 include( "mos/editor/filebrowser.lua" )
-include( "mos/editor/tabs.lua" )
+include( "mos/editor/tab_system.lua" )
 
 local defaultWidth, defaultHeight = ScrW() / 3 * 2, ScrH() / 3 * 2
 local defaultX, defaultY = defaultWidth / 4, defaultHeight / 4
@@ -78,28 +81,25 @@ function PANEL:Init()
     browser:Dock( LEFT )
     browser:SetWide( 256 )
 
-    local tabHandler = Mos.tabs:getHandler( self )
-    tabHandler.panel:Dock( TOP )
-    tabHandler.panel:SetTall( 31 )
-
-    local tab = tabHandler:CreateTab()
-    tab:SetMode( "edit" )
+    local tabs = Editor.Tabs:CreateHandler( self )
+    tabs.container:Dock( TOP )
+    tabs.container:SetTall( 32 )
 
     local dhtml = vgui.Create( "DHTML", self )
     dhtml:Dock( FILL )
     dhtml:OpenURL( "https://periapsises.github.io/" )
 
     dhtml:AddFunction( "GLua", "onTextChanged", function( text, changed )
-        if not tabHandler.activeTab then return end
+        if not tabs.activeTab then return end
 
-        tabHandler.activeTab:SetChanged( changed )
+        tabs.activeTab:SetChanged( changed )
     end )
 
     dhtml:AddFunction( "GLua", "onSave", function( content )
-        if not tabHandler.activeTab then return end
+        if not tabs.activeTab then return end
 
         -- TODO: Add save to new file feature
-        if not tabHandler.activeTab.file then return end
+        if not tabs.activeTab.file then return end
 
         surface.PlaySound( "ambient/water/drip3.wav" )
 
@@ -115,16 +115,28 @@ function PANEL:Init()
         saveNotif:SetX( footer:GetWide() )
         saveNotif:MoveBy( -64, 0, 0.1, 0, -1, function()
             timer.Simple( 1, function()
+                if not IsValid( saveNotif ) then return end
                 saveNotif:MoveBy( 64, 0, 0.1, 0, -1, function() saveNotif:Remove() end )
             end )
         end )
         saveNotif:ColorTo( Color( 150, 255, 150 ), 0.25 )
 
-        tabHandler.activeTab:SetChanged( false )
-        file.Write( tabHandler.activeTab.file, content )
+        tabs.activeTab:SetChanged( false )
+        file.Write( tabs.activeTab.file, content )
     end )
 
-    self.tabHandler = tabHandler
+    function tabs:OnTabChanged( oldTab, newTab )
+        local text = file.Read( newTab.file or "mos6502/asm/default.asm.txt", "DATA" ) or ""
+        dhtml:QueueJavascript( "Editor.setCode(`" .. text .. "`);" )
+    end
+
+    function tabs:OnLastTabRemoved( tab )
+        self:AddTab()
+    end
+
+    tabs:AddTab()
+
+    self.tabs = tabs
     self.dhtml = dhtml
 end
 

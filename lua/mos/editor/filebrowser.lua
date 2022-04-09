@@ -7,6 +7,10 @@ if not file.Exists( "mos6502", "DATA" ) then
     file.CreateDir( "mos6502/bin" )
 end
 
+if not file.Exists( "mos6502/asm/default.asm.txt", "DATA" ) then
+    file.Write( "mos6502/asm/default.asm.txt", "/*\n    Mos6502 Editor\n*/\n" )
+end
+
 local PANEL = {}
 
 local function onFileNameSet( self, name )
