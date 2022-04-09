@@ -146,7 +146,7 @@ function PANEL:Init()
     end )
 
     function tabs:OnTabChanged( oldTab, newTab )
-        local text = file.Read( newTab.file or "mos6502/asm/default.asm.txt", "DATA" ) or ""
+        local text = Mos.FileSystem:Read( newTab.file or "mos6502/asm/default.asm" ) or ""
         dhtml:QueueJavascript( "Editor.setCode(`" .. text .. "`);" )
     end
 
