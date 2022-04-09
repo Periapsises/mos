@@ -140,6 +140,11 @@ function FILEBROWSER:Init()
     bin:SetIcon( "icon16/brick.png" )
 end
 
+function FILEBROWSER:Paint( w, h )
+    surface.SetDrawColor( 32, 32, 32, 255 )
+    surface.DrawRect( 0, 0, w, h )
+end
+
 function FILEBROWSER:DoRightClick( node )
     local options = vgui.Create( "DMenu", self:GetParent() )
 
