@@ -266,8 +266,12 @@ function TAB:SetFile( filepath )
     if filepath then
         local name = string.GetFileFromFilename( Mos.FileSystem:GetDirtyPath( filepath ) )
         self.label:SetText( name )
+
+        local extension = string.GetExtensionFromFilename( name )
+        self.icon:SetImage( Mos.FileSystem.associations.files[extension] or "icon16/page_white.png" )
     else
         self.label:SetText( "Unknown" )
+        self.icon:SetImage( "icon16/page_white.png" )
     end
 
     self.file = filepath

@@ -10,6 +10,16 @@ include( "mos/editor/file_functions/folders.lua" )
 -- Taken from https://wiki.facepunch.com/gmod/file.Write
 FileSystem.allowedExtensions = {".txt", ".dat", ".json", ".xml", ".csv", ".jpg", ".jpeg", ".png", ".vtf", ".vmt", ".mp3", ".wav", ".ogg"}
 
+FileSystem.associations = {
+    files = {
+        asm = "icon16/page_code.png"
+    },
+    folders = {
+        lib = "icon16/folder_brick.png",
+        libs = "icon16/folder_brick.png"
+    }
+}
+
 --[[
     @name FileSystem:Verify()
     @desc Ensures all default folders and files exist
@@ -110,10 +120,16 @@ local function onFileNameSet( self, fileName )
 
     self:_SetFileName( fileName )
     self.Label:SetText( string.GetFileFromFilename( self.dirty ) )
+
+    local extension = string.GetExtensionFromFilename( self.dirty )
+    self:SetIcon( FileSystem.associations.files[extension] or "icon16/page_white.png" )
 end
 
 local function onFolderSet( self, folder )
     self:_SetFolder( folder )
+
+    local folderName = string.lower( string.match( folder, "/([^/]+)$" ) or "" )
+    self:SetIcon( FileSystem.associations.folders[folderName] or self:GetIcon() )
 end
 
 --? Custom function to add callbacks to every node in the DTree once they are added
