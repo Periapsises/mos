@@ -1,6 +1,11 @@
 Mos.Editor.Tabs = Mos.Editor.Tabs or {}
 local Tabs = Mos.Editor.Tabs
 
+local TAB_PADDING = 8
+local TAB_SPACING = 8
+local TAB_ICON_SIZE = 16
+local TAB_STATUS_WIDTH = 8
+
 --------------------------------------------------
 -- Tab API
 
@@ -150,25 +155,25 @@ function TAB:Init()
     self:SetTall( self:GetParent():GetTall() )
 
     local icon = vgui.Create( "DImage", self )
-    icon:SetSize( 16, 16 )
-    icon:DockMargin( 0, 0, 8, 0 )
+    icon:SetSize( TAB_ICON_SIZE, 16 )
+    icon:DockMargin( 0, 0, TAB_SPACING, 0 )
     icon:Dock( LEFT )
     icon:SetImage( "icon16/page_white.png" )
 
     local label = vgui.Create( "DLabel", self )
-    label:DockMargin( 0, 0, 8, 0 )
+    label:DockMargin( 0, 0, TAB_SPACING, 0 )
     label:Dock( LEFT )
     label:SetText( "Unknown" )
 
     local status = vgui.Create( "DLabel", self )
-    status:SetSize( 8, 16 )
-    status:DockMargin( 0, 0, 8, 0 )
+    status:SetSize( TAB_STATUS_WIDTH, 16 )
+    status:DockMargin( 0, 0, TAB_SPACING, 0 )
     status:Dock( LEFT )
     status:SetText( "" )
     status:SetContentAlignment( 4 )
 
     local closeButton = vgui.Create( "DButton", self )
-    closeButton:SetSize( 16, 16 )
+    closeButton:SetSize( TAB_ICON_SIZE, 16 )
     closeButton:Dock( LEFT )
     closeButton:SetText( "" )
 
@@ -210,18 +215,18 @@ end
 function TAB:PerformLayout()
     local padding = math.max( self:GetTall() - 16, 0 ) / 2
 
-    self:DockPadding( 8, padding, 8, padding )
+    self:DockPadding( TAB_PADDING, padding, TAB_PADDING, padding )
 end
+
+-- Padding + Icon + Spacing + Label Size + Spacing + Status + Spacing + Button + Padding
+local TAB_EXTRA_SIZE = TAB_PADDING * 2 + TAB_ICON_SIZE * 3 + TAB_SPACING * 3
 
 --? Calculates the width of the tab to fit all the content inside
 --? Then invalidate the layout to update it
 function TAB:CalculateSize()
-    -- Padding + Icon + Spacing + Label Size + Spacing + Status + Spacing + Button + Padding
-    -- 8 + 16 + 8 + Label Size + 8 + 8 + 8 + 16 + 8 = 80 + Label Sizeà
-    -- TODO: Might wanna use contstants and precalculate the result into another variable
     self.label:SizeToContentsX()
 
-    local width = 80 + self.label:GetTextSize()
+    local width = TAB_EXTRA_SIZE + self.label:GetTextSize()
     self:SetWide( width )
 
     self:InvalidateLayout()
