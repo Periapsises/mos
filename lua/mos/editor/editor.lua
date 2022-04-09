@@ -91,6 +91,8 @@ function PANEL:Init()
 
     dhtml:AddFunction( "GLua", "onTextChanged", function( text, changed )
         if not tabs.activeTab then return end
+
+        tabs.activeTab:SetChanged( changed )
     end )
 
     dhtml:AddFunction( "GLua", "onSave", function( content )
@@ -113,6 +115,7 @@ function PANEL:Init()
         saveNotif:SetX( footer:GetWide() )
         saveNotif:MoveBy( -64, 0, 0.1, 0, -1, function()
             timer.Simple( 1, function()
+                if not IsValid( saveNotif ) then return end
                 saveNotif:MoveBy( 64, 0, 0.1, 0, -1, function() saveNotif:Remove() end )
             end )
         end )
@@ -125,6 +128,10 @@ function PANEL:Init()
     function tabs:OnTabChanged( oldTab, newTab )
         local text = file.Read( newTab.file or "mos6502/asm/default.asm.txt", "DATA" ) or ""
         dhtml:QueueJavascript( "Editor.setCode(`" .. text .. "`);" )
+    end
+
+    function tabs:OnLastTabRemoved( tab )
+        self:AddTab()
     end
 
     tabs:AddTab()

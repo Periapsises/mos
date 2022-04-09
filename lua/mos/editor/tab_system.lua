@@ -64,10 +64,14 @@ function Tabs:SelectTab( tab )
     end
 
     self.activeTab = tab
-    if tab.historyIndex then
-        table.remove( self.history, tab.historyIndex )
+
+    for i = #self.history, 1, -1 do
+        if self.history[i] == tab then
+            table.remove( self.history, i )
+        end
     end
-    tab.historyIndex = table.insert( self.history, tab )
+
+    table.insert( self.history, tab )
     self:OnTabChanged( oldtab, tab )
 end
 
@@ -87,7 +91,13 @@ function Tabs:RemoveTab( tab )
     end
 
     if self.activeTab == tab then
-        self.history[#self.history]:Select()
+        local newTab = self.history[#self.history]
+
+        if newTab then
+            newTab:Select()
+        else
+            self:OnLastTabRemoved( tab )
+        end
     end
 
     self:OnTabRemoved( tab )
@@ -96,16 +106,23 @@ end
 --[[
     * TabHandler:OnTabChanged( oldTab, newTab )
 
-    ? Runs when the active tab is changed
+    ? Called when the active tab is changed
 ]]
 function Tabs:OnTabChanged( oldTab, newTab ) end
 
 --[[
     * TabHandler:OnTabRemoved( tab )
 
-    ? Runs when a tab is removed
+    ? Called when a tab is removed
 ]]
 function Tabs:OnTabRemoved( tab ) end
+
+--[[
+    * TabHandler:OnLastTabRemoved( tab )
+
+    ? Called when a tab is removed and there is no tab left to switch to
+]]
+function Tabs:OnLastTabRemoved( tab ) end
 
 --------------------------------------------------
 -- Tab Container Panel
@@ -139,12 +156,20 @@ function TAB:Init()
     icon:SetImage( "icon16/page_white.png" )
 
     local label = vgui.Create( "DLabel", self )
+    label:DockMargin( 0, 0, 8, 0 )
     label:Dock( LEFT )
     label:SetText( "Unknown" )
 
+    local status = vgui.Create( "DLabel", self )
+    status:SetSize( 8, 16 )
+    status:DockMargin( 0, 0, 8, 0 )
+    status:Dock( LEFT )
+    status:SetText( "" )
+    status:SetContentAlignment( 4 )
+
     local closeButton = vgui.Create( "DButton", self )
     closeButton:SetSize( 16, 16 )
-    closeButton:Dock( RIGHT )
+    closeButton:Dock( LEFT )
     closeButton:SetText( "" )
 
     function closeButton.DoClick()
@@ -171,6 +196,7 @@ function TAB:Init()
 
     self.icon = icon
     self.label = label
+    self.status = status
 
     self:CalculateSize()
 end
@@ -190,8 +216,12 @@ end
 --? Calculates the width of the tab to fit all the content inside
 --? Then invalidate the layout to update it
 function TAB:CalculateSize()
-    -- Padding + Space between elements + Two icons = 16 + ( 8 + 16 ) + ( 2 * 16 ) = 72
-    local width = 72 + self.label:GetTextSize()
+    -- Padding + Icon + Spacing + Label Size + Spacing + Status + Spacing + Button + Padding
+    -- 8 + 16 + 8 + Label Size + 8 + 8 + 8 + 16 + 8 = 80 + Label Sizeà
+    -- TODO: Might wanna use contstants and precalculate the result into another variable
+    self.label:SizeToContentsX()
+
+    local width = 80 + self.label:GetTextSize()
     self:SetWide( width )
 
     self:InvalidateLayout()
@@ -227,6 +257,10 @@ function TAB:SetFile( filepath )
     self.file = filepath
 
     self:CalculateSize()
+end
+
+function TAB:SetChanged( changed )
+    self.status:SetText( changed and "*" or "" )
 end
 
 vgui.Register( "MosEditor_Tab", TAB, "DButton" )
