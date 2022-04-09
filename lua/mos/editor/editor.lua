@@ -8,6 +8,26 @@ local Editor = Mos.Editor
 include( "mos/editor/file_system.lua" )
 include( "mos/editor/tab_system.lua" )
 
+--------------------------------------------------
+-- Editor API
+
+function Editor:Open()
+    if not IsValid( self.panel ) then
+        self.panel = vgui.Create( "MosEditor" )
+    end
+
+    self.panel:Open()
+end
+
+function Editor:AddTab( path )
+    if not IsValid( self.panel ) then return end
+
+    self.panel.tabs:AddTab( path )
+end
+
+--------------------------------------------------
+-- Editor panel
+
 local defaultWidth, defaultHeight = ScrW() / 3 * 2, ScrH() / 3 * 2
 local defaultX, defaultY = defaultWidth / 4, defaultHeight / 4
 
@@ -152,19 +172,8 @@ end
 
 vgui.Register( "MosEditor", PANEL, "DFrame" )
 
-local editor = {}
-Mos.editor = editor
-
-function editor:open()
-    if not IsValid( self.panel ) then
-        self.panel = vgui.Create( "MosEditor" )
-    end
-
-    self.panel:Open()
-end
-
 local function onEditorOpen()
-    editor:open()
+    Editor:Open()
 end
 
 net.Receive( "mos_editor_open", onEditorOpen )

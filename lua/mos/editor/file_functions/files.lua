@@ -8,7 +8,7 @@ local FileFunctions = Mos.FileSystem.FileFunctions
     @param FileNode node - The node pointing to the file to open
 ]]
 function FileFunctions:Open( node )
-    Mos.editor.panel.tabs:AddTab( node:GetFileName() )
+    Mos.Editor:AddTab( node:GetFileName() )
 end
 
 --[[

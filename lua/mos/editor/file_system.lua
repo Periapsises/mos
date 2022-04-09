@@ -117,6 +117,7 @@ local function onFolderSet( self, folder )
 end
 
 --? Custom function to add callbacks to every node in the DTree once they are added
+--? Makes stuff like file and folder icon association possible, as well as cleaning up the names
 local function onNodeAdded( self, node )
     node._SetFileName = node.SetFileName
     node._SetFolder = node.SetFolder
