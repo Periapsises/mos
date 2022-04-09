@@ -263,10 +263,14 @@ function TAB:Deselect()
 end
 
 function TAB:SetFile( filepath )
-    local name = filepath and string.GetFileFromFilename( filepath ) or "Unknown"
-    self.label:SetText( name )
-    self.file = filepath
+    if filepath then
+        local name = string.GetFileFromFilename( Mos.FileSystem:GetDirtyPath( filepath ) )
+        self.label:SetText( name )
+    else
+        self.label:SetText( "Unknown" )
+    end
 
+    self.file = filepath
     self:CalculateSize()
 end
 
