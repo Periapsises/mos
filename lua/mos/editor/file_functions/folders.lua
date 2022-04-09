@@ -1,6 +1,13 @@
-local folderFunctions = {}
+Mos.FileSystem.FolderFunctions = {}
+local FolderFunctions = Mos.FileSystem.FolderFunctions
 
-function folderFunctions.addFile( node )
+--[[
+    @name Folder:AddFile( node )
+    @desc Adds a new file in the folder
+
+    @param FolderNode node - The node pointing to the folder to which the file will be added
+]]
+function FolderFunctions:AddFile( node )
     local new = node:AddNode( "", "icon16/page_code.png" )
     new:ExpandTo( true )
 
@@ -31,7 +38,13 @@ function folderFunctions.addFile( node )
     end
 end
 
-function folderFunctions.addFolder( node )
+--[[
+    @name Folder:AddFolder( node )
+    @desc Adds a subfolder in the folder
+
+    @param FolderNode node - The node pointing to the folder to which a new subfolder will be added
+]]
+function FolderFunctions:AddFolder( node )
     local new = node:AddNode( "", "icon16/folder.png" )
     new:ExpandTo( true )
 
@@ -58,7 +71,13 @@ function folderFunctions.addFolder( node )
     end
 end
 
-function folderFunctions.rename( node )
+--[[
+    @name Folder:Rename( node )
+    @desc Renames a folder
+
+    @param FolderNode node - The node pointing to the folder to be renamed
+]]
+function FolderFunctions:Rename( node )
     local name = node:GetFolder()
 
     local entry = vgui.Create( "DTextEntry", node )
@@ -99,7 +118,13 @@ local function deleteRecursive( path )
     file.Delete( path )
 end
 
-function folderFunctions.delete( node )
+--[[
+    @name Folder:Delete( node )
+    @desc Deletes a folder
+
+    @param FolderNode node - The node pointing to the folder to be deleted
+]]
+function FolderFunctions:Delete( node )
     local path = node:GetFolder()
     local name = string.GetFileFromFilename( path )
 
@@ -112,5 +137,3 @@ function folderFunctions.delete( node )
         "Cancel"
     )
 end
-
-return folderFunctions

@@ -1,10 +1,23 @@
-local fileFunctions = {}
+Mos.FileSystem.FileFunctions = {}
+local FileFunctions = Mos.FileSystem.FileFunctions
 
-function fileFunctions.open( node )
+--[[
+    @name File:Open( node )
+    @desc Opens a file in a new tab
+
+    @param FileNode node - The node pointing to the file to open
+]]
+function FileFunctions:Open( node )
     Mos.editor.panel.tabs:AddTab( node:GetFileName() )
 end
 
-function fileFunctions.rename( node )
+--[[
+    @name File:Rename( node )
+    @desc Renames a file
+
+    @param FileNode node - The node pointing to the file to be renamed
+]]
+function FileFunctions:Rename( node )
     local name = node:GetFileName()
 
     local entry = vgui.Create( "DTextEntry", node )
@@ -35,7 +48,13 @@ function fileFunctions.rename( node )
     end
 end
 
-function fileFunctions.delete( node )
+--[[
+    @name File:Delete( node )
+    @desc Deletes a file
+
+    @param FileNode node - The node pointing to the file to be deleted
+]]
+function FileFunctions:Delete( node )
     local path = node:GetFileName()
     local name = string.GetFileFromFilename( path )
 
