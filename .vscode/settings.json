@@ -71,6 +71,15 @@
             "backgroundColor": "transparent",
             "bold": false,
             "italic": true
+        },
+        {
+            "tag": "@return",
+            "color": "#ff784f",
+            "strikethrough": false,
+            "underline": false,
+            "backgroundColor": "transparent",
+            "bold": false,
+            "italic": true
         }
     ]
 }

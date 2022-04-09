@@ -12,10 +12,10 @@ local TAB_STATUS_WIDTH = 8
 Tabs.__index = Tabs
 
 --[[
-    * Table Tabs:CreateHandler()
+    @name Table Tabs:CreateHandler()
+    @desc Creates a new Tab Handler as well as it's container panel. Inherits the functions of the Tabs API.
 
-    ? Creates a new Tab Handler as well as it's container panel.
-    ? Inherits the functions of the Tabs API
+    @return TabHandler - The new tab handler
 ]]
 function Tabs:CreateHandler( parent )
     local handler = {}
@@ -29,10 +29,12 @@ function Tabs:CreateHandler( parent )
 end
 
 --[[
-    * Panel TabHandler:AddTab( filepath )
+    @name Panel TabHandler:AddTab( filepath )
+    @desc Adds a tab to the handler's container and assigns it to the specified filepath.
 
-    ? Adds a tab to the handler's container and assigns it to
-    ? the specified filepath.
+    @param string filepath - The path to the file represented by the tab
+
+    @return Tab - The tab added
 ]]
 function Tabs:AddTab( filepath )
     if filepath and self.files[filepath] then
@@ -54,10 +56,10 @@ function Tabs:AddTab( filepath )
 end
 
 --[[
-    * TabHandler:SelectTab( tab )
+    @name TabHandler:SelectTab( tab )
+    @desc Sets a new tab as active and cleans up the previously selected tab. Calls TabHandler:OnTabChanged()
 
-    ? Sets a new tab as active and cleans up the previously selected tab
-    ? Calls TabHandler:OnTabChanged()
+    @param Tab tab - The tab to select
 ]]
 function Tabs:SelectTab( tab )
     if self.activeTab == tab then return end
@@ -81,10 +83,10 @@ function Tabs:SelectTab( tab )
 end
 
 --[[
-    * TabHandler:RemoveTab( tab )
+    @name TabHandler:RemoveTab( tab )
+    @desc Removes a tab from the handler and goes back to the last opened tab. Calls TabHandler:OnTabRemoved()
 
-    ? Removes a tab from the handler and goes back to the last opened tab
-    ? Calls TabHandler:OnTabRemoved()
+    @param Tab tab - The tab to remove
 ]]
 function Tabs:RemoveTab( tab )
     if self.container:IsMarkedForDeletion() then return end
@@ -109,23 +111,27 @@ function Tabs:RemoveTab( tab )
 end
 
 --[[
-    * TabHandler:OnTabChanged( oldTab, newTab )
+    @name TabHandler:OnTabChanged( oldTab, newTab )
+    @desc Called when the active tab is changed
 
-    ? Called when the active tab is changed
+    @param Tab oldTab - The tab that was previously active
+    @param Tab newTab - The tab that will be set as active instead
 ]]
 function Tabs:OnTabChanged( oldTab, newTab ) end
 
 --[[
-    * TabHandler:OnTabRemoved( tab )
+    @name TabHandler:OnTabRemoved( tab )
+    @desc Called when a tab is removed
 
-    ? Called when a tab is removed
+    @param Tab tab - The tab being removed
 ]]
 function Tabs:OnTabRemoved( tab ) end
 
 --[[
-    * TabHandler:OnLastTabRemoved( tab )
+    @name TabHandler:OnLastTabRemoved( tab )
+    @desc Called when a tab is removed and there is no tab left to switch to
 
-    ? Called when a tab is removed and there is no tab left to switch to
+    @param Tab tab - The tab being removed
 ]]
 function Tabs:OnLastTabRemoved( tab ) end
 
