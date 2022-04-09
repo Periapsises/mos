@@ -140,6 +140,29 @@ function FILEBROWSER:Init()
     bin:SetIcon( "icon16/brick.png" )
 end
 
+function FILEBROWSER:DoRightClick( node )
+    local options = vgui.Create( "DMenu", self:GetParent() )
+
+    if node:GetFileName() then
+        options:AddOption( "Open", function() FileSystem.FileFunctions:Open( node ) end )
+        options:AddOption( "Rename", function() FileSystem.FileFunctions:Rename( node ) end )
+
+        options:AddSpacer()
+        options:AddOption( "Delete", function() FileSystem.FileFunctions:Delete( node ) end )
+    else
+        options:AddOption( "Add File", function() FileSystem.FolderFunctions:AddFile( node ) end )
+        options:AddOption( "Add Folder", function() FileSystem.FolderFunctions:AddFolder( node ) end )
+
+        options:AddSpacer()
+        options:AddOption( "Rename", function() FileSystem.FolderFunctions:Rename( node ) end )
+
+        options:AddSpacer()
+        options:AddOption( "Delete", function() FileSystem.FolderFunctions:Delete( node ) end )
+    end
+
+    options:Open()
+end
+
 vgui.Register( "MosEditor_FileBrowser", FILEBROWSER, "DTree" )
 
 FileSystem:Verify()
