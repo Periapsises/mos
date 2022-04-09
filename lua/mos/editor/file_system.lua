@@ -104,10 +104,40 @@ end
 --------------------------------------------------
 -- File browser
 
+local function onFileNameSet( self, fileName )
+    self.path = fileName
+    self.dirty = FileSystem:GetDirtyPath( fileName )
+
+    self:_SetFileName( fileName )
+    self.Label:SetText( string.GetFileFromFilename( self.dirty ) )
+end
+
+local function onFolderSet( self, folder )
+    self:_SetFolder( folder )
+end
+
+--? Custom function to add callbacks to every node in the DTree once they are added
+local function onNodeAdded( self, node )
+    node._SetFileName = node.SetFileName
+    node._SetFolder = node.SetFolder
+
+    node.SetFileName = onFileNameSet
+    node.SetFolder = onFolderSet
+
+    node.OnNodeAdded = onNodeAdded
+end
+
 local FILEBROWSER = {}
 
 function FILEBROWSER:Init()
+    local root = self:Root()
+    root.OnNodeAdded = onNodeAdded
 
+    local asm = root:AddFolder( "Assembly", "mos6502/asm", "DATA", true )
+    asm:SetIcon( "icon16/package_green.png" )
+
+    local bin = root:AddFolder( "Binaries", "mos6502/bin", "DATA", true )
+    bin:SetIcon( "icon16/brick.png" )
 end
 
 vgui.Register( "MosEditor_FileBrowser", FILEBROWSER, "DTree" )

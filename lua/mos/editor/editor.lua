@@ -77,7 +77,7 @@ function PANEL:Init()
         return true
     end
 
-    local browser = vgui.Create( "MosFileBrowser", self )
+    local browser = vgui.Create( "MosEditor_FileBrowser", self )
     browser:Dock( LEFT )
     browser:SetWide( 256 )
 
