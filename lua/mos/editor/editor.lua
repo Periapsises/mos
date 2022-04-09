@@ -5,7 +5,7 @@ end
 Mos.Editor = Mos.Editor or {}
 local Editor = Mos.Editor
 
-include( "mos/editor/filebrowser.lua" )
+include( "mos/editor/file_system.lua" )
 include( "mos/editor/tab_system.lua" )
 
 local defaultWidth, defaultHeight = ScrW() / 3 * 2, ScrH() / 3 * 2

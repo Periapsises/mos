@@ -20,7 +20,7 @@ function FileSystem:Verify()
     file.CreateDir( "mos6502/bin/" )
 
     if not self:Exists( "mos6502/asm/default.asm" ) then
-
+        self:Write( "mos6502/asm/default.asm", "/*\n    Mos6502 Assembly Editor\n*/\n" )
     end
 end
 
@@ -47,7 +47,9 @@ end
     @return string - The sanitized path
 ]]
 function FileSystem:GetSanitizedPath( path )
-    return self:HasAllowedExtension( path ) and path or path .. "~.txt"
+    if self:HasAllowedExtension( path ) then return path end
+
+    return path .. "~.txt"
 end
 
 --[[
@@ -64,6 +66,18 @@ end
 
 --[[
     @name FileSystem:Write( path, data )
+    @desc Checks if a file exists in the DATA folder just like file.Exists() would but ensures the path is sanitized
+
+    @param string path - The path to the file
+]]
+function FileSystem:Exists( path )
+    path = self:GetSanitizedPath( path )
+
+    return file.Exists( path, "DATA" )
+end
+
+--[[
+    @name FileSystem:Write( path, data )
     @desc Writes a file in the DATA folder just like file.Write() would but ensures the path is sanitized
 
     @param string path - The path to write the file to
@@ -73,6 +87,18 @@ function FileSystem:Write( path, data )
     path = self:GetSanitizedPath( path )
 
     return file.Write( path, data )
+end
+
+--[[
+    @name FileSystem:Read( path )
+    @desc Reads a file in the DATA folder just like file.Read() would but ensures the path is sanitized
+
+    @param string path - The path to read the file from
+]]
+function FileSystem:Read( path, data )
+    path = self:GetSanitizedPath( path )
+
+    return file.Read( path, "DATA" )
 end
 
 --------------------------------------------------
