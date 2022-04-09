@@ -114,6 +114,49 @@ end
 --------------------------------------------------
 -- File browser
 
+local ERROR_FAILED_SORT = [[
+[mos6502] A set of files or folders failed to be sorted.
+File A:
+    Is file: %s
+    Name: %s
+
+File B:
+    Is file: %s
+    Name: %s
+
+Please report this error at: https://github.com/Periapsises/Mos6502/issues
+]]
+
+local function sortFilesAndFolders( node )
+    local originalState = node:GetParentNode():GetExpanded()
+
+    local parent = node:GetParent()
+    local children = parent:GetChildren()
+
+    for _, child in ipairs( children ) do child:SetParent() end
+
+    table.sort( children, function( a, b )
+        local aIsFile, bIsFile = a:GetFileName() ~= nil, b:GetFileName() ~= nil
+
+        if aIsFile and bIsFile then
+            return a.Label:GetText() < b.Label:GetText()
+        elseif not aIsFile and bIsFile then
+            return true
+        elseif aIsFile and not bIsFile then
+            return false
+        elseif not aIsFile and not bIsFile then
+            return a.Label:GetText() < b.Label:GetText()
+        end
+
+        ErrorNoHalt( string.format( ERROR_FAILED_SORT, aIsFile, a.Label:GetText(), bIsFile, b.Label:GetText() ) )
+    end )
+
+    for _, child in ipairs( children ) do child:SetParent( parent ) end
+
+    parent:InvalidateLayout()
+    node:GetParentNode():SetExpanded( originalState )
+end
+
 local function onFileNameSet( self, fileName )
     self.path = fileName
     self.dirty = FileSystem:GetDirtyPath( fileName )
@@ -123,6 +166,8 @@ local function onFileNameSet( self, fileName )
 
     local extension = string.GetExtensionFromFilename( self.dirty )
     self:SetIcon( FileSystem.associations.files[extension] or "icon16/page_white.png" )
+
+    sortFilesAndFolders( self )
 end
 
 local function onFolderSet( self, folder )
@@ -130,6 +175,8 @@ local function onFolderSet( self, folder )
 
     local folderName = string.lower( string.match( folder, "/([^/]+)$" ) or "" )
     self:SetIcon( FileSystem.associations.folders[folderName] or self:GetIcon() )
+
+    sortFilesAndFolders( self )
 end
 
 --? Custom function to add callbacks to every node in the DTree once they are added
