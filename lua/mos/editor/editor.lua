@@ -37,6 +37,8 @@ local editorHeight = CreateConVar( "mos_editor_height", defaultHeight, FCVAR_ARC
 local editorPosX = CreateConVar( "mos_editor_pos_x", defaultX, FCVAR_ARCHIVE, "The x position of the Mos Editor" )
 local editorPosY = CreateConVar( "mos_editor_pos_y", defaultY, FCVAR_ARCHIVE, "The y position of the Mos Editor" )
 
+local editorDividerPos = CreateConVar( "mos_editor_divider_pos", 256, FCVAR_ARCHIVE, "The position of the divider between the file browser and the editor in pixels from the left", 0 )
+
 local PANEL = {}
 
 function PANEL:Init()
@@ -51,19 +53,21 @@ function PANEL:Init()
     -- TODO: Uncomment this when releasing (Only for testing purpose)
     --self:SetDeleteOnClose( false )
     self:ShowCloseButton( false )
+    self:DockPadding( 0, 0, 0, 0 )
 
     local header = vgui.Create( "DPanel", self )
-    header:SetSize( w, 26 )
+    header:SetSize( w, 30 )
+    header:Dock( TOP )
     header:SetPaintBackground( false )
 
     local icon = vgui.Create( "DImage", header )
     icon:SetSize( 16, 16 )
-    icon:DockMargin( 5, 5, 5, 5 )
+    icon:DockMargin( 11, 7, 11, 7 )
     icon:Dock( LEFT )
     icon:SetImage( "icon16/tag.png" )
 
     local closeButton = vgui.Create( "DButton", header )
-    closeButton:SetSize( 52, 26 )
+    closeButton:SetSize( 46, 30 )
     closeButton:Dock( RIGHT )
     closeButton:SetText( "" )
     closeButton.editor = self
@@ -75,9 +79,9 @@ function PANEL:Init()
         end
 
         draw.NoTexture()
-        surface.SetDrawColor( 150, 150, 150, 255 )
-        surface.DrawTexturedRectRotated( w / 2, h / 2, 16, 3, 45 )
-        surface.DrawTexturedRectRotated( w / 2, h / 2, 15, 3, 135 )
+        surface.SetDrawColor( 193, 193, 193, 255 )
+        surface.DrawTexturedRectRotated( w / 2, h / 2, 15, 2, 45 )
+        surface.DrawTexturedRectRotated( w / 2, h / 2, 2, 14, 45 )
 
         return true
     end
@@ -87,25 +91,46 @@ function PANEL:Init()
     end
 
     local footer = vgui.Create( "DPanel", self )
-    footer:SetTall( 24 )
+    footer:SetTall( 22 )
     footer:Dock( BOTTOM )
+    footer:SetPaintBackground( false )
 
-    function footer:Paint( w, h )
-        surface.SetDrawColor( 16, 16, 16, 255 )
-        surface.DrawRect( 0, 0, w, h )
+    local horizontalDivider = vgui.Create( "DHorizontalDivider", self )
+    horizontalDivider:Dock( FILL )
+    horizontalDivider:SetLeftWidth( editorDividerPos:GetInt() )
 
-        return true
+    horizontalDivider._SetDragging = horizontalDivider.SetDragging
+    function horizontalDivider:SetDragging( isDragging )
+        if not isDraggin then
+            editorDividerPos:SetInt( self:GetLeftWidth() )
+        end
+
+        return self:_SetDragging( isDragging )
     end
 
-    local browser = vgui.Create( "MosEditor_FileBrowser", self )
+    function horizontalDivider:Paint( w, h )
+        local pos = self:GetLeftWidth() + self:GetDividerWidth() - 1
+
+        surface.SetDrawColor( 169, 115, 255, 255 )
+        surface.DrawLine( pos, 0, pos, h )
+    end
+
+    local browser = vgui.Create( "MosEditor_FileBrowser" )
     browser:Dock( LEFT )
     browser:SetWide( 256 )
 
-    local tabs = Editor.Tabs:CreateHandler( self )
+    horizontalDivider:SetLeft( browser )
+
+    local right = vgui.Create( "DPanel" )
+    right:SetPaintBackground( false )
+
+    horizontalDivider:SetRight( right )
+
+    local tabs = Editor.Tabs:CreateHandler( right )
     tabs.container:Dock( TOP )
     tabs.container:SetTall( 32 )
 
-    local dhtml = vgui.Create( "DHTML", self )
+    local dhtml = vgui.Create( "DHTML", right )
     dhtml:Dock( FILL )
     dhtml:OpenURL( "https://periapsises.github.io/" )
 
@@ -124,7 +149,7 @@ function PANEL:Init()
         surface.PlaySound( "ambient/water/drip3.wav" )
 
         local saveNotif = vgui.Create( "DLabel", footer )
-        saveNotif:SetSize( 64, 24 )
+        saveNotif:SetSize( 64, 22 )
         saveNotif:SetFont( "DermaDefaultBold" )
         saveNotif:SetText( "Saved" )
         saveNotif:SetTextColor( Color( 255, 255, 255 ) )
@@ -166,7 +191,7 @@ function PANEL:Open()
 end
 
 function PANEL:Paint( w, h )
-    surface.SetDrawColor( 32, 32, 32, 255 )
+    surface.SetDrawColor( 18, 18, 18, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 
