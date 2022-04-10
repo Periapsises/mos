@@ -79,9 +79,9 @@ function PANEL:Init()
         end
 
         draw.NoTexture()
-        surface.SetDrawColor( 150, 150, 150, 255 )
-        surface.DrawTexturedRectRotated( w / 2, h / 2, 16, 3, 45 )
-        surface.DrawTexturedRectRotated( w / 2, h / 2, 15, 3, 135 )
+        surface.SetDrawColor( 193, 193, 193, 255 )
+        surface.DrawTexturedRectRotated( w / 2, h / 2, 15, 2, 45 )
+        surface.DrawTexturedRectRotated( w / 2, h / 2, 2, 14, 45 )
 
         return true
     end
