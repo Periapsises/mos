@@ -51,19 +51,21 @@ function PANEL:Init()
     -- TODO: Uncomment this when releasing (Only for testing purpose)
     --self:SetDeleteOnClose( false )
     self:ShowCloseButton( false )
+    self:DockPadding( 0, 0, 0, 0 )
 
     local header = vgui.Create( "DPanel", self )
-    header:SetSize( w, 26 )
+    header:SetSize( w, 30 )
+    header:Dock( TOP )
     header:SetPaintBackground( false )
 
     local icon = vgui.Create( "DImage", header )
     icon:SetSize( 16, 16 )
-    icon:DockMargin( 5, 5, 5, 5 )
+    icon:DockMargin( 11, 7, 11, 7 )
     icon:Dock( LEFT )
     icon:SetImage( "icon16/tag.png" )
 
     local closeButton = vgui.Create( "DButton", header )
-    closeButton:SetSize( 52, 26 )
+    closeButton:SetSize( 46, 30 )
     closeButton:Dock( RIGHT )
     closeButton:SetText( "" )
     closeButton.editor = self
@@ -89,13 +91,7 @@ function PANEL:Init()
     local footer = vgui.Create( "DPanel", self )
     footer:SetTall( 24 )
     footer:Dock( BOTTOM )
-
-    function footer:Paint( w, h )
-        surface.SetDrawColor( 16, 16, 16, 255 )
-        surface.DrawRect( 0, 0, w, h )
-
-        return true
-    end
+    footer:SetPaintBackground( false )
 
     local browser = vgui.Create( "MosEditor_FileBrowser", self )
     browser:Dock( LEFT )
@@ -166,7 +162,7 @@ function PANEL:Open()
 end
 
 function PANEL:Paint( w, h )
-    surface.SetDrawColor( 32, 32, 32, 255 )
+    surface.SetDrawColor( 18, 18, 18, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 

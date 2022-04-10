@@ -205,7 +205,7 @@ function FILEBROWSER:Init()
 end
 
 function FILEBROWSER:Paint( w, h )
-    surface.SetDrawColor( 32, 32, 32, 255 )
+    surface.SetDrawColor( 18, 18, 18, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 
