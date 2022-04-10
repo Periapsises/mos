@@ -91,7 +91,7 @@ function PANEL:Init()
     end
 
     local footer = vgui.Create( "DPanel", self )
-    footer:SetTall( 24 )
+    footer:SetTall( 22 )
     footer:Dock( BOTTOM )
     footer:SetPaintBackground( false )
 
@@ -149,7 +149,7 @@ function PANEL:Init()
         surface.PlaySound( "ambient/water/drip3.wav" )
 
         local saveNotif = vgui.Create( "DLabel", footer )
-        saveNotif:SetSize( 64, 24 )
+        saveNotif:SetSize( 64, 22 )
         saveNotif:SetFont( "DermaDefaultBold" )
         saveNotif:SetText( "Saved" )
         saveNotif:SetTextColor( Color( 255, 255, 255 ) )
