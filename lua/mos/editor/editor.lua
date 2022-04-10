@@ -37,6 +37,8 @@ local editorHeight = CreateConVar( "mos_editor_height", defaultHeight, FCVAR_ARC
 local editorPosX = CreateConVar( "mos_editor_pos_x", defaultX, FCVAR_ARCHIVE, "The x position of the Mos Editor" )
 local editorPosY = CreateConVar( "mos_editor_pos_y", defaultY, FCVAR_ARCHIVE, "The y position of the Mos Editor" )
 
+local editorDividerPos = CreateConVar( "mos_editor_divider_pos", 256, FCVAR_ARCHIVE, "The position of the divider between the file browser and the editor in pixels from the left", 0 )
+
 local PANEL = {}
 
 function PANEL:Init()
@@ -93,15 +95,42 @@ function PANEL:Init()
     footer:Dock( BOTTOM )
     footer:SetPaintBackground( false )
 
-    local browser = vgui.Create( "MosEditor_FileBrowser", self )
+    local horizontalDivider = vgui.Create( "DHorizontalDivider", self )
+    horizontalDivider:Dock( FILL )
+    horizontalDivider:SetLeftWidth( editorDividerPos:GetInt() )
+
+    horizontalDivider._SetDragging = horizontalDivider.SetDragging
+    function horizontalDivider:SetDragging( isDragging )
+        if not isDraggin then
+            editorDividerPos:SetInt( self:GetLeftWidth() )
+        end
+
+        return self:_SetDragging( isDragging )
+    end
+
+    function horizontalDivider:Paint( w, h )
+        local pos = self:GetLeftWidth() + self:GetDividerWidth() - 1
+
+        surface.SetDrawColor( 169, 115, 255, 255 )
+        surface.DrawLine( pos, 0, pos, h )
+    end
+
+    local browser = vgui.Create( "MosEditor_FileBrowser" )
     browser:Dock( LEFT )
     browser:SetWide( 256 )
 
-    local tabs = Editor.Tabs:CreateHandler( self )
+    horizontalDivider:SetLeft( browser )
+
+    local right = vgui.Create( "DPanel" )
+    right:SetPaintBackground( false )
+
+    horizontalDivider:SetRight( right )
+
+    local tabs = Editor.Tabs:CreateHandler( right )
     tabs.container:Dock( TOP )
     tabs.container:SetTall( 32 )
 
-    local dhtml = vgui.Create( "DHTML", self )
+    local dhtml = vgui.Create( "DHTML", right )
     dhtml:Dock( FILL )
     dhtml:OpenURL( "https://periapsises.github.io/" )
 
