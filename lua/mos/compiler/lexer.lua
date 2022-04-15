@@ -28,7 +28,11 @@ Lexer.patterns = {
     {token = "rparen", pattern = "^%)"},
     {token = "operator", pattern = "^[%+%-%*/]"},
     {token = "comma", pattern = "^,"},
-    {token = "colon", pattern = "^:"}
+    {token = "colon", pattern = "^:"},
+    {token = "hash", pattern = "^#"},
+    {token = "dot", pattern = "^."},
+    {token = "whitespace", pattern = "^ +"},
+    {token = "newline", pattern = "^\n"}
 }
 
 function Lexer:Token( type, value )
