@@ -249,7 +249,7 @@ function Parser:ifdef()
     local condition = self:Operand()
     self:Eat( "newline" )
 
-    return {condition = condition, statements = self:Statements( '#endif' )}
+    return {condition = condition, statements = self:Statements( "#endif" )}
 end
 
 function Parser:endif( exit )
@@ -260,15 +260,54 @@ end
 -- Operands
 
 function Parser:Operand()
-    if self.token.type == "identifier" then
-        local id = self:Eat( "identifier" )
+    return self:Expression()
+end
 
-        return {type = "operand", value = id, line = id.line, char = id.char}
+local validTermOperation = {
+    ["+"] = true,
+    ["-"] = true,
+}
+
+function Parser:Expression()
+    local term = self:Term()
+    if not validTermOperation[self.token.value] then return term end
+
+    local operator = self:Eat( "operator" )
+
+    return {type = "operation", value = {left = term, right = self:Term(), operator = operator}, line = term.line, char = term.char}
+end
+
+local validFactorOperation = {
+    ["*"] = true,
+    ["/"] = true
+}
+
+function Parser:Term()
+    local factor = self:Factor()
+    if not validFactorOperation[self.token.value] then return factor end
+
+    local operator = self:Eat( "operator" )
+
+    return {type = "operation", value = {left = factor, right = self:Factor(), operator = operator}, line = factor.line, char = factor.char}
+end
+
+local validFactor = {
+    identifier = true,
+    number = true
+}
+
+function Parser:Factor()
+    if self.token.type == "lparen" then
+        self:Eat( "lparen" )
+        local expression = self:Expression()
+        self:Eat( "rparen" )
+
+        return expression
     end
 
-    local number = self:Eat( "number" )
+    if not validFactor[self.token.type] then return end
 
-    return {type = "operand", value = number, line = number.line, char = number.char}
+    return self:Eat( self.token.type )
 end
 
 --------------------------------------------------

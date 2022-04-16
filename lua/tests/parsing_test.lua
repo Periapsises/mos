@@ -122,3 +122,16 @@ local validIfdefTest = [[
 test( "Valid #ifdef", validIfdefTest, true )
 test( "Invalid #ifdef", "#ifdef VAR\n", false )
 test( "Empty #ifdef", "#ifdef VAR\n#endif\n", true )
+
+local validOperations = [[
+adc 1+1
+adc 1-1
+adc 1*1
+adc 1/1
+adc 1+1*1
+adc 1*1+1
+adc (1+1)*1
+]]
+
+test( "Valid operations", validOperations, true )
+test( "Unbalanced parenthesis", "adc (1 + (1 - 1)\n", false )
