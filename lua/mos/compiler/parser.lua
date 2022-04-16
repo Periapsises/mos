@@ -5,6 +5,10 @@ local Instructions = Mos.Compiler.Instructions
 
 include( "mos/compiler/lexer.lua" )
 
+local function errorf( str, ... )
+    error( string.format( str, ... ) )
+end
+
 --------------------------------------------------
 -- Parser API
 
@@ -120,41 +124,109 @@ function Parser:Instruction()
 
     if not adressingModes then
         -- TODO: Properly throw errors
-        error( "Invalid instruction name '" .. name .. "' at line " .. instruction.line .. ", char " .. instruction.char )
+        errorf( "Invalid instruction name '%s' at line %d, char %d", name, instruction.line, instruction.char )
     end
 
-    self:AddressingMode()
+    self:AddressingMode( instruction )
 end
 
-local isAddressingModeToken = {
-    ["lsqrbracket"] = "ind",
-    ["hash"] = "imm",
+--[[
+
+    OK - Zeropage will be ignored for now as it's hard to differenciate from absolute.
+
+    OK - Immediate and idirect have special tokens that let the parser identify them.
+
+    For the rest:
+        Start as absolute and perform extra steps after.
+
+        If there are no operands -> Implied
+        If there is one identifier with value a -> Accumulator
+
+        Else, if the instruction is a branching instruction -> Relative
+]]
+
+local adressingMode = {
+    lsqrbracket = "Indirect",
+    hash = "Immediate"
 }
 
-function Parser:AddressingMode()
-    local mode = isAddressingModeToken[self.token.type]
-    local token = self:Eat( self.token.type )
+local isBranchInstruction = {
+    bcc = true,
+    bcs = true,
+    beq = true,
+    bmi = true,
+    bne = true,
+    bpl = true,
+    bvc = true,
+    bvs = true
+}
+
+function Parser:AddressingMode( instruction )
+    local token = self.token
+    local mode = adressingMode[token.type]
+
+    if mode then
+        self:Eat( token.type )
+    end
 
     self:Operand()
-    self:RegisterIndex()
+
+    if not mode then
+        local stackSize = #self.stack
+        mode = "Absolute"
+
+        local validAccStart = self.stack[stackSize - 1] and self.stack[stackSize - 1]
+        local validAccToken = self.stack[stackSize].type == "identifier" and self.stack[stackSize].value == "a"
+
+        if validAccStart and validAccToken then
+            mode = "Accumulator"
+        elseif self.stack[stackSize] == token then
+            mode = "Implied"
+        elseif isBranchInstruction[instruction.value] then
+            mode = "Relative"
+        end
+    end
+
+    if mode == "Absolute" and self.token.type ~= "comma" then
+        local register = string.upper( self:RegisterIndex() )
+
+        mode = "Absolute," .. register
+    elseif mode == "Indirect" then
+        if self.token.type == "comma" then
+            local register = self:RegisterIndex()
+
+            if register == "y" then
+                errorf( "Invalid index register: x expected, got y" )
+            elseif register == "x" then
+                mode = "X,Indirect"
+            end
+        elseif self.token.type == "rsqrbracket" then
+            local register = self:RegisterIndex()
+
+            if register == "x" then
+                errorf( "Invalid index register: y expected, got x" )
+            elseif register == "y" then
+                mode = "Indirect,Y"
+            end
+        end
+    end
 end
 
 function Parser:RegisterIndex()
-    if self.token.type ~= "comma" then return end
-
     self:Eat( "comma" )
     local register = self:Eat( "identifier" )
 
     if register.value ~= "x" and register.value ~= "y" then
         -- TODO: Properly throw errors
-        error( string.format( "Invalid register : %s at line %d, char %d", token.value, token.line, token.char ) )
+        errorf( "Invalid register : %s at line %d, char %d", register.value, register.line, register.char )
     end
 
     register.type = register.value .. "index"
 
     self:Shift( register )
+
+    return register.value
 end
 
 function Parser:Operand()
-
 end
