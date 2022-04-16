@@ -1,3 +1,7 @@
+-- Tests only run on myself, Periapsis :D
+if SERVER then return end
+if LocalPlayer():SteamID() ~= "STEAM_0:1:115301653" then return end
+
 local Lexer = Mos.Compiler.Lexer
 local Parser = Mos.Compiler.Parser
 
@@ -30,13 +34,39 @@ label:
     adc (0),y
 ]]
 
-local lexer = Lexer:Create( validCodeTest )
-local token
+print( "\n----------------------------------------\n" )
 
-repeat
-    token = lexer:GetNextToken()
-    print(token.type, token.value)
-until (token.type == "eof")
+local padding = ""
 
-local parser = Parser:Create( validCodeTest )
-parser:Parse()
+Parser.__index = function( self, key )
+    local value = Parser[key]
+
+    if type( value ) == "function" and key ~= "Eat" then
+        local _padding = padding
+
+        return function( ... )
+            padding = padding .. "  "
+            print( _padding .. "Enter: " .. key )
+
+            local ret = {value( ... )}
+
+            print( _padding .. "Exit: " .. key )
+            padding = _padding
+
+            return unpack( ret )
+        end
+    end
+
+    return value
+end
+
+local sucess, msg = pcall( function()
+    local parser = Parser:Create( validCodeTest )
+    parser:Parse()
+end )
+
+if not sucess then
+    print( "\n", msg )
+end
+
+Parser.__index = Parser

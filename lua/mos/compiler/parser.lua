@@ -46,8 +46,10 @@ end
 -- Parsing
 
 function Parser:Parse()
-    --? Make sure there is a token we can read
-    self.token = self.token or self.lexer:GetNextToken()
+    --? Make sure there is a token we can read and discard extra newlines
+    while not self.token or self.token.type == "newline" do
+        self.token = self.lexer:GetNextToken()
+    end
 
     local program = {type = "program", value = {}, line = 1, char = 1}
 
@@ -60,7 +62,7 @@ function Parser:Parse()
         elseif token.type == "dot" then
             node = self:Directive()
         else
-            node = self:Eat( "identifier" )
+            node = self:Identifier()
         end
 
         table.insert( program.value, node )
@@ -70,27 +72,25 @@ function Parser:Parse()
 end
 
 function Parser:Identifier()
-    self:Eat( "identifier" )
+    local id = self:Eat( "identifier" )
 
     if self.token.type == "colon" then
-        return self:Label()
+        self:Label()
+
+        return {type = "label", value = id, line = id.line, char = id.char}
     end
 
-    return self:Instruction()
+    return self:Instruction( id )
 end
 
 function Parser:Label()
     self:Eat( "colon" )
-    local label = self:Eat( "identifier" )
-
-    return {type = "label", value = label, line = label.line, char = label.char}
+    self:Eat( "newline" )
 end
 
-function Parser:Instruction()
-    local instruction = self:Eat( "identifier" )
+function Parser:Instruction( instruction )
     local name = instruction.value
-
-    local adressingModes = Instructions.opcodes[name]
+    local adressingModes = Instructions.bytecodes[name]
 
     if not adressingModes then
         -- TODO: Properly throw errors
@@ -196,5 +196,38 @@ end
 
 function Parser:Operand()
 end
+
+function Parser:Preprocessor()
+    self:Eat( "hash" )
+    local operation = self:Eat( "identifier" )
+
+    self[operation.value]( self )
+
+    self:Eat( "newline" )
+
+    return operation.value
+end
+
+--------------------------------------------------
+-- Preprocessor
+
+function Parser:define()
+    self:Eat( "identifier" )
+end
+
+function Parser:ifdef()
+    while self.token.type ~= "eof" do
+        if self.token.type == "hash" and self:Preprocessor() == "endif" then
+            return
+        end
+
+        local token = self:Eat( self.token.type )
+    end
+end
+
+function Parser:endif() end
+
+--------------------------------------------------
+-- Testing
 
 include( "tests/parsing_test.lua" )

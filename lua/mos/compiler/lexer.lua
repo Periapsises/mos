@@ -34,9 +34,11 @@ Lexer.patterns = {
     {token = "comma", pattern = "^,"},
     {token = "colon", pattern = "^:"},
     {token = "hash", pattern = "^#"},
-    {token = "dot", pattern = "^."},
-    {token = "whitespace", pattern = "^ +"},
-    {token = "newline", pattern = "^\n"}
+    {token = "dot", pattern = "^%."},
+    {token = "whitespace", pattern = "^ +", discard = true},
+    {token = "newline", pattern = "^\n"},
+    {token = "comment", pattern = "^//[^\n]*", discard = true},
+    {token = "comment", pattern = "^/%*.-%*/", discard = true}
 }
 
 function Lexer:Token( type, value )
@@ -64,7 +66,15 @@ function Lexer:GetNextToken()
         self.pos = self.pos + len( match )
 
         self.line = self.line + ( lcount - 1 )
-        self.char = ( lcount == 1 ) and self.char + len( match ) or len( lines[lcount] )
+        self.char = self.char + len( match )
+
+        if lcount > 1 then
+            self.char = len( lines[lcount] ) + 1
+        end
+
+        if info.discard then
+            return self:GetNextToken()
+        end
 
         return self:Token( info.token, match )
     end
