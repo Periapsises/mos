@@ -28,7 +28,7 @@ local function nodePrinter( self, key )
     return value
 end
 
-local function test( name, code, printNodes, printTree )
+local function test( name, code, expected, printNodes, printTree )
     if printNodes then
         Parser.__index = nodePrinter
     end
@@ -54,8 +54,16 @@ local function test( name, code, printNodes, printTree )
         printTable( msg, "" )
     end
 
-    print( name .. ": \t" .. ( success and "Success" or "Failure\n\t" .. msg ) )
-    print()
+    local sColor = Color( 139, 255, 178)
+    local fColor = Color( 255, 147, 147)
+
+    MsgC( "Test: ", Color( 217, 159, 255), name .. "\n" )
+    MsgC( "    Result: ", success and sColor or fColor, ( success and "Success" or "Failure" ) .. "\n" )
+    MsgC( "    Expected: ", expected and sColor or fColor, ( expected and "Success" or "Failure" ) .. "\n\n" )
+
+    if not success then
+        MsgC( "    Message: ", Color( 255, 214, 137), string.GetFileFromFilename( msg ) .. "\n\n" )
+    end
 
     Parser.__index = Parser
 end
@@ -94,8 +102,8 @@ label:
 
 print( "\n----- Tests -----\n" )
 
-test( "Valid code", validCodeTest )
-test( "Empty code", "" )
+test( "Valid code", validCodeTest, true )
+test( "Empty code", "", true )
 test( "Invalid Instruction", "lol" )
 test( "Invalid register", "adc 0,a" )
 test( "Invalid index register", "adc [0,y]" )
