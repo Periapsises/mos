@@ -1,6 +1,4 @@
--- Tests only run on myself, Periapsis :D
 if SERVER then return end
-if LocalPlayer():SteamID() ~= "STEAM_0:1:115301653" then return end
 
 local Parser = Mos.Compiler.Parser
 

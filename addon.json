@@ -5,7 +5,6 @@
     "ignore": [
         "*.md",
         ".git",
-        ".vscode",
-        "tests"
+        ".vscode"
     ]
 }

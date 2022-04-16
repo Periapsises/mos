@@ -11,10 +11,13 @@ AddCSLuaFile( "mos/compiler/compiler.lua" )
 AddCSLuaFile( "mos/compiler/parser.lua" )
 AddCSLuaFile( "mos/compiler/lexer.lua" )
 
-AddCSLuaFile( "tests/parsing_test.lua" )
+for _, f in ipairs( file.Find( "mos/tests/*.lua", "LUA" ) ) do
+    AddCSLuaFile( "mos/tests/" .. f )
+end
 
 include( "mos/editor/editor.lua" )
 
 if CLIENT then
     include( "mos/compiler/compiler.lua" )
+    include( "mos/tests/tests.lua" )
 end

@@ -309,8 +309,3 @@ function Parser:Factor()
 
     return self:Eat( self.token.type )
 end
-
---------------------------------------------------
--- Testing
-
-include( "tests/parsing_test.lua" )
