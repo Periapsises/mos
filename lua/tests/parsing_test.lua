@@ -103,8 +103,21 @@ label:
 print( "\n----- Tests -----\n" )
 
 test( "Valid code", validCodeTest, true )
-test( "Empty code", "", true )
-test( "Invalid Instruction", "lol" )
-test( "Invalid register", "adc 0,a" )
-test( "Invalid index register", "adc [0,y]" )
-test( "Expected identifier", "0" )
+test( "Empty code", "\n", true )
+test( "Invalid Instruction", "lol\n" )
+test( "Invalid register", "adc 0,a\n" )
+test( "Invalid index register", "adc [0,y]\n" )
+test( "Expected identifier", "0\n" )
+
+local validIfdefTest = [[
+#ifdef VAR
+    nop
+    nop
+#ifdef ANOTHER_VAR
+    nop
+#endif // ANOTHER_VAR
+#endif // VAR
+]]
+
+test( "Valid #ifdef", validIfdefTest, true )
+test( "Invalid #ifdef", "#ifdef VAR\n", false )

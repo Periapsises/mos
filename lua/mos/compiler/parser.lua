@@ -46,30 +46,42 @@ end
 -- Parsing
 
 function Parser:Parse()
-    --? Make sure there is a token we can read and discard extra newlines
-    while not self.token or self.token.type == "newline" do
-        self.token = self.lexer:GetNextToken()
-    end
+    --? Make sure there is a token we can read
+    self.token = self.lexer:GetNextToken()
 
-    return self:Program()
+    local program = {type = "program", value = self:Statements( "eof" ), line = 1, char = 1}
+    self:Eat( "eof" )
+
+    return program
 end
 
-function Parser:Program()
+function Parser:Statements( condition )
     local program = {type = "program", value = {}, line = 1, char = 1}
 
-    while self.token.type ~= "eof" do
+    local shouldContinue = true
+    local function exit()
+        shouldContinue = false
+    end
+
+    while shouldContinue and self.token.type ~= "eof" do
         local token = self.token
         local node
 
         if token.type == "hash" then
-            node = self:Preprocessor()
+            node = self:Preprocessor( exit )
         elseif token.type == "dot" then
             node = self:Directive()
+        elseif token.type == "newline" then
+            self:Eat( "newline" )
         else
             node = self:Identifier()
         end
 
         table.insert( program.value, node )
+    end
+
+    if shouldContinue and condition ~= self.token.type then
+        errorf( "Expected %s got %s at line %d, char %d", condition, self.token.type, self.token.line, self.token.char )
     end
 
     return program
@@ -107,21 +119,6 @@ function Parser:Instruction( instruction )
     local value = {instruction = instruction, operand = operand}
     return {type = "instruction", value = value, line = instruction.line, char = instruction.char}
 end
-
---[[
-
-    OK - Zeropage will be ignored for now as it's hard to differenciate from absolute.
-
-    OK - Immediate and idirect have special tokens that let the parser identify them.
-
-    For the rest:
-        Start as absolute and perform extra steps after.
-
-        If there are no operands -> Implied
-        If there is one identifier with value a -> Accumulator
-
-        Else, if the instruction is a branching instruction -> Relative
-]]
 
 local adressingMode = {
     lsqrbracket = "Indirect",
@@ -229,40 +226,50 @@ function Parser:RegisterIndex()
     return register
 end
 
-function Parser:Operand()
-    local number = self:Eat( "number" )
-
-    return {type = "operand", value = number, line = number.line, char = number.char}
-end
-
-function Parser:Preprocessor()
+function Parser:Preprocessor( exit )
     self:Eat( "hash" )
     local operation = self:Eat( "identifier" )
 
-    self[operation.value]( self )
+    local value = self[operation.value]( self, exit )
 
-    return operation.value
+    return {type = operation.value, value = value, line = operation.line, char = operation.char}
 end
 
 --------------------------------------------------
 -- Preprocessor
 
 function Parser:define()
-    self:Eat( "identifier" )
+    local operand = self:Operand()
     self:Eat( "newline" )
+
+    return operand
 end
 
 function Parser:ifdef()
-    while self.token.type ~= "eof" do
-        if self.token.type == "hash" and self:Preprocessor() == "endif" then
-            return self:Eat( "newline" )
-        end
+    local condition = self:Operand()
+    self:Eat( "newline" )
 
-        local token = self:Eat( self.token.type )
-    end
+    return {condition = condition, statements = self:Statements( '#endif' )}
 end
 
-function Parser:endif() end
+function Parser:endif( exit )
+    exit()
+end
+
+--------------------------------------------------
+-- Operands
+
+function Parser:Operand()
+    if self.token.type == "identifier" then
+        local id = self:Eat( "identifier" )
+
+        return {type = "operand", value = id, line = id.line, char = id.char}
+    end
+
+    local number = self:Eat( "number" )
+
+    return {type = "operand", value = number, line = number.line, char = number.char}
+end
 
 --------------------------------------------------
 -- Testing
