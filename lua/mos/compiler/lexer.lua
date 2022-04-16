@@ -10,7 +10,7 @@ Lexer.__index = Lexer
 
 function Lexer:Create( text )
     local lexer = {}
-    lexer.text = lower( text )
+    lexer.text = string.gsub( lower( text ), "\n+", "\n" )
     lexer.pos = 1
 
     lexer.line = 1

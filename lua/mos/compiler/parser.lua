@@ -101,8 +101,11 @@ function Parser:Instruction( instruction )
         errorf( "Invalid instruction name '%s' at line %d, char %d", name, instruction.line, instruction.char )
     end
 
-    self:AddressingMode( instruction )
+    local operand = self:AddressingMode( instruction )
     self:Eat( "newline" )
+
+    local value = {instruction = instruction, operand = operand}
+    return {type = "instruction", value = value, line = instruction.line, char = instruction.char}
 end
 
 --[[
@@ -227,6 +230,9 @@ function Parser:RegisterIndex()
 end
 
 function Parser:Operand()
+    local number = self:Eat( "number" )
+
+    return {type = "operand", value = number, line = number.line, char = number.char}
 end
 
 function Parser:Preprocessor()
@@ -234,8 +240,6 @@ function Parser:Preprocessor()
     local operation = self:Eat( "identifier" )
 
     self[operation.value]( self )
-
-    self:Eat( "newline" )
 
     return operation.value
 end
@@ -245,12 +249,13 @@ end
 
 function Parser:define()
     self:Eat( "identifier" )
+    self:Eat( "newline" )
 end
 
 function Parser:ifdef()
     while self.token.type ~= "eof" do
         if self.token.type == "hash" and self:Preprocessor() == "endif" then
-            return
+            return self:Eat( "newline" )
         end
 
         local token = self:Eat( self.token.type )

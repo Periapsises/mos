@@ -2,8 +2,66 @@
 if SERVER then return end
 if LocalPlayer():SteamID() ~= "STEAM_0:1:115301653" then return end
 
-local Lexer = Mos.Compiler.Lexer
 local Parser = Mos.Compiler.Parser
+
+local padding = ""
+
+local function nodePrinter( self, key )
+    local value = Parser[key]
+
+    if type( value ) == "function" and key ~= "Eat" then
+        local _padding = padding
+
+        return function( ... )
+            padding = padding .. "  "
+            print( _padding .. "Enter: " .. key )
+
+            local ret = {value( ... )}
+
+            print( _padding .. "Exit: " .. key )
+            padding = _padding
+
+            return unpack( ret )
+        end
+    end
+
+    return value
+end
+
+local function test( name, code, printNodes, printTree )
+    if printNodes then
+        Parser.__index = nodePrinter
+    end
+
+    local success, msg = pcall( function()
+        local parser = Parser:Create( code )
+        return parser:Parse()
+    end )
+
+    if success and printTree then
+        local function printTable( tbl, padding )
+            for key, value in pairs( tbl ) do
+                if type( value ) == "table" then
+                    print( padding .. key .. ": {" )
+                    printTable( value, padding .. " |\t" )
+                    print( padding .. "}" )
+                else
+                    print( padding .. key .. ":\t" .. tostring( value ) )
+                end
+            end
+        end
+
+        printTable( msg, "" )
+    end
+
+    print( name .. ": \t" .. ( success and "Success" or "Failure\n\t" .. msg ) )
+    print()
+
+    Parser.__index = Parser
+end
+
+--------------------------------------------------
+-- Tests
 
 local validCodeTest = [[
 // Single line comment
@@ -30,43 +88,15 @@ label:
     adc 0,x
     adc 0,X
     adc 0,y
-    adc (0,x)
-    adc (0),y
+    adc [0,x]
+    adc [0],y
 ]]
 
-print( "\n----------------------------------------\n" )
+print( "\n----- Tests -----\n" )
 
-local padding = ""
-
-Parser.__index = function( self, key )
-    local value = Parser[key]
-
-    if type( value ) == "function" and key ~= "Eat" then
-        local _padding = padding
-
-        return function( ... )
-            padding = padding .. "  "
-            print( _padding .. "Enter: " .. key )
-
-            local ret = {value( ... )}
-
-            print( _padding .. "Exit: " .. key )
-            padding = _padding
-
-            return unpack( ret )
-        end
-    end
-
-    return value
-end
-
-local sucess, msg = pcall( function()
-    local parser = Parser:Create( validCodeTest )
-    parser:Parse()
-end )
-
-if not sucess then
-    print( "\n", msg )
-end
-
-Parser.__index = Parser
+test( "Valid code", validCodeTest )
+test( "Empty code", "" )
+test( "Invalid Instruction", "lol" )
+test( "Invalid register", "adc 0,a" )
+test( "Invalid index register", "adc [0,y]" )
+test( "Expected identifier", "0" )
