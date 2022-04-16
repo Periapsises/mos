@@ -18,15 +18,6 @@ end
 -- Parser metamethods
 
 --[[
-    @name Parser:Next()
-    @desc Returns the next token read, caches the result in self.token
-]]
-function Parser:Next()
-    self.token = self.token or self.lexer:GetNextToken()
-    return self.token
-end
-
---[[
     @name Parser:Eat( type )
     @desc Pops a token from the stream and returns it. Throws an error if the type isn't the one we expect
 
@@ -87,7 +78,7 @@ end
 
 function Parser:Parse()
     --? Make sure there is a token we can read
-    self:Next()
+    self.token = self.token or self.lexer:GetNextToken()
 
     while self.token.type ~= "eof" do
         local token = self.token
@@ -109,7 +100,7 @@ end
 function Parser:Identifier()
     self:Eat( "identifier" )
 
-    if self:Next().type == "colon" then
+    if self.token.type == "colon" then
         return self:Label()
     end
 
@@ -131,4 +122,39 @@ function Parser:Instruction()
         -- TODO: Properly throw errors
         error( "Invalid instruction name '" .. name .. "' at line " .. instruction.line .. ", char " .. instruction.char )
     end
+
+    self:AddressingMode()
+end
+
+local isAddressingModeToken = {
+    ["lsqrbracket"] = "ind",
+    ["hash"] = "imm",
+}
+
+function Parser:AddressingMode()
+    local mode = isAddressingModeToken[self.token.type]
+    local token = self:Eat( self.token.type )
+
+    self:Operand()
+    self:RegisterIndex()
+end
+
+function Parser:RegisterIndex()
+    if self.token.type ~= "comma" then return end
+
+    self:Eat( "comma" )
+    local register = self:Eat( "identifier" )
+
+    if register.value ~= "x" and register.value ~= "y" then
+        -- TODO: Properly throw errors
+        error( string.format( "Invalid register : %s at line %d, char %d", token.value, token.line, token.char ) )
+    end
+
+    register.type = register.value .. "index"
+
+    self:Shift( register )
+end
+
+function Parser:Operand()
+
 end
