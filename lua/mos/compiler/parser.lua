@@ -146,7 +146,7 @@ function Parser:Indirect()
         local register = self:RegisterIndex()
 
         if register.value ~= "x" then
-            errorf( "Invalid index register: x expected, got y" )
+            errorf( "Invalid index register. 'x' expected, got 'y'" )
         end
 
         mode = "X,Indirect"
@@ -158,7 +158,7 @@ function Parser:Indirect()
         local register = self:RegisterIndex()
 
         if register.value ~= "y" then
-            errorf( "Invalid index register: y expected, got x" )
+            errorf( "Invalid index register. 'y' expected, got 'x'" )
         end
 
         mode = "Indirect,Y"
@@ -223,7 +223,7 @@ function Parser:RegisterIndex()
 
     if register.value ~= "x" and register.value ~= "y" then
         -- TODO: Properly throw errors
-        errorf( "Invalid register : %s at line %d, char %d", register.value, register.line, register.char )
+        errorf( "Invalid register '%s' at line %d, char %d", register.value, register.line, register.char )
     end
 
     return register
