@@ -121,3 +121,4 @@ local validIfdefTest = [[
 
 test( "Valid #ifdef", validIfdefTest, true )
 test( "Invalid #ifdef", "#ifdef VAR\n", false )
+test( "Empty #ifdef", "#ifdef VAR\n#endif\n", true )
