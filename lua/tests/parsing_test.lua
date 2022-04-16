@@ -1,3 +1,4 @@
+local Lexer = Mos.Compiler.Lexer
 local Parser = Mos.Compiler.Parser
 
 local validCodeTest = [[
@@ -29,4 +30,13 @@ label:
     adc (0),y
 ]]
 
+local lexer = Lexer:Create( validCodeTest )
+local token
+
+repeat
+    token = lexer:GetNextToken()
+    print(token.type, token.value)
+until (token.type == "eof")
+
 local parser = Parser:Create( validCodeTest )
+parser:Parse()

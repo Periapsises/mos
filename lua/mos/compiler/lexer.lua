@@ -50,7 +50,7 @@ function Lexer:GetNextToken()
     for _, pattern in ipairs( self.patterns ) do
         local result = string.match( text, pattern.pattern )
 
-        if len( result ) > size then
+        if result and len( result ) > size then
             match = result
             size = len( result )
             info = pattern

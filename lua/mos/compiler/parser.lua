@@ -6,14 +6,17 @@ local Instructions = Mos.Compiler.Instructions
 include( "mos/compiler/lexer.lua" )
 
 local function errorf( str, ... )
-    error( string.format( str, ... ) )
+    error( string.format( str, ... ), 3 )
 end
 
 --------------------------------------------------
 -- Parser API
 
-function Parser:Create()
+Parser.__index = Parser
+
+function Parser:Create( code )
     local parser = {}
+    parser.lexer = Mos.Compiler.Lexer:Create( code )
 
     return setmetatable( parser, self )
 end
@@ -31,7 +34,7 @@ function Parser:Eat( type )
     local token = self.token
     if token.type ~= type then
         -- TODO: Properly throw errors
-        error( string.format( "Expected %s got %s at line %d, char %d", type, token.type, token.line, token.char ) )
+        errorf( "Expected %s got %s at line %d, char %d", type, token.type, token.line, token.char )
     end
 
     self.token = self.lexer:GetNextToken()
@@ -193,3 +196,5 @@ end
 
 function Parser:Operand()
 end
+
+include( "tests/parsing_test.lua" )

@@ -1,4 +1,4 @@
-Mos.Compiler.Instructions = Mos.Compiler.Instructions
+Mos.Compiler.Instructions = Mos.Compiler.Instructions or {}
 local Instructions = Mos.Compiler.Instructions
 
 --? Lookup for an instruction's name[addressing mode] -> Bytecode
@@ -80,4 +80,4 @@ Instructions.opcodes = {
     { "cpx", 2 },{ "sbc", 6 },{ "???", 2 },{ "???", 8 },{ "cpx", 3 },{ "sbc", 3 },{ "inc", 5 },{ "???", 5 },{ "inx", 2 },{ "sbc", 2 },{ "nop", 2 },{ "???", 2 },{ "cpx", 4 },{ "sbc", 4 },{ "inc", 6 },{ "???", 6 },
     { "beq", 2 },{ "sbc", 5 },{ "???", 2 },{ "???", 8 },{ "???", 4 },{ "sbc", 4 },{ "inc", 6 },{ "???", 6 },{ "sed", 2 },{ "sbc", 4 },{ "nop", 2 },{ "???", 7 },{ "???", 4 },{ "sbc", 4 },{ "inc", 7 },{ "???", 7 }
 }
-Instructions.lookup[0x00] = { "brk", 7 }
+Instructions.opcodes[0x00] = { "brk", 7 }

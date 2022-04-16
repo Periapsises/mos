@@ -11,6 +11,8 @@ AddCSLuaFile( "mos/compiler/compiler.lua" )
 AddCSLuaFile( "mos/compiler/parser.lua" )
 AddCSLuaFile( "mos/compiler/lexer.lua" )
 
+AddCSLuaFile( "tests/parsing_test.lua" )
+
 include( "mos/editor/editor.lua" )
 
 if CLIENT then
