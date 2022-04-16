@@ -51,6 +51,10 @@ function Parser:Parse()
         self.token = self.lexer:GetNextToken()
     end
 
+    return self:Program()
+end
+
+function Parser:Program()
     local program = {type = "program", value = {}, line = 1, char = 1}
 
     while self.token.type ~= "eof" do
@@ -98,6 +102,7 @@ function Parser:Instruction( instruction )
     end
 
     self:AddressingMode( instruction )
+    self:Eat( "newline" )
 end
 
 --[[
@@ -117,8 +122,60 @@ end
 
 local adressingMode = {
     lsqrbracket = "Indirect",
-    hash = "Immediate"
+    hash = "Immediate",
+    newline = "Implied"
 }
+
+function Parser:AddressingMode( instruction )
+    local token = self.token
+    local mode = adressingMode[token.type] or "MaybeAbsolute"
+
+    return self[mode]( self, instruction )
+end
+
+function Parser:Indirect()
+    self:Eat( "lsqrbracket" )
+    local operand = self:Operand()
+
+    local mode = "Indirect"
+
+    if self.token.type == "comma" then
+        local register = self:RegisterIndex()
+
+        if register.value ~= "x" then
+            errorf( "Invalid index register: x expected, got y" )
+        end
+
+        mode = "X,Indirect"
+    end
+
+    self:Eat( "rsqrbracket" )
+
+    if self.token.type == "comma" then
+        local register = self:RegisterIndex()
+
+        if register.value ~= "y" then
+            errorf( "Invalid index register: y expected, got x" )
+        end
+
+        mode = "Indirect,Y"
+    end
+
+    return {type = "adressing_mode", value = operand, mode = mode, line = operand.line, char = operand.char}
+end
+
+function Parser:Immediate()
+    self:Eat( "hash" )
+    local operand = self:Operand()
+
+    return {type = "adressing_mode", value = operand, mode = "Immediate", line = operand.line, char = operand.char}
+end
+
+function Parser:Implied( instruction )
+    --! Don't eat the newline. All instructions are expected to end with one and :Instruction() will take care of it
+
+    return {type = "adressing_mode", mode = "Implied", line = instruction.line, char = instruction.char}
+end
 
 local isBranchInstruction = {
     bcc = true,
@@ -131,55 +188,30 @@ local isBranchInstruction = {
     bvs = true
 }
 
-function Parser:AddressingMode( instruction )
-    local token = self.token
-    local mode = adressingMode[token.type]
-
-    if mode then
-        self:Eat( token.type )
+function Parser:MaybeAbsolute( instruction )
+    if self.token.type == "identifier" and self.token.value == "a" then
+        return self:Accumulator()
     end
 
-    self:Operand()
+    local operand = self:Operand()
 
-    if not mode then
-        local stackSize = #self.stack
-        mode = "Absolute"
-
-        local validAccStart = self.stack[stackSize - 1] and self.stack[stackSize - 1]
-        local validAccToken = self.stack[stackSize].type == "identifier" and self.stack[stackSize].value == "a"
-
-        if validAccStart and validAccToken then
-            mode = "Accumulator"
-        elseif self.stack[stackSize] == token then
-            mode = "Implied"
-        elseif isBranchInstruction[instruction.value] then
-            mode = "Relative"
-        end
+    if isBranchInstruction[instruction.value] then
+        return {type = "adressing_mode", value = operand, mode = "Relative", line = operand.line, char = operand.char}
     end
 
-    if mode == "Absolute" and self.token.type ~= "comma" then
-        local register = string.upper( self:RegisterIndex() )
+    if self.token.type == "comma" then
+        local register = string.upper( self:RegisterIndex().value )
 
-        mode = "Absolute," .. register
-    elseif mode == "Indirect" then
-        if self.token.type == "comma" then
-            local register = self:RegisterIndex()
-
-            if register == "y" then
-                errorf( "Invalid index register: x expected, got y" )
-            elseif register == "x" then
-                mode = "X,Indirect"
-            end
-        elseif self.token.type == "rsqrbracket" then
-            local register = self:RegisterIndex()
-
-            if register == "x" then
-                errorf( "Invalid index register: y expected, got x" )
-            elseif register == "y" then
-                mode = "Indirect,Y"
-            end
-        end
+        return {type = "adressing_mode", value = operand, mode = "Absolute," .. register, line = operand.line, char = operand.char}
     end
+
+    return {type = "adressing_mode", value = operand, mode = "Absolute", line = operand.line, char = operand.char}
+end
+
+function Parser:Accumulator()
+    local acc = self:Eat( "identifier" )
+
+    return {type = "adressing_mode", value = acc, mode = "Accumulator", line = acc.line, char = acc.char}
 end
 
 function Parser:RegisterIndex()
@@ -191,7 +223,7 @@ function Parser:RegisterIndex()
         errorf( "Invalid register : %s at line %d, char %d", register.value, register.line, register.char )
     end
 
-    return register.value
+    return register
 end
 
 function Parser:Operand()
