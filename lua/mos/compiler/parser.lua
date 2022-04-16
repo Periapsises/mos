@@ -39,44 +39,6 @@ function Parser:Eat( type )
     return token
 end
 
---[[
-    @name Parser:Shift( token )
-    @desc Shifts a token on the stack
-
-    @param Table token - The token to shift
-]]
-function Parser:Shift( token )
-    table.insert( self.stack, token )
-end
-
---[[
-    @name Parser:Reduce( name, amount )
-    @desc Reduces 'amount' of tokens from the stack into a single token 'name'
-
-    @param string name - The name of the new token
-    @param number amount - How many tokens to pop (nil = 1, >1 = stack size - amount)
-]]
-function Parser:Reduce( name, amount )
-    if amount <= 0 then
-        amount = #self.stack + amount
-    end
-
-    if not ammount or amount == 1 then
-        local token = table.remove( self.stack )
-
-        return self:Shift( {type = name, value = token, line = token.line, char = token.char} )
-    end
-
-    local tokens = {}
-
-    for i = 1, amount do
-        table.insert( tokens, 1, table.remove( self.stack ) )
-    end
-
-    local top = tokens[1]
-    return self:Shift( {type = name, value = tokens, line = top.line, char = top.char} )
-end
-
 --------------------------------------------------
 -- Parsing
 
@@ -84,21 +46,24 @@ function Parser:Parse()
     --? Make sure there is a token we can read
     self.token = self.token or self.lexer:GetNextToken()
 
+    local program = {type = "program", value = {}, line = 1, char = 1}
+
     while self.token.type ~= "eof" do
         local token = self.token
+        local node
 
-        if token.type == "identifier" then
-            self:Identifier()
-        elseif token.type == "hash" then
-            self:Preprocessor()
+        if token.type == "hash" then
+            node = self:Preprocessor()
         elseif token.type == "dot" then
-            self:Directive()
+            node = self:Directive()
         else
-            self:Eat( "identifier" )
+            node = self:Eat( "identifier" )
         end
+
+        table.insert( program.value, node )
     end
 
-    return self:Reduce( "program", 0 )
+    return program
 end
 
 function Parser:Identifier()
@@ -108,12 +73,14 @@ function Parser:Identifier()
         return self:Label()
     end
 
-    self:Instruction()
+    return self:Instruction()
 end
 
 function Parser:Label()
     self:Eat( "colon" )
-    self:Reduce( "label", 1 )
+    local label = self:Eat( "identifier" )
+
+    return {type = "label", value = label, line = label.line, char = label.char}
 end
 
 function Parser:Instruction()
@@ -220,10 +187,6 @@ function Parser:RegisterIndex()
         -- TODO: Properly throw errors
         errorf( "Invalid register : %s at line %d, char %d", register.value, register.line, register.char )
     end
-
-    register.type = register.value .. "index"
-
-    self:Shift( register )
 
     return register.value
 end
