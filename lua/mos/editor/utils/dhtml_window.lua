@@ -5,7 +5,7 @@ local DHTMLWINDOW = {}
 function DHTMLWINDOW:Init()
     Editor.dhtml = self
 
-    self:OpenURL( "https://periapsises.github.io/editor/" )
+    self:OpenURL( "https://periapsises.github.io/mos6502/editor/" )
 
     self:AddFunction( "GLua", "onTextChanged", function( text, changed )
         local activeTab = Editor:GetActiveTab()

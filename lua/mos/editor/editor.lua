@@ -9,6 +9,7 @@ include( "mos/editor/file_system.lua" )
 include( "mos/editor/tab_system.lua" )
 include( "mos/editor/utils/dhtml_window.lua" )
 include( "mos/editor/utils/close_button.lua" )
+include( "mos/editor/utils/header_button.lua" )
 include( "mos/editor/utils/notifications.lua" )
 
 --------------------------------------------------
@@ -141,6 +142,8 @@ function EDITOR:Init()
 
     self.header = header
     self.footer = footer
+
+    hook.Run( "MosEditor_CreateEditor", self )
 end
 
 function EDITOR:Open()
