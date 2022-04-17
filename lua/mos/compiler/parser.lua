@@ -318,19 +318,22 @@ end
 function Parser:Directive()
     self:Eat( "Dot" )
     local directive = self:Eat( "Identifier" )
-    local argument = self:Arguments()
+    local arguments = self:Arguments()
 
-    return {type = "Directive", value = {directive = directive, argument = argument}, line = directive.line, char = directive.char}
+    return {type = "Directive", value = {directive = directive, arguments = arguments}, line = directive.line, char = directive.char}
 end
 
 function Parser:Arguments()
     local arg = self:Expression()
-    if not arg then return end
+    local args = {}
 
-    local args = {type = "Arguments", value = {arg}, line = arg.line, char = arg.char}
+    if not arg then return args end
+    table.insert( args, arg )
 
     while self.token.type == "Comma" do
         self:Eat( "Comma" )
-        table.insert( args.value, self:Expression() )
+        table.insert( args, self:Expression() )
     end
+
+    return args
 end

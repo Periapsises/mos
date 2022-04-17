@@ -3,9 +3,13 @@ local Compiler = Mos.Compiler
 
 include( "mos/compiler/instructions.lua" )
 include( "mos/compiler/parser.lua" )
+include( "mos/compiler/ast/node_visitor.lua" )
+include( "mos/compiler/preprocessor.lua" )
 
 --------------------------------------------------
 -- Compiler API
+
+setmetatable( Compiler, Mos.Compiler.NodeVisitor )
 
 function Compiler:Compile()
     local activeTab = Mos.Editor:GetActiveTab()
@@ -15,6 +19,13 @@ function Compiler:Compile()
     local parser = self.Parser:Create( code )
 
     local ast = parser:Parse()
+    self.Preprocessor:Process( ast )
+end
+
+function Compiler:VisitProgram( statements )
+    for _, statement in ipairs( statements ) do
+        self:Visit( statement )
+    end
 end
 
 --------------------------------------------------

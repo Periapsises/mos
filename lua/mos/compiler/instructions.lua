@@ -81,3 +81,16 @@ Instructions.opcodes = {
     { "beq", 2 },{ "sbc", 5 },{ "???", 2 },{ "???", 8 },{ "???", 4 },{ "sbc", 4 },{ "inc", 6 },{ "???", 6 },{ "sed", 2 },{ "sbc", 4 },{ "nop", 2 },{ "???", 7 },{ "???", 4 },{ "sbc", 4 },{ "inc", 7 },{ "???", 7 }
 }
 Instructions.opcodes[0x00] = { "brk", 7 }
+
+Instructions.modeByteSize = {
+    ["Accumulator"] = 0,
+    ["Absolute"] = 2,
+    ["Absolute,X"] = 2,
+    ["Absolute,Y"] = 2,
+    ["Immediate"] = 1,
+    ["Implied"] = 0,
+    ["Indirect"] = 2,
+    ["X,Indirect"] = 1,
+    ["Indirect,Y"] = 1,
+    ["Relative"] = 1
+}

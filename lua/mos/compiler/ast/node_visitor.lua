@@ -1,14 +1,10 @@
 Mos.Compiler.NodeVisitor = Mos.Compiler.NodeVisitor or {}
 local NodeVisitor = Mos.Compiler.NodeVisitor
 
-function NodeVisitor:Create()
-    local nodeVisitor = {}
-
-    return setmetatable( nodeVisitor, self )
-end
+NodeVisitor.__index = NodeVisitor
 
 function NodeVisitor:Visit( node )
-    if not node then self:Fatal() end
+    if not node then error( "Trying to visit a nil value", 2 ) end
 
     local nodeType = node.type or ""
     local visitor = self["Visit" .. nodeType]
@@ -18,9 +14,9 @@ function NodeVisitor:Visit( node )
         return
     end
 
-    visitor( self, node.value )
+    return visitor( self, node.value, node )
 end
 
 function NodeVisitor:GenericVisit( node )
-    error( "No visitor for " .. node.type )
+    error( "No visitor for " .. node.type, 3 )
 end

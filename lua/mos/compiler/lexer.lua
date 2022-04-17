@@ -26,6 +26,8 @@ Lexer.patterns = {
     {token = "Identifier", pattern = "^[_%a][_%.%w]*"},
     {token = "Number", pattern = "^%d+"},
     {token = "Number", pattern = "^0[bdhx]%x+"},
+    {token = "String", pattern = "^\".-[^\\]\""},
+    {token = "String", pattern = "^'.-[^\\]'"},
     {token = "LParen", pattern = "^%("},
     {token = "RParen", pattern = "^%)"},
     {token = "LSqrBracket", pattern  = "^%["},
