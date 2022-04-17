@@ -1,4 +1,5 @@
-local NodeVisitor = {}
+Mos.Compiler.NodeVisitor = Mos.Compiler.NodeVisitor or {}
+local NodeVisitor = Mos.Compiler.NodeVisitor
 
 function NodeVisitor:Create()
     local nodeVisitor = {}

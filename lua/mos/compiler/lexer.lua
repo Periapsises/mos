@@ -23,22 +23,22 @@ end
 -- Lexer metamethods
 
 Lexer.patterns = {
-    {token = "identifier", pattern = "^[_%a][_%.%w]*"},
-    {token = "number", pattern = "^%d+"},
-    {token = "number", pattern = "^0[bdhx]%x+"},
-    {token = "lparen", pattern = "^%("},
-    {token = "rparen", pattern = "^%)"},
-    {token = "lsqrbracket", pattern  = "^%["},
-    {token = "rsqrbracket", pattern  = "^%]"},
-    {token = "operator", pattern = "^[%+%-%*/]"},
-    {token = "comma", pattern = "^,"},
-    {token = "colon", pattern = "^:"},
-    {token = "hash", pattern = "^#"},
-    {token = "dot", pattern = "^%."},
-    {token = "whitespace", pattern = "^ +", discard = true},
-    {token = "newline", pattern = "^\n"},
-    {token = "comment", pattern = "^//[^\n]*", discard = true},
-    {token = "comment", pattern = "^/%*.-%*/", discard = true}
+    {token = "Identifier", pattern = "^[_%a][_%.%w]*"},
+    {token = "Number", pattern = "^%d+"},
+    {token = "Number", pattern = "^0[bdhx]%x+"},
+    {token = "LParen", pattern = "^%("},
+    {token = "RParen", pattern = "^%)"},
+    {token = "LSqrBracket", pattern  = "^%["},
+    {token = "RSqrBracket", pattern  = "^%]"},
+    {token = "Operator", pattern = "^[%+%-%*/]"},
+    {token = "Comma", pattern = "^,"},
+    {token = "Colon", pattern = "^:"},
+    {token = "Hash", pattern = "^#"},
+    {token = "Dot", pattern = "^%."},
+    {token = "Whitespace", pattern = "^ +", discard = true},
+    {token = "Newline", pattern = "^\n"},
+    {token = "Comment", pattern = "^//[^\n]*", discard = true},
+    {token = "Comment", pattern = "^/%*.-%*/", discard = true}
 }
 
 function Lexer:Token( type, value )
@@ -79,5 +79,5 @@ function Lexer:GetNextToken()
         return self:Token( info.token, match )
     end
 
-    return self:Token( "eof", "" )
+    return self:Token( "Eof", "" )
 end
