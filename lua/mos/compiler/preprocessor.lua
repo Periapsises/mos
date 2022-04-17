@@ -49,14 +49,15 @@ function Preprocessor:VisitDirective( data )
     self.directives[data.directive.value]( self, data.arguments )
 end
 
-function Preprocessor:VisitNumber( number )
+function Preprocessor:VisitNumber( number, node )
     local format = number[2]
+    local result = 0
 
     if format == "h" or format == "x" then
-        return tonumber( "0x" .. string.sub( number, 3 ) )
+        result = tonumber( "0x" .. string.sub( number, 3 ) )
     elseif format == "b" then
         number = string.sub( number, 3 )
-        local size, result = string.len( number ), 0
+        local size = string.len( number )
 
         for i = 0, size - 1 do
             local b = tonumber( number[size - i] )
@@ -69,10 +70,13 @@ function Preprocessor:VisitNumber( number )
             result = result + ( 2 ^ i ) * b
         end
     elseif format == "d" then
-        return tonumber( string.sub( number, 3 ) )
+        result = tonumber( string.sub( number, 3 ) )
     else
-        return tonumber( number )
+        result = tonumber( number )
     end
+
+    node.value = result
+    return result
 end
 
 function Preprocessor:VisitString( str, node )
