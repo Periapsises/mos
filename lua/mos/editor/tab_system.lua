@@ -25,6 +25,8 @@ function Tabs:CreateHandler( parent )
     handler.files = {}
     handler.history = {}
 
+    Mos.Editor.tabs = handler
+
     return setmetatable( handler, self )
 end
 

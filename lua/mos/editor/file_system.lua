@@ -96,7 +96,9 @@ end
 function FileSystem:Write( path, data )
     path = self:GetSanitizedPath( path )
 
-    return file.Write( path, data )
+    local f = file.Open( path, "wb", "DATA" )
+    f:Write( data )
+    f:Close()
 end
 
 --[[
@@ -105,10 +107,14 @@ end
 
     @param string path - The path to read the file from
 ]]
-function FileSystem:Read( path, data )
+function FileSystem:Read( path )
     path = self:GetSanitizedPath( path )
 
-    return file.Read( path, "DATA" )
+    local f = file.Open( path, "rb", "DATA" )
+    local data = f:Read( f:Size() )
+    f:Close()
+
+    return data
 end
 
 --------------------------------------------------

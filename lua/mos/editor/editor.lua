@@ -23,13 +23,20 @@ function Editor:Open()
 end
 
 function Editor:AddTab( path )
-    if not IsValid( self.panel ) then return end
+    if not self.tabs then return end
 
-    self.panel.tabs:AddTab( path )
+    self.tabs:AddTab( path )
 end
 
 function Editor:GetActiveTab()
-    return self.panel.tabs.activeTab
+    if not self.tabs then return end
+
+    return self.tabs.activeTab
+end
+
+function Editor:SetCode( code )
+    code = string.gsub( code, "\\", "\\\\" )
+    self.dhtml:QueueJavascript( "Editor.setCode( `" .. code .. "` )" )
 end
 
 --------------------------------------------------
@@ -119,10 +126,11 @@ function EDITOR:Init()
     tabs.container:SetTall( 32 )
 
     local dhtml = vgui.Create( "MosEditor_DHTMLWindow", right )
+    dhtml:Dock( FILL )
 
     function tabs:OnTabChanged( oldTab, newTab )
         local text = Mos.FileSystem:Read( newTab.file or "mos6502/asm/default.asm" ) or ""
-        dhtml:QueueJavascript( "Editor.setCode(`" .. text .. "`);" )
+        Editor:SetCode( text )
     end
 
     function tabs:OnLastTabRemoved( tab )
@@ -133,8 +141,6 @@ function EDITOR:Init()
 
     self.header = header
     self.footer = footer
-    self.tabs = tabs
-    self.dhtml = dhtml
 end
 
 function EDITOR:Open()

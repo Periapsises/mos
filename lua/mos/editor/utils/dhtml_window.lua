@@ -3,7 +3,8 @@ local Editor = Mos.Editor
 local DHTMLWINDOW = {}
 
 function DHTMLWINDOW:Init()
-    self:Dock( FILL )
+    Editor.dhtml = self
+
     self:OpenURL( "https://periapsises.github.io/editor/" )
 
     self:AddFunction( "GLua", "onTextChanged", function( text, changed )
@@ -27,7 +28,7 @@ function DHTMLWINDOW:Init()
         notif:Start( 1, 0.1, Color( 150, 255, 150 ) )
 
         activeTab:SetChanged( false )
-        file.Write( activeTab.file, content )
+        Mos.FileSystem:Write( activeTab.file, content )
     end )
 end
 
