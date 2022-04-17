@@ -292,8 +292,9 @@ function Parser:Term()
 end
 
 local validFactor = {
-    identifier = true,
-    number = true
+    ["identifier"] = true,
+    ["number"] = true,
+    ["string"] = true
 }
 
 function Parser:Factor()
@@ -308,4 +309,24 @@ function Parser:Factor()
     if not validFactor[self.token.type] then return end
 
     return self:Eat( self.token.type )
+end
+
+function Parser:Directive()
+    self:Eat( "dot" )
+    local directive = self:Eat( "identifier" )
+    local argument = self:Arguments()
+
+    return {type = "directive", value = {directive = directive, argument = argument}, line = directive.line, char = directive.char}
+end
+
+function Parser:Arguments()
+    local arg = self:Expression()
+    if not arg then return end
+
+    local args = {type = "arguments", value = {arg}, line = arg.line, char = arg.char}
+
+    while self.token.type == "comma" do
+        self:Eat( "comma" )
+        table.insert( args.value, self:Expression() )
+    end
 end

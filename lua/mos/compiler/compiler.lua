@@ -8,17 +8,13 @@ include( "mos/compiler/parser.lua" )
 -- Compiler API
 
 function Compiler:Compile()
-    local activeTab = self:GetActiveTab()
+    local activeTab = Mos.Editor:GetActiveTab()
     if not activeTab then return end
 
     local code = Mos.FileSystem:Read( activeTab.file )
     local parser = self.Parser:Create( code )
 
-    local success, ast = pcall( parser.Parser, parser )
-
-    if not success then
-        print( ast )
-    end
+    local ast = parser:Parse()
 end
 
 --------------------------------------------------
