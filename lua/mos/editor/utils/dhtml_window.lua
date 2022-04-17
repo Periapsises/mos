@@ -28,7 +28,7 @@ function DHTMLWINDOW:Init()
         notif:Start( 1, 0.1, Color( 150, 255, 150 ) )
 
         activeTab:SetChanged( false )
-        Mos.FileSystem:Write( activeTab.file, content )
+        Mos.FileSystem:Write( activeTab.file, string.gsub( content, "\\\\", "\\" ) )
     end )
 end
 
