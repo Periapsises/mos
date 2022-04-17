@@ -7,6 +7,9 @@ local Editor = Mos.Editor
 
 include( "mos/editor/file_system.lua" )
 include( "mos/editor/tab_system.lua" )
+include( "mos/editor/utils/dhtml_window.lua" )
+include( "mos/editor/utils/close_button.lua" )
+include( "mos/editor/utils/notifications.lua" )
 
 --------------------------------------------------
 -- Editor API
@@ -20,9 +23,20 @@ function Editor:Open()
 end
 
 function Editor:AddTab( path )
-    if not IsValid( self.panel ) then return end
+    if not self.tabs then return end
 
-    self.panel.tabs:AddTab( path )
+    self.tabs:AddTab( path )
+end
+
+function Editor:GetActiveTab()
+    if not self.tabs then return end
+
+    return self.tabs.activeTab
+end
+
+function Editor:SetCode( code )
+    code = string.gsub( code, "\\", "\\\\" )
+    self.dhtml:QueueJavascript( "Editor.setCode( `" .. code .. "` )" )
 end
 
 --------------------------------------------------
@@ -39,9 +53,9 @@ local editorPosY = CreateConVar( "mos_editor_pos_y", defaultY, FCVAR_ARCHIVE, "T
 
 local editorDividerPos = CreateConVar( "mos_editor_divider_pos", 256, FCVAR_ARCHIVE, "The position of the divider between the file browser and the editor in pixels from the left", 0 )
 
-local PANEL = {}
+local EDITOR = {}
 
-function PANEL:Init()
+function EDITOR:Init()
     local x, y = editorPosX:GetInt(), editorPosY:GetInt()
     local w, h = editorWidth:GetInt(), editorHeight:GetInt()
 
@@ -66,29 +80,10 @@ function PANEL:Init()
     icon:Dock( LEFT )
     icon:SetImage( "icon16/tag.png" )
 
-    local closeButton = vgui.Create( "DButton", header )
+    local closeButton = vgui.Create( "MosEditor_CloseButton", header )
     closeButton:SetSize( 46, 30 )
     closeButton:Dock( RIGHT )
-    closeButton:SetText( "" )
-    closeButton.editor = self
-
-    function closeButton:Paint( w, h )
-        if self:IsHovered() then
-            surface.SetDrawColor( 255, 50, 50, 255 )
-            surface.DrawRect( 0, 0, w, h )
-        end
-
-        draw.NoTexture()
-        surface.SetDrawColor( 193, 193, 193, 255 )
-        surface.DrawTexturedRectRotated( w / 2, h / 2, 15, 2, 45 )
-        surface.DrawTexturedRectRotated( w / 2, h / 2, 2, 14, 45 )
-
-        return true
-    end
-
-    function closeButton:OnMousePressed()
-        self.editor:Close()
-    end
+    closeButton.window = self
 
     local footer = vgui.Create( "DPanel", self )
     footer:SetTall( 22 )
@@ -101,7 +96,7 @@ function PANEL:Init()
 
     horizontalDivider._SetDragging = horizontalDivider.SetDragging
     function horizontalDivider:SetDragging( isDragging )
-        if not isDraggin then
+        if not isDragging then
             editorDividerPos:SetInt( self:GetLeftWidth() )
         end
 
@@ -130,49 +125,12 @@ function PANEL:Init()
     tabs.container:Dock( TOP )
     tabs.container:SetTall( 32 )
 
-    local dhtml = vgui.Create( "DHTML", right )
+    local dhtml = vgui.Create( "MosEditor_DHTMLWindow", right )
     dhtml:Dock( FILL )
-    dhtml:OpenURL( "https://periapsises.github.io/" )
-
-    dhtml:AddFunction( "GLua", "onTextChanged", function( text, changed )
-        if not tabs.activeTab then return end
-
-        tabs.activeTab:SetChanged( changed )
-    end )
-
-    dhtml:AddFunction( "GLua", "onSave", function( content )
-        if not tabs.activeTab then return end
-
-        -- TODO: Add save to new file feature
-        if not tabs.activeTab.file then return end
-
-        surface.PlaySound( "ambient/water/drip3.wav" )
-
-        local saveNotif = vgui.Create( "DLabel", footer )
-        saveNotif:SetSize( 64, 22 )
-        saveNotif:SetFont( "DermaDefaultBold" )
-        saveNotif:SetText( "Saved" )
-        saveNotif:SetTextColor( Color( 255, 255, 255 ) )
-        saveNotif.SetColor = saveNotif.SetBGColor
-        saveNotif:SetContentAlignment( 5 )
-        saveNotif:SetPaintBackgroundEnabled( true )
-        saveNotif:SetBGColor( Color( 255, 255, 255 ) )
-        saveNotif:SetX( footer:GetWide() )
-        saveNotif:MoveBy( -64, 0, 0.1, 0, -1, function()
-            timer.Simple( 1, function()
-                if not IsValid( saveNotif ) then return end
-                saveNotif:MoveBy( 64, 0, 0.1, 0, -1, function() saveNotif:Remove() end )
-            end )
-        end )
-        saveNotif:ColorTo( Color( 150, 255, 150 ), 0.25 )
-
-        tabs.activeTab:SetChanged( false )
-        file.Write( tabs.activeTab.file, content )
-    end )
 
     function tabs:OnTabChanged( oldTab, newTab )
         local text = Mos.FileSystem:Read( newTab.file or "mos6502/asm/default.asm" ) or ""
-        dhtml:QueueJavascript( "Editor.setCode(`" .. text .. "`);" )
+        Editor:SetCode( text )
     end
 
     function tabs:OnLastTabRemoved( tab )
@@ -181,21 +139,21 @@ function PANEL:Init()
 
     tabs:AddTab()
 
-    self.tabs = tabs
-    self.dhtml = dhtml
+    self.header = header
+    self.footer = footer
 end
 
-function PANEL:Open()
+function EDITOR:Open()
     self:SetVisible( true )
     self:MakePopup()
 end
 
-function PANEL:Paint( w, h )
+function EDITOR:Paint( w, h )
     surface.SetDrawColor( 18, 18, 18, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 
-vgui.Register( "MosEditor", PANEL, "DFrame" )
+vgui.Register( "MosEditor", EDITOR, "DFrame" )
 
 local function onEditorOpen()
     Editor:Open()

@@ -1,19 +1,17 @@
 Mos = {}
 
-AddCSLuaFile( "mos/editor/editor.lua" )
-AddCSLuaFile( "mos/editor/file_system.lua" )
-AddCSLuaFile( "mos/editor/tab_system.lua" )
-AddCSLuaFile( "mos/editor/file_functions/files.lua" )
-AddCSLuaFile( "mos/editor/file_functions/folders.lua" )
-
-AddCSLuaFile( "mos/compiler/instructions.lua" )
-AddCSLuaFile( "mos/compiler/compiler.lua" )
-AddCSLuaFile( "mos/compiler/parser.lua" )
-AddCSLuaFile( "mos/compiler/lexer.lua" )
-
-for _, f in ipairs( file.Find( "mos/tests/*.lua", "LUA" ) ) do
-    AddCSLuaFile( "mos/tests/" .. f )
+local function AddCSLuaFiles( path )
+    for _, f in ipairs( file.Find( path .. "*.lua", "LUA" ) ) do
+        AddCSLuaFile( path .. f )
+    end
 end
+
+AddCSLuaFiles( "mos/editor/" )
+AddCSLuaFiles( "mos/editor/file_functions/" )
+AddCSLuaFiles( "mos/editor/utils/" )
+AddCSLuaFiles( "mos/compiler/" )
+
+AddCSLuaFiles( "mos/tests/" )
 
 include( "mos/editor/editor.lua" )
 
