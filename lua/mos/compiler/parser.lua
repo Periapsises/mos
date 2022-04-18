@@ -161,20 +161,20 @@ function Parser:Indirect()
         mode = "Indirect,Y"
     end
 
-    return {type = "AdressingMode", value = operand, mode = mode, line = operand.line, char = operand.char}
+    return {type = "AdressingMode", value = {type = mode, value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
 end
 
 function Parser:Immediate()
     self:Eat( "Hash" )
     local operand = self:Operand()
 
-    return {type = "AdressingMode", value = operand, mode = "Immediate", line = operand.line, char = operand.char}
+    return {type = "AdressingMode", value = {type = "Immediate", value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
 end
 
 function Parser:Implied( instruction )
     --! Don't eat the newline. All instructions are expected to end with one and :Instruction() will take care of it
 
-    return {type = "AdressingMode", mode = "Implied", line = instruction.line, char = instruction.char}
+    return {type = "AdressingMode", value = {type = "Implied", value = nil, line = instruction.line, char = instruction.char}, line = instruction.line, char = instruction.char}
 end
 
 local isBranchInstruction = {
@@ -199,22 +199,22 @@ function Parser:MaybeAbsolute( instruction )
     end
 
     if isBranchInstruction[instruction.value] then
-        return {type = "AdressingMode", value = operand, mode = "Relative", line = operand.line, char = operand.char}
+        return {type = "AdressingMode", value = {type = "Relative", value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
     end
 
     if self.token.type == "Comma" then
         local register = string.upper( self:RegisterIndex().value )
 
-        return {type = "AdressingMode", value = operand, mode = "Absolute," .. register, line = operand.line, char = operand.char}
+        return {type = "AdressingMode", value = {type = "Absolute," .. register, value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
     end
 
-    return {type = "AdressingMode", value = operand, mode = "Absolute", line = operand.line, char = operand.char}
+    return {type = "AdressingMode", value = {type = "Absolute", value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
 end
 
 function Parser:Accumulator()
     local acc = self:Eat( "Identifier" )
 
-    return {type = "AdressingMode", value = acc, mode = "Accumulator", line = acc.line, char = acc.char}
+    return {type = "AdressingMode", value = {type = "Accumulator", value = acc, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
 end
 
 function Parser:RegisterIndex()

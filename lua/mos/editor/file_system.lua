@@ -87,6 +87,19 @@ function FileSystem:Exists( path )
 end
 
 --[[
+    @name FileSystem:Open( path, mode )
+    @desc Opens and returns a file
+
+    @param string path - The path to the file
+    @param string mode - The mode in which to open the file
+]]
+function FileSystem:Open( path, mode )
+    path = self:GetSanitizedPath( path )
+
+    return file.Open( path, mode, "DATA" )
+end
+
+--[[
     @name FileSystem:Write( path, data )
     @desc Writes a file in the DATA folder just like file.Write() would but ensures the path is sanitized
 
@@ -96,9 +109,7 @@ end
 function FileSystem:Write( path, data )
     path = self:GetSanitizedPath( path )
 
-    local f = file.Open( path, "wb", "DATA" )
-    f:Write( data )
-    f:Close()
+    file.Write( path, data )
 end
 
 --[[

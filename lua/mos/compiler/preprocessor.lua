@@ -36,13 +36,14 @@ function Preprocessor:VisitLabel( name )
 end
 
 function Preprocessor:VisitInstruction( data )
+    data.address = self.address
     local byteCount = 1 + self:Visit( data.operand )
 
     self.address = self.address + byteCount
 end
 
-function Preprocessor:VisitAdressingMode( _, node )
-    return Mos.Compiler.Instructions.modeByteSize[node.mode]
+function Preprocessor:VisitAdressingMode( mode )
+    return Mos.Compiler.Instructions.modeByteSize[mode.type]
 end
 
 function Preprocessor:VisitDirective( data )

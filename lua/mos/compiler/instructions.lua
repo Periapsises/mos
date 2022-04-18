@@ -94,3 +94,16 @@ Instructions.modeByteSize = {
     ["Indirect,Y"] = 1,
     ["Relative"] = 1
 }
+
+Instructions.modeLookup = {
+    ["Accumulator"] = "acc",
+    ["Absolute"] = "abs",
+    ["Absolute,X"] = "absx",
+    ["Absolute,Y"] = "absy",
+    ["Immediate"] = "imm",
+    ["Implied"] = "imp",
+    ["Indirect"] = "ind",
+    ["X,Indirect"] = "xind",
+    ["Indirect,Y"] = "indy",
+    ["Relative"] = "rel"
+}
