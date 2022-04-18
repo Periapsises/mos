@@ -133,3 +133,9 @@ adc (1+1)*1
 
 test( "Valid operations", validOperations, true )
 test( "Unbalanced parenthesis", "adc (1 + (1 - 1)\n", false )
+
+local validDirective = [[
+.db "Hello, world!\n", 0x00
+]]
+
+test( "Valid directive", validDirective, true )

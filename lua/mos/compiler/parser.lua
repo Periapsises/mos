@@ -49,59 +49,59 @@ function Parser:Parse()
     --? Make sure there is a token we can read
     self.token = self.lexer:GetNextToken()
 
-    local program = {type = "program", value = self:Statements( "eof" ), line = 1, char = 1}
-    self:Eat( "eof" )
+    local program = {type = "Program", value = self:Statements( "Eof" ), line = 1, char = 1}
+    self:Eat( "Eof" )
 
     return program
 end
 
 function Parser:Statements( condition )
-    local program = {type = "program", value = {}, line = 1, char = 1}
+    local statements = {}
 
     local shouldContinue = true
     local function exit()
         shouldContinue = false
     end
 
-    while shouldContinue and self.token.type ~= "eof" do
+    while shouldContinue and self.token.type ~= "Eof" do
         local token = self.token
         local node
 
-        if token.type == "hash" then
+        if token.type == "Hash" then
             node = self:Preprocessor( exit )
-        elseif token.type == "dot" then
+        elseif token.type == "Dot" then
             node = self:Directive()
-        elseif token.type == "newline" then
-            self:Eat( "newline" )
+        elseif token.type == "Newline" then
+            self:Eat( "Newline" )
         else
             node = self:Identifier()
         end
 
-        table.insert( program.value, node )
+        table.insert( statements, node )
     end
 
     if shouldContinue and condition ~= self.token.type then
         errorf( "Expected %s got %s at line %d, char %d", condition, self.token.type, self.token.line, self.token.char )
     end
 
-    return program
+    return statements
 end
 
 function Parser:Identifier()
-    local id = self:Eat( "identifier" )
+    local id = self:Eat( "Identifier" )
 
-    if self.token.type == "colon" then
+    if self.token.type == "Colon" then
         self:Label()
 
-        return {type = "label", value = id, line = id.line, char = id.char}
+        return {type = "Label", value = id, line = id.line, char = id.char}
     end
 
     return self:Instruction( id )
 end
 
 function Parser:Label()
-    self:Eat( "colon" )
-    self:Eat( "newline" )
+    self:Eat( "Colon" )
+    self:Eat( "Newline" )
 end
 
 function Parser:Instruction( instruction )
@@ -114,16 +114,16 @@ function Parser:Instruction( instruction )
     end
 
     local operand = self:AddressingMode( instruction )
-    self:Eat( "newline" )
+    self:Eat( "Newline" )
 
     local value = {instruction = instruction, operand = operand}
-    return {type = "instruction", value = value, line = instruction.line, char = instruction.char}
+    return {type = "Instruction", value = value, line = instruction.line, char = instruction.char}
 end
 
 local adressingMode = {
-    lsqrbracket = "Indirect",
-    hash = "Immediate",
-    newline = "Implied"
+    LSqrBracket = "Indirect",
+    Hash = "Immediate",
+    Newline = "Implied"
 }
 
 function Parser:AddressingMode( instruction )
@@ -134,12 +134,12 @@ function Parser:AddressingMode( instruction )
 end
 
 function Parser:Indirect()
-    self:Eat( "lsqrbracket" )
+    self:Eat( "LSqrBracket" )
     local operand = self:Operand()
 
     local mode = "Indirect"
 
-    if self.token.type == "comma" then
+    if self.token.type == "Comma" then
         local register = self:RegisterIndex()
 
         if register.value ~= "x" then
@@ -149,9 +149,9 @@ function Parser:Indirect()
         mode = "X,Indirect"
     end
 
-    self:Eat( "rsqrbracket" )
+    self:Eat( "RSqrBracket" )
 
-    if self.token.type == "comma" then
+    if self.token.type == "Comma" then
         local register = self:RegisterIndex()
 
         if register.value ~= "y" then
@@ -161,20 +161,20 @@ function Parser:Indirect()
         mode = "Indirect,Y"
     end
 
-    return {type = "adressing_mode", value = operand, mode = mode, line = operand.line, char = operand.char}
+    return {type = "AdressingMode", value = {type = mode, value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
 end
 
 function Parser:Immediate()
-    self:Eat( "hash" )
+    self:Eat( "Hash" )
     local operand = self:Operand()
 
-    return {type = "adressing_mode", value = operand, mode = "Immediate", line = operand.line, char = operand.char}
+    return {type = "AdressingMode", value = {type = "Immediate", value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
 end
 
 function Parser:Implied( instruction )
     --! Don't eat the newline. All instructions are expected to end with one and :Instruction() will take care of it
 
-    return {type = "adressing_mode", mode = "Implied", line = instruction.line, char = instruction.char}
+    return {type = "AdressingMode", value = {type = "Implied", value = nil, line = instruction.line, char = instruction.char}, line = instruction.line, char = instruction.char}
 end
 
 local isBranchInstruction = {
@@ -189,34 +189,37 @@ local isBranchInstruction = {
 }
 
 function Parser:MaybeAbsolute( instruction )
-    if self.token.type == "identifier" and self.token.value == "a" then
+    if self.token.type == "Identifier" and self.token.value == "a" then
         return self:Accumulator()
     end
 
     local operand = self:Operand()
+    if not operand then
+        errorf( "Expected Operand got %s at line %d, char %d", self.token.type, self.token.line, self.token.char )
+    end
 
     if isBranchInstruction[instruction.value] then
-        return {type = "adressing_mode", value = operand, mode = "Relative", line = operand.line, char = operand.char}
+        return {type = "AdressingMode", value = {type = "Relative", value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
     end
 
-    if self.token.type == "comma" then
+    if self.token.type == "Comma" then
         local register = string.upper( self:RegisterIndex().value )
 
-        return {type = "adressing_mode", value = operand, mode = "Absolute," .. register, line = operand.line, char = operand.char}
+        return {type = "AdressingMode", value = {type = "Absolute," .. register, value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
     end
 
-    return {type = "adressing_mode", value = operand, mode = "Absolute", line = operand.line, char = operand.char}
+    return {type = "AdressingMode", value = {type = "Absolute", value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
 end
 
 function Parser:Accumulator()
-    local acc = self:Eat( "identifier" )
+    local acc = self:Eat( "Identifier" )
 
-    return {type = "adressing_mode", value = acc, mode = "Accumulator", line = acc.line, char = acc.char}
+    return {type = "AdressingMode", value = {type = "Accumulator", value = acc, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
 end
 
 function Parser:RegisterIndex()
-    self:Eat( "comma" )
-    local register = self:Eat( "identifier" )
+    self:Eat( "Comma" )
+    local register = self:Eat( "Identifier" )
 
     if register.value ~= "x" and register.value ~= "y" then
         -- TODO: Properly throw errors
@@ -227,32 +230,33 @@ function Parser:RegisterIndex()
 end
 
 function Parser:Preprocessor( exit )
-    self:Eat( "hash" )
-    local operation = self:Eat( "identifier" )
+    self:Eat( "Hash" )
+    local operation = self:Eat( "Identifier" )
+    local name = string.upper( operation.value[1] ) .. string.sub( operation.value, 2 )
 
-    local value = self[operation.value]( self, exit )
+    local value = self[name]( self, exit )
 
-    return {type = operation.value, value = value, line = operation.line, char = operation.char}
+    return {type = name, value = value, line = operation.line, char = operation.char}
 end
 
 --------------------------------------------------
 -- Preprocessor
 
-function Parser:define()
+function Parser:Define()
     local operand = self:Operand()
-    self:Eat( "newline" )
+    self:Eat( "Newline" )
 
     return operand
 end
 
-function Parser:ifdef()
+function Parser:Ifdef()
     local condition = self:Operand()
-    self:Eat( "newline" )
+    self:Eat( "Newline" )
 
     return {condition = condition, statements = self:Statements( "#endif" )}
 end
 
-function Parser:endif( exit )
+function Parser:Endif( exit )
     exit()
 end
 
@@ -272,9 +276,9 @@ function Parser:Expression()
     local term = self:Term()
     if not validTermOperation[self.token.value] then return term end
 
-    local operator = self:Eat( "operator" )
+    local operator = self:Eat( "Operator" )
 
-    return {type = "operation", value = {left = term, right = self:Term(), operator = operator}, line = term.line, char = term.char}
+    return {type = "Operation", value = {left = term, right = self:Term(), operator = operator}, line = term.line, char = term.char}
 end
 
 local validFactorOperation = {
@@ -286,21 +290,22 @@ function Parser:Term()
     local factor = self:Factor()
     if not validFactorOperation[self.token.value] then return factor end
 
-    local operator = self:Eat( "operator" )
+    local operator = self:Eat( "Operator" )
 
-    return {type = "operation", value = {left = factor, right = self:Factor(), operator = operator}, line = factor.line, char = factor.char}
+    return {type = "Operation", value = {left = factor, right = self:Factor(), operator = operator}, line = factor.line, char = factor.char}
 end
 
 local validFactor = {
-    identifier = true,
-    number = true
+    ["Identifier"] = true,
+    ["Number"] = true,
+    ["String"] = true
 }
 
 function Parser:Factor()
-    if self.token.type == "lparen" then
-        self:Eat( "lparen" )
+    if self.token.type == "LParen" then
+        self:Eat( "LParen" )
         local expression = self:Expression()
-        self:Eat( "rparen" )
+        self:Eat( "RParen" )
 
         return expression
     end
@@ -308,4 +313,27 @@ function Parser:Factor()
     if not validFactor[self.token.type] then return end
 
     return self:Eat( self.token.type )
+end
+
+function Parser:Directive()
+    self:Eat( "Dot" )
+    local directive = self:Eat( "Identifier" )
+    local arguments = self:Arguments()
+
+    return {type = "Directive", value = {directive = directive, arguments = arguments}, line = directive.line, char = directive.char}
+end
+
+function Parser:Arguments()
+    local arg = self:Expression()
+    local args = {}
+
+    if not arg then return args end
+    table.insert( args, arg )
+
+    while self.token.type == "Comma" do
+        self:Eat( "Comma" )
+        table.insert( args, self:Expression() )
+    end
+
+    return args
 end

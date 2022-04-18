@@ -10,6 +10,7 @@ AddCSLuaFiles( "mos/editor/" )
 AddCSLuaFiles( "mos/editor/file_functions/" )
 AddCSLuaFiles( "mos/editor/utils/" )
 AddCSLuaFiles( "mos/compiler/" )
+AddCSLuaFiles( "mos/compiler/ast/" )
 
 AddCSLuaFiles( "mos/tests/" )
 
