@@ -1,0 +1,19 @@
+on: [push, pull_request]
+
+jobs:
+  lua_lint:
+    runs-on: ubuntu-latest
+    name: GLua Linter
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v2
+      - name: Linting
+        id: action-glua-lint
+        uses: TASSIA710/action-glua-lint@v1.1.4
+        with:
+          directory: /lua
+          failOnWarning: true
+          lint_maxScopeDepth: 10
+          lint_deprecated: false
+          lint_shadowing: false
