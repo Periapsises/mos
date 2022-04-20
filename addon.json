@@ -3,8 +3,30 @@
     "type": "ServerContent",
     "tags": ["fun", "build"],
     "ignore": [
-        "*.md",
+        "*.ini",
+        "*.pdf",
+        "*.pdn",
+        "*.psd",
+        "*.rtf",
+        "*.svn",
+        "*.xcf",
+        ".DS_Store",
+        ".editorconfig",
         ".git/*",
-        ".vscode/*"
+        ".github/*",
+        ".gitignore",
+        ".vs/*",
+        ".vscode/*",
+        "LICENSE",
+        "LICENSE.*",
+        "README",
+        "README.*",
+        "addon.jpg",
+        "addon.json",
+        "addon.txt",
+        "license",
+        "license.*",
+        "readme",
+        "readme.*"
     ]
 }
