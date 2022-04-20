@@ -1,16 +1,12 @@
-if SERVER then
-    return util.AddNetworkString( "mos_editor_open" )
-end
-
 Mos.Editor = Mos.Editor or {}
 local Editor = Mos.Editor
 
-include( "mos/editor/file_system.lua" )
-include( "mos/editor/tab_system.lua" )
-include( "mos/editor/utils/dhtml_window.lua" )
-include( "mos/editor/utils/close_button.lua" )
-include( "mos/editor/utils/header_button.lua" )
-include( "mos/editor/utils/notifications.lua" )
+include( "mos/client/editor/file_browser.lua" )
+include( "mos/client/editor/tab_system.lua" )
+include( "mos/client/editor/utils/dhtml_window.lua" )
+include( "mos/client/editor/utils/close_button.lua" )
+include( "mos/client/editor/utils/header_button.lua" )
+include( "mos/client/editor/utils/notifications.lua" )
 
 --------------------------------------------------
 -- Editor API
@@ -46,10 +42,10 @@ local function onCodeRequest()
     local tab = Editor:GetActiveTab()
     if not tab or not tab.file then return end
 
-    local path = Mos.FileSystem:GetCompiledPath( tab.file )
-    if not Mos.FileSystem:Exists( path ) then return end
+    local path = Mos.FileSystem.GetCompiledPath( tab.file )
+    if not Mos.FileSystem.Exists( path ) then return end
 
-    local code = util.Compress( Mos.FileSystem:Read( path ) )
+    local code = util.Compress( Mos.FileSystem.Read( path ) )
     local length = string.len( code )
 
     net.Start( "mos_apply_code" )
@@ -150,7 +146,7 @@ function EDITOR:Init()
     dhtml:Dock( FILL )
 
     function tabs:OnTabChanged( _, newTab )
-        local text = Mos.FileSystem:Read( newTab.file or "mos6502/asm/default.asm" ) or ""
+        local text = Mos.FileSystem.Read( newTab.file or "mos6502/asm/default.asm" ) or ""
         Editor:SetCode( text )
     end
 

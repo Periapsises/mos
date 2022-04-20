@@ -1,6 +1,3 @@
-util.AddNetworkString( "mos_code_request" )
-util.AddNetworkString( "mos_apply_code" )
-
 local function onApplyCode()
     local entIndex = net.ReadUInt( 16 )
     local length = net.ReadUInt( 16 )
