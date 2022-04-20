@@ -1,7 +1,3 @@
-if SERVER then
-    return util.AddNetworkString( "mos_editor_open" )
-end
-
 Mos.Editor = Mos.Editor or {}
 local Editor = Mos.Editor
 
