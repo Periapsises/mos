@@ -1,7 +1,9 @@
+AddCSLuaFile()
+
 Mos = {}
 
 local function AddCSLuaFiles( path )
-    local files, folders = file.Find( path .. "*.lua", "LUA" )
+    local files, folders = file.Find( path .. "*", "LUA" )
 
     for _, f in ipairs( folders ) do
         AddCSLuaFiles( path .. f .. "/" )
@@ -21,3 +23,9 @@ AddCSLuaFiles( "mos/tests/shared/" )
 
 include( "mos/shared/sh_init.lua" )
 include( "mos/tests/tests.lua" )
+
+if SERVER then
+    include( "mos/server/sv_init.lua" )
+else
+    include( "mos/client/cl_init.lua" )
+end

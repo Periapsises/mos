@@ -2,8 +2,8 @@ AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "sh_init.lua" )
 include( "sh_init.lua" )
 
-include( "mos/cpu/processor.lua" )
-include( "mos/cpu/memory_generator.lua" )
+include( "mos/server/processor/processor.lua" )
+include( "mos/server/processor/memory_generator.lua" )
 local Processor = Mos.Processor
 
 function ENT:Initialize()
