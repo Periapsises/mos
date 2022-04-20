@@ -7,7 +7,7 @@ function DHTMLWINDOW:Init()
 
     self:OpenURL( "https://periapsises.github.io/mos6502/editor/" )
 
-    self:AddFunction( "GLua", "onTextChanged", function( text, changed )
+    self:AddFunction( "GLua", "onTextChanged", function( _, changed )
         local activeTab = Editor:GetActiveTab()
         if not activeTab then return end
 

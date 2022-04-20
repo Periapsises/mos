@@ -124,11 +124,11 @@ function EDITOR:Init()
         return self:_SetDragging( isDragging )
     end
 
-    function horizontalDivider:Paint( w, h )
+    function horizontalDivider:Paint( _, height )
         local pos = self:GetLeftWidth() + self:GetDividerWidth() - 1
 
         surface.SetDrawColor( 169, 115, 255, 255 )
-        surface.DrawLine( pos, 0, pos, h )
+        surface.DrawLine( pos, 0, pos, height )
     end
 
     local browser = vgui.Create( "MosEditor_FileBrowser" )
@@ -149,12 +149,12 @@ function EDITOR:Init()
     local dhtml = vgui.Create( "MosEditor_DHTMLWindow", right )
     dhtml:Dock( FILL )
 
-    function tabs:OnTabChanged( oldTab, newTab )
+    function tabs:OnTabChanged( _, newTab )
         local text = Mos.FileSystem:Read( newTab.file or "mos6502/asm/default.asm" ) or ""
         Editor:SetCode( text )
     end
 
-    function tabs:OnLastTabRemoved( tab )
+    function tabs:OnLastTabRemoved()
         self:AddTab()
     end
 

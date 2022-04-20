@@ -119,7 +119,7 @@ end
     @param Tab oldTab - The tab that was previously active
     @param Tab newTab - The tab that will be set as active instead
 ]]
-function Tabs:OnTabChanged( oldTab, newTab ) end
+function Tabs:OnTabChanged() end
 
 --[[
     @name TabHandler:OnTabRemoved( tab )
@@ -127,7 +127,7 @@ function Tabs:OnTabChanged( oldTab, newTab ) end
 
     @param Tab tab - The tab being removed
 ]]
-function Tabs:OnTabRemoved( tab ) end
+function Tabs:OnTabRemoved() end
 
 --[[
     @name TabHandler:OnLastTabRemoved( tab )
@@ -135,7 +135,7 @@ function Tabs:OnTabRemoved( tab ) end
 
     @param Tab tab - The tab being removed
 ]]
-function Tabs:OnLastTabRemoved( tab ) end
+function Tabs:OnLastTabRemoved() end
 
 --------------------------------------------------
 -- Tab Container Panel

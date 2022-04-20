@@ -30,6 +30,6 @@ function HEADERBUTTON:SetName( text )
     self:SetWide( self:GetWide() + 16 )
 end
 
-function HEADERBUTTON:BuildMenu( menu ) end
+function HEADERBUTTON:BuildMenu() end
 
 vgui.Register( "MosEditor_HeaderButton", HEADERBUTTON, "DButton" )

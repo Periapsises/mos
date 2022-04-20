@@ -172,7 +172,7 @@ function addressingModes.imm( cpu )
     return value
 end
 
-function addressingModes.imp( cpu )
+function addressingModes.imp()
     return
 end
 
@@ -412,7 +412,7 @@ function instructions.dec( cpu, value )
     cpu:SetFlag( n, band( result, 0x80 ) )
 end
 
-function instructions.dex( cpu, value )
+function instructions.dex( cpu )
     local result = cpu.x - 1
     cpu.x = band( result, 0xff )
 
@@ -420,7 +420,7 @@ function instructions.dex( cpu, value )
     cpu:SetFlag( n, band( result, 0x80 ) )
 end
 
-function instructions.dey( cpu, value )
+function instructions.dey( cpu )
     local result = cpu.y - 1
     cpu.y = band( result, 0xff )
 
@@ -446,7 +446,7 @@ function instructions.inc( cpu, value )
     cpu:SetFlag( n, band( result, 0x80 ) )
 end
 
-function instructions.inx( cpu, value )
+function instructions.inx( cpu )
     local result = cpu.x + 1
     cpu.x = band( result, 0xff )
 
@@ -454,7 +454,7 @@ function instructions.inx( cpu, value )
     cpu:SetFlag( n, band( result, 0x80 ) )
 end
 
-function instructions.iny( cpu, value )
+function instructions.iny( cpu )
     local result = cpu.y + 1
     cpu.y = band( result, 0xff )
 
