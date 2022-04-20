@@ -14,3 +14,5 @@ util.AddNetworkString( "mos_apply_code" )
 -- Includes
 
 include( "mos/server/transfer/transfer.lua" )
+include( "mos/server/processor/processor.lua" )
+include( "mos/server/cpu/memory_generator.lua" )
