@@ -112,7 +112,7 @@ function Processor:Nmi()
     self:SetFlag( u, 1 )
     self:SetFlag( i, 1 )
 
-    write( self, 0x0100 + self.stkp, status )
+    write( self, 0x0100 + self.stkp, self.flags )
     self.stkp = band( self.stkp - 1, 0xff )
 
     self.addrAbs = nmiVector
