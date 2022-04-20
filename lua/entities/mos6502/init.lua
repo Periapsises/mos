@@ -3,6 +3,7 @@ AddCSLuaFile( "sh_init.lua" )
 include( "sh_init.lua" )
 
 include( "mos/cpu/processor.lua" )
+include( "mos/cpu/memory_generator.lua" )
 local Processor = Mos.Processor
 
 function ENT:Initialize()
@@ -28,4 +29,8 @@ function ENT:Think()
     if self.Inputs.On.Value == 0 then return end
 
     self.cpu:Clock()
+end
+
+function ENT:SetCode( code )
+    self.cpu:GenerateMemory( code )
 end

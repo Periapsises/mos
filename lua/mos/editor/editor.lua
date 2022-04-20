@@ -40,6 +40,27 @@ function Editor:SetCode( code )
     self.dhtml:QueueJavascript( "Editor.setCode( `" .. code .. "` )" )
 end
 
+local function onCodeRequest()
+    local entIndex = net.ReadUInt( 16 )
+
+    local tab = Editor:GetActiveTab()
+    if not tab or not tab.file then return end
+
+    local path = Mos.FileSystem:GetCompiledPath( tab.file )
+    if not Mos.FileSystem:Exists( path ) then return end
+
+    local code = util.Compress( Mos.FileSystem:Read( path ) )
+    local length = string.len( code )
+
+    net.Start( "mos_apply_code" )
+    net.WriteUInt( entIndex, 16 )
+    net.WriteUInt( length, 16 )
+    net.WriteData( code, length )
+    net.SendToServer()
+end
+
+net.Receive( "mos_code_request", onCodeRequest )
+
 --------------------------------------------------
 -- Editor panel
 
@@ -65,8 +86,7 @@ function EDITOR:Init()
     self:SetSize( w, h )
     self:SetSizable( true )
     self:SetScreenLock( true )
-    -- TODO: Uncomment this when releasing (Only for testing purpose)
-    --self:SetDeleteOnClose( false )
+    self:SetDeleteOnClose( false )
     self:ShowCloseButton( false )
     self:DockPadding( 0, 0, 0, 0 )
 

@@ -19,4 +19,6 @@ include( "mos/editor/editor.lua" )
 if CLIENT then
     include( "mos/compiler/compiler.lua" )
     include( "mos/tests/tests.lua" )
+else
+    include( "mos/cpu/transfer.lua" )
 end
