@@ -17,7 +17,8 @@ function ENT:Initialize()
     self.cpu:Reset()
 
     if WireLib then
-        self.Inputs = WireLib.CreateSpecialInputs( self, {"On", "Speed"}, {"NORMAL", "NORMAL"}, {"Wether the processor is On or Off", "The speed at which the processor runs"} )
+        self.Inputs = WireLib.CreateSpecialInputs( self, {"On", "Clock", "ClockSpeed", "Reset", "Nmi", "Irq"} )
+        self.Outputs = WireLib.CreateSpecialOutputs( self, {"ProgramCounter"} )
     end
 end
 
@@ -28,7 +29,33 @@ end
 function ENT:Think()
     if self.Inputs.On.Value == 0 then return end
 
-    self.cpu:Clock()
+    local maxTime = os.clock() + 0.001
+
+    while os.clock() < maxTime do
+        self.cpu:Clock()
+    end
+
+    if WireLib then
+        Wire_TriggerOutput( self, "ProgramCounter", self.cpu.pc )
+    end
+end
+
+local isMethod = {
+    Clock = true,
+    Reset = true,
+    Nmi = true,
+    Irq = true
+}
+
+function ENT:TriggerInput( name, value )
+    if not isMethod[name] then return end
+    if value == 0 then return end
+
+    self.cpu[name]( self.cpu )
+
+    if WireLib then
+        Wire_TriggerOutput( self, "ProgramCounter", self.cpu.pc )
+    end
 end
 
 function ENT:SetCode( code )

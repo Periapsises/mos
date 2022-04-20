@@ -17,7 +17,7 @@ function Processor:GenerateMemory( code )
         local blockSize = bor( lshift( hi, 8 ), lo )
 
         lo, hi = byte( code[i + 2] ), byte( code[i + 3] )
-        address = bor( lshift( hi, 8 ), lo )
+        address = bor( lshift( hi, 8 ), lo ) - 1
 
         i = i + 4
 
