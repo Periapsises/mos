@@ -266,7 +266,7 @@ end
 
 function TAB:SetFile( filepath )
     if filepath then
-        local name = string.GetFileFromFilename( Mos.FileSystem:GetDirtyPath( filepath ) )
+        local name = string.GetFileFromFilename( Mos.FileSystem.GetDirtyPath( filepath ) )
         self.label:SetText( name )
 
         local extension = string.GetExtensionFromFilename( name )

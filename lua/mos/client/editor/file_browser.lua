@@ -48,7 +48,7 @@ end
 
 local function onFileNameSet( self, fileName )
     self.path = fileName
-    self.dirty = FileSystem:GetDirtyPath( fileName )
+    self.dirty = FileSystem.GetDirtyPath( fileName )
 
     self:_SetFileName( fileName )
     self.Label:SetText( string.GetFileFromFilename( self.dirty ) )

@@ -23,7 +23,7 @@ function FolderFunctions:AddFile( node )
             return self:Remove()
         end
 
-        fileName = Mos.FileSystem:GetSanitizedPath( fileName )
+        fileName = Mos.FileSystem.GetSanitizedPath( fileName )
         local path = node:GetFolder() .. "/" .. fileName
 
         file.Write( path, "" )

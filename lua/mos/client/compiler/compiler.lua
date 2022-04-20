@@ -18,7 +18,7 @@ function Compiler:Compile()
     local activeTab = Mos.Editor:GetActiveTab()
     if not activeTab or not activeTab.file then return end
 
-    local code = Mos.FileSystem:Read( activeTab.file )
+    local code = Mos.FileSystem.Read( activeTab.file )
     local parser = self.Parser:Create( code )
 
     local ast = parser:Parse()
@@ -26,9 +26,9 @@ function Compiler:Compile()
     local compiler = setmetatable( {}, self )
     compiler.preprocessor = self.Preprocessor:Process( ast )
 
-    local fileName = Mos.FileSystem:GetCompiledPath( activeTab.file )
-    Mos.FileSystem:Write( fileName, "" )
-    compiler.file = Mos.FileSystem:Open( fileName, "wb" )
+    local fileName = Mos.FileSystem.GetCompiledPath( activeTab.file )
+    Mos.FileSystem.Write( fileName, "" )
+    compiler.file = Mos.FileSystem.Open( fileName, "wb" )
 
     compiler.file:Write( "GMOS6502" )
     compiler:StartBlock()

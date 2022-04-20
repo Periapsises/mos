@@ -42,10 +42,10 @@ local function onCodeRequest()
     local tab = Editor:GetActiveTab()
     if not tab or not tab.file then return end
 
-    local path = Mos.FileSystem:GetCompiledPath( tab.file )
-    if not Mos.FileSystem:Exists( path ) then return end
+    local path = Mos.FileSystem.GetCompiledPath( tab.file )
+    if not Mos.FileSystem.Exists( path ) then return end
 
-    local code = util.Compress( Mos.FileSystem:Read( path ) )
+    local code = util.Compress( Mos.FileSystem.Read( path ) )
     local length = string.len( code )
 
     net.Start( "mos_apply_code" )
@@ -146,7 +146,7 @@ function EDITOR:Init()
     dhtml:Dock( FILL )
 
     function tabs:OnTabChanged( _, newTab )
-        local text = Mos.FileSystem:Read( newTab.file or "mos6502/asm/default.asm" ) or ""
+        local text = Mos.FileSystem.Read( newTab.file or "mos6502/asm/default.asm" ) or ""
         Editor:SetCode( text )
     end
 

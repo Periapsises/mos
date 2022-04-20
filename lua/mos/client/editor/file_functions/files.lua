@@ -34,13 +34,13 @@ function FileFunctions:Rename( node )
             return self:Remove()
         end
 
-        fileName = Mos.FileSystem:GetSanitizedPath( fileName )
+        fileName = Mos.FileSystem.GetSanitizedPath( fileName )
 
         local path = string.GetPathFromFilename( name )
 
         file.Rename( name, path .. "/" .. fileName )
         node.SetFileName( node, path .. "/" .. fileName )
-        node.Label:SetText( Mos.FileSystem:GetDirtyPath( fileName ) )
+        node.Label:SetText( Mos.FileSystem.GetDirtyPath( fileName ) )
 
         self:Remove()
     end
