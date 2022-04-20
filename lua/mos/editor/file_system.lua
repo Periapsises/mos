@@ -75,6 +75,18 @@ function FileSystem:GetDirtyPath( path )
 end
 
 --[[
+    @name FileSystem:GetCompiledPath( path )
+    @desc Returns the path a file would be compiled to
+
+    @param string path - The path to convert
+]]
+function FileSystem:GetCompiledPath( path )
+    path = self:GetDirtyPath( path )
+
+    return string.gsub( path, "mos6502/asm/(.+)%.%a+", "mos6502/bin/%1.bin" )
+end
+
+--[[
     @name FileSystem:Write( path, data )
     @desc Checks if a file exists in the DATA folder just like file.Exists() would but ensures the path is sanitized
 

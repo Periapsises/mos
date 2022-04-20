@@ -36,6 +36,10 @@ function TOOL:LeftClick( trace )
     undo.AddEntity( chip )
     undo.SetPlayer( self:GetOwner() )
     undo.Finish()
+
+    net.Start( "mos_code_request" )
+    net.WriteUInt( chip:EntIndex(), 16 )
+    net.Send( self:GetOwner() )
 end
 
 local function openEditor() end

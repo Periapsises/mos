@@ -16,7 +16,7 @@ setmetatable( Compiler, Mos.Compiler.NodeVisitor )
 
 function Compiler:Compile()
     local activeTab = Mos.Editor:GetActiveTab()
-    if not activeTab then return end
+    if not activeTab or not activeTab.file then return end
 
     local code = Mos.FileSystem:Read( activeTab.file )
     local parser = self.Parser:Create( code )
@@ -26,7 +26,7 @@ function Compiler:Compile()
     local compiler = setmetatable( {}, self )
     compiler.preprocessor = self.Preprocessor:Process( ast )
 
-    local fileName = string.gsub( Mos.FileSystem:GetDirtyPath( activeTab.file ), "mos6502/asm/(.+)%.%a+", "mos6502/bin/%1.bin" )
+    local fileName = Mos.FileSystem:GetCompiledPath( activeTab.file )
     Mos.FileSystem:Write( fileName, "" )
     compiler.file = Mos.FileSystem:Open( fileName, "wb" )
 
