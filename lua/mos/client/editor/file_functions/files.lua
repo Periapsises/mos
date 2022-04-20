@@ -28,21 +28,19 @@ function FileFunctions:Rename( node )
     entry:SelectAllText()
 
     function entry:OnEnter()
-        local text = self:GetValue()
+        local fileName = self:GetValue()
 
-        if text == "" then
+        if fileName == "" then
             return self:Remove()
         end
 
-        if not string.EndsWith( text, ".txt" ) then
-            text = text .. ".txt"
-        end
+        fileName = Mos.FileSystem:GetSanitizedPath( fileName )
 
         local path = string.GetPathFromFilename( name )
 
-        file.Rename( name, path .. "/" .. text )
-        node.SetFileName( node, path .. "/" .. text )
-        node.Label:SetText( text )
+        file.Rename( name, path .. "/" .. fileName )
+        node.SetFileName( node, path .. "/" .. fileName )
+        node.Label:SetText( Mos.FileSystem:GetDirtyPath( fileName ) )
 
         self:Remove()
     end
