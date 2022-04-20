@@ -1,5 +1,3 @@
-if SERVER then return end
-
 local Parser = Mos.Compiler.Parser
 
 local padding = ""

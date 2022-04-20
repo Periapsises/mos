@@ -1,12 +1,12 @@
 Mos.Editor = Mos.Editor or {}
 local Editor = Mos.Editor
 
-include( "mos/editor/file_system.lua" )
-include( "mos/editor/tab_system.lua" )
-include( "mos/editor/utils/dhtml_window.lua" )
-include( "mos/editor/utils/close_button.lua" )
-include( "mos/editor/utils/header_button.lua" )
-include( "mos/editor/utils/notifications.lua" )
+include( "mos/client/editor/file_browser.lua" )
+include( "mos/client/editor/tab_system.lua" )
+include( "mos/client/editor/utils/dhtml_window.lua" )
+include( "mos/client/editor/utils/close_button.lua" )
+include( "mos/client/editor/utils/header_button.lua" )
+include( "mos/client/editor/utils/notifications.lua" )
 
 --------------------------------------------------
 -- Editor API

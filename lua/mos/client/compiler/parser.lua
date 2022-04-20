@@ -3,7 +3,7 @@ local Parser = Mos.Compiler.Parser
 
 local Instructions = Mos.Compiler.Instructions
 
-include( "mos/compiler/lexer.lua" )
+include( "mos/client/compiler/lexer.lua" )
 
 local function errorf( str, ... )
     error( string.format( str, ... ), 3 )

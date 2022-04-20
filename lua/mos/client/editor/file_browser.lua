@@ -1,7 +1,7 @@
 local FileSystem = Mos.FileSystem
 
-include( "mos/editor/file_functions/files.lua" )
-include( "mos/editor/file_functions/folders.lua" )
+include( "mos/client/editor/file_functions/files.lua" )
+include( "mos/client/editor/file_functions/folders.lua" )
 
 local ERROR_FAILED_SORT = [[
 [mos6502] A set of files or folders failed to be sorted.

@@ -1,10 +1,10 @@
 Mos.Compiler = Mos.Compiler or {}
 local Compiler = Mos.Compiler
 
-include( "mos/compiler/instructions.lua" )
-include( "mos/compiler/parser.lua" )
-include( "mos/compiler/ast/node_visitor.lua" )
-include( "mos/compiler/preprocessor.lua" )
+include( "mos/client/compiler/instructions.lua" )
+include( "mos/client/compiler/parser.lua" )
+include( "mos/client/compiler/ast/node_visitor.lua" )
+include( "mos/client/compiler/preprocessor.lua" )
 
 local Instructions = Mos.Compiler.Instructions
 
