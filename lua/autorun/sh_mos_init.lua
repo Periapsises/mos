@@ -14,3 +14,5 @@ end
 
 AddCSLuaFiles( "mos/client/" )
 AddCSLuaFiles( "mos/shared/" )
+
+include( "mos/shared/sh_init.lua" )
