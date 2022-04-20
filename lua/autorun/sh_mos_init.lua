@@ -1,24 +1,16 @@
 Mos = {}
 
 local function AddCSLuaFiles( path )
-    for _, f in ipairs( file.Find( path .. "*.lua", "LUA" ) ) do
+    local files, folders = file.Find( path .. "*.lua", "LUA" )
+
+    for _, f in ipairs( folders ) do
+        AddCSLuaFiles( path .. f .. "/" )
+    end
+
+    for _, f in ipairs( files ) do
         AddCSLuaFile( path .. f )
     end
 end
 
-AddCSLuaFiles( "mos/editor/" )
-AddCSLuaFiles( "mos/editor/file_functions/" )
-AddCSLuaFiles( "mos/editor/utils/" )
-AddCSLuaFiles( "mos/compiler/" )
-AddCSLuaFiles( "mos/compiler/ast/" )
-
-AddCSLuaFiles( "mos/tests/" )
-
-include( "mos/editor/editor.lua" )
-
-if CLIENT then
-    include( "mos/compiler/compiler.lua" )
-    include( "mos/tests/tests.lua" )
-else
-    include( "mos/cpu/transfer.lua" )
-end
+AddCSLuaFiles( "mos/client/" )
+AddCSLuaFiles( "mos/shared/" )
