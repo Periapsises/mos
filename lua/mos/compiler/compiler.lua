@@ -166,6 +166,8 @@ end
 --* Preprocessor directives
 
 function Compiler:VisitDirective( data )
+    if not self.Directives[data.directive.value] then return end
+
     self.Directives[data.directive.value]( self, data.arguments, data.value )
 end
 
