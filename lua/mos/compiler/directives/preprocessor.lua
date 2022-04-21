@@ -22,3 +22,14 @@ function Directives:db( arguments )
 
     self.address = self.address + size
 end
+
+function Directives:define( arguments )
+    local definition = tostring( self:Visit( arguments[1] ) )
+    local value = true
+
+    if arguments[2] then
+        value = self:Visit( arguments[2] )
+    end
+
+    self.definitions[definition] = value
+end

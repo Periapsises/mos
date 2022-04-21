@@ -305,8 +305,9 @@ function Parser:Arguments()
     if not arg then return args end
     table.insert( args, arg )
 
-    while self.token.type == "Comma" do
-        self:Eat( "Comma" )
+    while self.token.type == "Comma" or self.token.type ~= "Newline" do
+        if self.token.type == "Comma" then self:Eat( "Comma" ) end
+
         table.insert( args, self:Expression() )
     end
 

@@ -160,7 +160,7 @@ function Compiler:VisitNumber( num )
 end
 
 function Compiler:VisitIdentifier( id )
-    return self.preprocessor.labels[id]
+    return self.preprocessor.labels[id] or self.preprocessor.definitions[id]
 end
 
 --* Preprocessor directives
