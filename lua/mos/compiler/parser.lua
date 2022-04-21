@@ -67,10 +67,8 @@ function Parser:Statements( condition )
         local token = self.token
         local node
 
-        if token.type == "Hash" then
-            node = self:Preprocessor( exit )
-        elseif token.type == "Dot" then
-            node = self:Directive()
+        if token.type == "Hash" or token.type == "Dot" then
+            node = self:Directive( exit )
         elseif token.type == "Newline" then
             self:Eat( "Newline" )
         else
@@ -214,7 +212,7 @@ end
 function Parser:Accumulator()
     local acc = self:Eat( "Identifier" )
 
-    return {type = "AdressingMode", value = {type = "Accumulator", value = acc, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
+    return {type = "AdressingMode", value = {type = "Accumulator", value = acc, line = acc.line, char = acc.char}, line = acc.line, char = acc.char}
 end
 
 function Parser:RegisterIndex()
@@ -229,35 +227,16 @@ function Parser:RegisterIndex()
     return register
 end
 
-function Parser:Preprocessor( exit )
-    self:Eat( "Hash" )
-    local operation = self:Eat( "Identifier" )
-    local name = string.upper( operation.value[1] ) .. string.sub( operation.value, 2 )
+function Parser:Directive( exit )
+    self:Eat( self.token.type )
+
+    local directive = self:Eat( "Identifier" )
+    local arguments = self:Arguments()
+    self:Eat( "Newline" )
 
     local value = self[name]( self, exit )
 
-    return {type = name, value = value, line = operation.line, char = operation.char}
-end
-
---------------------------------------------------
--- Preprocessor
-
-function Parser:Define()
-    local operand = self:Operand()
-    self:Eat( "Newline" )
-
-    return operand
-end
-
-function Parser:Ifdef()
-    local condition = self:Operand()
-    self:Eat( "Newline" )
-
-    return {condition = condition, statements = self:Statements( "#endif" )}
-end
-
-function Parser:Endif( exit )
-    exit()
+    return {type = "Directive", value = {directive = directive, arguments = arguments, value = value}, line = directive.line, char = directive.char}
 end
 
 --------------------------------------------------
@@ -315,14 +294,6 @@ function Parser:Factor()
     return self:Eat( self.token.type )
 end
 
-function Parser:Directive()
-    self:Eat( "Dot" )
-    local directive = self:Eat( "Identifier" )
-    local arguments = self:Arguments()
-
-    return {type = "Directive", value = {directive = directive, arguments = arguments}, line = directive.line, char = directive.char}
-end
-
 function Parser:Arguments()
     local arg = self:Expression()
     local args = {}
@@ -336,4 +307,17 @@ function Parser:Arguments()
     end
 
     return args
+end
+
+--------------------------------------------------
+-- Directives
+
+function Parser:Define() end
+
+function Parser:Ifdef()
+    return self:Statements( "#endif" )
+end
+
+function Parser:Endif( exit )
+    exit()
 end
