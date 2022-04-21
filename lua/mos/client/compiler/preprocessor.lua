@@ -49,7 +49,7 @@ function Preprocessor:VisitAdressingMode( mode )
 end
 
 function Preprocessor:VisitDirective( data )
-    self.directives[data.directive.value]( self, data.arguments, data.value )
+    self.Directives[data.directive.value]( self, data.arguments, data.value )
 end
 
 function Preprocessor:VisitNumber( number, node )

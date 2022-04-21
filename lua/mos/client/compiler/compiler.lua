@@ -166,7 +166,7 @@ end
 --* Preprocessor directives
 
 function Compiler:VisitDirective( data )
-    self.directives[data.directive.value]( self, data.arguments, data.value )
+    self.Directives[data.directive.value]( self, data.arguments, data.value )
 end
 
 --------------------------------------------------
