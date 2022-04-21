@@ -8,6 +8,8 @@ include( "mos/client/compiler/preprocessor.lua" )
 
 include( "mos/compiler/directives/compiler.lua" )
 
+include( "mos/compiler/directives/compiler.lua" )
+
 local Instructions = Mos.Compiler.Instructions
 
 --------------------------------------------------
