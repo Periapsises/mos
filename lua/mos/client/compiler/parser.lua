@@ -234,7 +234,11 @@ function Parser:Directive( exit )
     local arguments = self:Arguments()
     self:Eat( "Newline" )
 
-    local value = self[name]( self, exit )
+    local value
+
+    if self[name] then
+        value = self[name]( self, exit )
+    end
 
     return {type = "Directive", value = {directive = directive, arguments = arguments, value = value}, line = directive.line, char = directive.char}
 end
@@ -311,8 +315,6 @@ end
 
 --------------------------------------------------
 -- Directives
-
-function Parser:Define() end
 
 function Parser:Ifdef()
     return self:Statements( "#endif" )
