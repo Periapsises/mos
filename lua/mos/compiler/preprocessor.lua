@@ -14,6 +14,10 @@ function Preprocessor:Process( ast )
     local preprocessor = setmetatable( {}, self )
     preprocessor.address = 0
     preprocessor.labels = {}
+    preprocessor.definitions = {
+        ["SERVER"] = SERVER,
+        ["CLIENT"] = CLIENT
+    }
     preprocessor:Visit( ast )
 
     return preprocessor
