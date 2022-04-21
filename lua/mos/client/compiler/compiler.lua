@@ -6,6 +6,8 @@ include( "mos/client/compiler/parser.lua" )
 include( "mos/client/compiler/ast/node_visitor.lua" )
 include( "mos/client/compiler/preprocessor.lua" )
 
+include( "mos/compiler/directives/compiler.lua" )
+
 local Instructions = Mos.Compiler.Instructions
 
 --------------------------------------------------
@@ -161,31 +163,10 @@ function Compiler:VisitIdentifier( id )
     return self.preprocessor.labels[id]
 end
 
---* Preprocessor and directives
+--* Preprocessor directives
 
 function Compiler:VisitDirective( data )
-    self.directives[data.directive.value]( self, data.arguments )
-end
-
---------------------------------------------------
--- Directives
-
-Compiler.directives = {}
-local directives = Compiler.directives
-
-function directives:db( arguments )
-    for _, arg in ipairs( arguments ) do
-        local t = arg.type
-
-        if t == "String" then
-            self.file:Write( arg.value )
-        elseif t == "Number" then
-            self:Write( arg.value )
-        elseif t == "Identifier" then
-            -- TODO: Preprocessor identifiers
-            self:Write( 0 )
-        end
-    end
+    self.directives[data.directive.value]( self, data.arguments, data.value )
 end
 
 --------------------------------------------------

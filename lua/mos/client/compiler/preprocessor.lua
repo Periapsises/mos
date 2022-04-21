@@ -1,6 +1,8 @@
 Mos.Compiler.Preprocessor = Mos.Compiler.Preprocessor or {}
 local Preprocessor = Mos.Compiler.Preprocessor
 
+include( "mos/compiler/directives/preprocessor.lua" )
+
 setmetatable( Preprocessor, Mos.Compiler.NodeVisitor )
 
 --------------------------------------------------
@@ -47,7 +49,7 @@ function Preprocessor:VisitAdressingMode( mode )
 end
 
 function Preprocessor:VisitDirective( data )
-    self.directives[data.directive.value]( self, data.arguments )
+    self.directives[data.directive.value]( self, data.arguments, data.value )
 end
 
 function Preprocessor:VisitNumber( number, node )
@@ -83,32 +85,4 @@ end
 function Preprocessor:VisitString( str, node )
     node.value = string.gsub( string.sub( str, 2, -2 ), "\\([nt])", {n = "\n", t = "\t"} )
     return node.value
-end
-
---------------------------------------------------
--- Directives
-
-Preprocessor.directives = {}
-local directives = Preprocessor.directives
-
-function directives:db( arguments )
-    local size = 0
-
-    for _, arg in ipairs( arguments ) do
-        local t = arg.type
-
-        if t == "String" then
-            size = size + string.len( self:Visit( arg ) )
-        elseif t == "Number" then
-            size = size + ( self:Visit( arg ) > 0xff and 2 or 1 )
-        elseif t == "Identifier" then
-            -- TODO: Are identifiers two bytes? (16 bit addresses?)
-            size = size + 1
-        else
-            -- TODO: Properly throw errors
-            error( "Argument of type '" .. t .. "' is not supported for .db directive" )
-        end
-    end
-
-    self.address = self.address + size
 end
