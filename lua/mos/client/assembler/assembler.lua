@@ -60,9 +60,7 @@ local function addAssemblerOptions( editor )
     runButton:Dock( LEFT )
 
     function runButton:BuildMenu( menu )
-        menu:AddOption( "Assemble", function()
-            Compiler:Compile()
-        end )
+        menu:AddOption( "Assemble", Assembler.Assemble )
     end
 end
 
