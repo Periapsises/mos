@@ -10,7 +10,13 @@ setmetatable( Preprocessor, Mos.Compiler.NodeVisitor )
 
 Preprocessor.__index = Preprocessor
 
-function Preprocessor:Process( ast )
+function Preprocessor.Create()
+    local preprocessor = {}
+
+    return setmetatable( preprocessor, Preprocessor )
+end
+
+function Preprocessor:process()
     local preprocessor = setmetatable( {}, self )
     preprocessor.address = 0
     preprocessor.labels = {}
@@ -18,7 +24,7 @@ function Preprocessor:Process( ast )
         ["SERVER"] = SERVER,
         ["CLIENT"] = CLIENT
     }
-    preprocessor:Visit( ast )
+    preprocessor:visit( ast )
 
     return preprocessor
 end
@@ -26,13 +32,13 @@ end
 --------------------------------------------------
 -- Visitor methods
 
-function Preprocessor:VisitProgram( statements )
+function Preprocessor:visitProgram( statements )
     for _, statement in ipairs( statements ) do
-        self:Visit( statement )
+        self:visit( statement )
     end
 end
 
-function Preprocessor:VisitLabel( name )
+function Preprocessor:visitLabel( name )
     if self.labels[name.value] then
         -- TODO: Properly throw errors
         error( "A label with name '" .. name .. "' already exists!" )
@@ -41,22 +47,22 @@ function Preprocessor:VisitLabel( name )
     self.labels[name.value] = self.address
 end
 
-function Preprocessor:VisitInstruction( data )
+function Preprocessor:visitInstruction( data )
     data.address = self.address
-    local byteCount = 1 + self:Visit( data.operand )
+    local byteCount = 1 + self:visit( data.operand )
 
     self.address = self.address + byteCount
 end
 
-function Preprocessor:VisitAdressingMode( mode )
+function Preprocessor:visitAdressingMode( mode )
     return Mos.Compiler.Instructions.modeByteSize[mode.type]
 end
 
-function Preprocessor:VisitDirective( data )
+function Preprocessor:visitDirective( data )
     self.Directives[data.directive.value]( self, data.arguments, data.value )
 end
 
-function Preprocessor:VisitNumber( number, node )
+function Preprocessor:visitNumber( number, node )
     local format = number[2]
     local result = 0
 
@@ -86,7 +92,7 @@ function Preprocessor:VisitNumber( number, node )
     return result
 end
 
-function Preprocessor:VisitString( str, node )
+function Preprocessor:visitString( str, node )
     node.value = string.gsub( string.sub( str, 2, -2 ), "\\([nt])", {n = "\n", t = "\t"} )
     return node.value
 end
