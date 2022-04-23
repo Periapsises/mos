@@ -237,8 +237,8 @@ function Parser:directive( exit )
 
     local value
 
-    if self[name] then
-        value = self[name]( self, exit )
+    if self[directive.value] then
+        value = self[directive.value]( self, exit )
     end
 
     return {type = "Directive", value = {directive = directive, arguments = arguments, value = value}, line = directive.line, char = directive.char}

@@ -14,8 +14,8 @@ function Preprocessor.Create()
     local preprocessor = {}
 
     preprocessor.definitions = {
-        ["SERVER"] = {type = "Bool", value = SERVER},
-        ["CLIENT"] = {type = "Bool", value = CLIENT}
+        ["server"] = {type = "Bool", value = SERVER},
+        ["client"] = {type = "Bool", value = CLIENT}
     }
 
     return setmetatable( preprocessor, Preprocessor )
@@ -30,8 +30,16 @@ end
 -- Visitor methods
 
 function Preprocessor:visitProgram( statements )
-    for _, statement in ipairs( statements ) do
-        self:visit( statement )
+    local i = 1
+
+    while statements[i] do
+        local statement = statements[i]
+
+        if self:visit( statement ) then
+            table.remove( statements, i )
+        else
+            i = i + 1
+        end
     end
 end
 
@@ -49,7 +57,7 @@ function Preprocessor:visitAdressingMode( mode )
 end
 
 function Preprocessor:visitDirective( data )
-    self.directives[data.directive.value]( self, data.arguments, data.value )
+    return self.directives[data.directive.value]( self, data.arguments, data.value )
 end
 
 function Preprocessor:visitOperation( data )

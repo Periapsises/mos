@@ -2,25 +2,9 @@ Mos.Assembler.Preprocessor.directives = Mos.Assembler.Preprocessor.directives or
 local directives = Mos.Assembler.Preprocessor.directives
 
 function directives:db( arguments )
-    local size = 0
-
     for _, arg in ipairs( arguments ) do
-        local t = arg.type
-
-        if t == "String" then
-            size = size + string.len( self:Visit( arg ) )
-        elseif t == "Number" then
-            size = size + ( self:Visit( arg ) > 0xff and 2 or 1 )
-        elseif t == "Identifier" then
-            -- TODO: Are identifiers two bytes? (16 bit addresses?)
-            size = size + 1
-        else
-            -- TODO: Properly throw errors
-            error( "Argument of type '" .. t .. "' is not supported for .db directive" )
-        end
+        self:visit( arg )
     end
-
-    self.address = self.address + size
 end
 
 function directives:define( arguments )
@@ -31,6 +15,20 @@ function directives:define( arguments )
     end
 
     self:visit( arguments[2] )
-
     self.definitions[definition] = {type = "Definition", value = arguments[2]}
+
+    return true
 end
+
+function directives:ifdef( arguments, value )
+    local definition = tostring( arguments[1].value )
+    if not self.definitions[definition] then return true end
+
+    if self.definitions[definition].type == "Bool" and not self.definitions[definition].value then return true end
+
+    for _, statement in ipairs( value ) do
+        self:visit( statement )
+    end
+end
+
+function directives:endif() end
