@@ -1,6 +1,7 @@
 Mos.Compiler.Preprocessor = Mos.Compiler.Preprocessor or {}
 local Preprocessor = Mos.Compiler.Preprocessor
 
+include( "mos/client/assembler/ast/node_visitor.lua" )
 include( "mos/client/assembler/preprocessor/directives.lua" )
 
 setmetatable( Preprocessor, Mos.Compiler.NodeVisitor )
