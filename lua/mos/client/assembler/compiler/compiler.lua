@@ -1,12 +1,9 @@
 Mos.Compiler = Mos.Compiler or {}
 local Compiler = Mos.Compiler
 
-include( "mos/client/compiler/instructions.lua" )
-include( "mos/client/compiler/parser.lua" )
-include( "mos/client/compiler/ast/node_visitor.lua" )
-include( "mos/client/compiler/preprocessor.lua" )
-
-include( "mos/client/compiler/directives/compiler.lua" )
+include( "mos/client/assembler/compiler/instructions.lua" )
+include( "mos/client/assembler/compiler/ast/node_visitor.lua" )
+include( "mos/client/assembler/compiler/directives.lua" )
 
 local Instructions = Mos.Compiler.Instructions
 
@@ -17,112 +14,104 @@ Compiler.__index = Compiler
 setmetatable( Compiler, Mos.Compiler.NodeVisitor )
 
 function Compiler.Create()
-    
+    local compiler = {}
+
+    return setmetatable( compiler, Compiler )
 end
 
-function Compiler:Compile()
-    local activeTab = Mos.Editor:GetActiveTab()
-    if not activeTab or not activeTab.file then return end
+function Compiler:compile()
+    self.output = Mos.FileSystem.GetCompiledPath( self.assembly.main )
 
-    local code = Mos.FileSystem.Read( activeTab.file )
-    local parser = self.Parser:Create( code )
+    Mos.FileSystem.Write( self.output, "" )
+    self.file = Mos.FileSystem.Open( self.output, "wb" )
 
-    local ast = parser:Parse()
-
-    local compiler = setmetatable( {}, self )
-    compiler.preprocessor = self.Preprocessor:Process( ast )
-
-    local fileName = Mos.FileSystem.GetCompiledPath( activeTab.file )
-    Mos.FileSystem.Write( fileName, "" )
-    compiler.file = Mos.FileSystem.Open( fileName, "wb" )
-
-    compiler.file:Write( "GMOS6502" )
-    compiler:StartBlock()
-    local sucess, msg = pcall( function() compiler:Visit( ast ) end )
+    self.file:write( "GMOS6502" )
+    self:startBlock()
+    local sucess, msg = pcall( function() self:visit( ast ) end )
     if not sucess then
         ErrorNoHalt( msg )
     end
 
-    compiler:EndBlock()
-    compiler.file:Close()
+    self:endBlock()
+    self.file:close()
 end
 
-function Compiler:StartBlock( address )
-    self.block = self.file:Tell()
-    self.file:WriteUShort( 0x0000 )
-    self.file:WriteUShort( address )
+function Compiler:startBlock( address )
+    self.block = self.file:tell()
+    self.file:writeUShort( 0x0000 )
+    self.file:writeUShort( address )
 end
 
-function Compiler:EndBlock()
-    local pos = self.file:Tell()
-    self.file:Seek( self.block )
-    self.file:WriteUShort( pos - self.block - 4 )
-    self.file:Seek( pos )
+function Compiler:endBlock()
+    local pos = self.file:tell()
+    self.file:seek( self.block )
+    self.file:writeUShort( pos - self.block - 4 )
+    self.file:seek( pos )
     self.block = nil
 end
 
-function Compiler:Write( byte )
-    self.file:WriteByte( byte )
+function Compiler:write( byte )
+    self.file:writeByte( byte )
 end
 
 --------------------------------------------------
 -- Compiler visit methods
 
-function Compiler:VisitProgram( statements )
+function Compiler:visitProgram( statements )
     for _, statement in ipairs( statements ) do
-        self:Visit( statement )
+        self:visit( statement )
     end
 end
 
-function Compiler:VisitLabel() end
+function Compiler:visitLabel() end
 
-function Compiler:VisitInstruction( data )
+function Compiler:visitInstruction( data )
     local mode = Instructions.modeLookup[data.operand.value.type]
-    self:Write( Instructions.bytecodes[data.instruction.value][mode] )
+    self:write( Instructions.bytecodes[data.instruction.value][mode] )
 
-    self:Visit( data.operand, data.address )
+    self:visit( data.operand, data.address )
 end
 
-function Compiler:VisitAdressingMode( mode, _, address )
-    self:Visit( mode, address )
+function Compiler:visitAdressingMode( mode, _, address )
+    self:visit( mode, address )
 end
 
 --* Addressing modes
 
-function Compiler:VisitAccumulator() end
-function Compiler:VisitImplied() end
+function Compiler:visitAccumulator() end
+function Compiler:visitImplied() end
 
-function Compiler:VisitAbsolute( abs )
-    local value = self:Visit( abs )
+function Compiler:visitAbsolute( abs )
+    local value = self:visit( abs )
 
     local hb = bit.rshift( bit.band( value, 0xff00 ), 8 )
     local lb = bit.band( value, 0xff )
 
-    self:Write( lb )
-    self:Write( hb )
+    self:write( lb )
+    self:write( hb )
 end
 
 Compiler.VisitAbsoluteX = Compiler.VisitAbsolute
 Compiler.VisitAbsoluteY = Compiler.VisitAbsolute
 
-function Compiler:VisitImmediate( imm )
-    self:Write( self:Visit( imm ) )
+function Compiler:visitImmediate( imm )
+    self:write( self:visit( imm ) )
 end
 
-function Compiler:VisitIndirect( ind )
-    self:Write( self:Visit( ind ) )
+function Compiler:visitIndirect( ind )
+    self:write( self:visit( ind ) )
 end
 
-function Compiler:VisitXIndirect( xind )
-    self:Write( self:Visit( xind ) )
+function Compiler:visitXIndirect( xind )
+    self:write( self:visit( xind ) )
 end
 
-function Compiler:VisitIndirectY( indy )
-    self:Write( self:Visit( indy ) )
+function Compiler:visitIndirectY( indy )
+    self:write( self:visit( indy ) )
 end
 
-function Compiler:VisitRelative( rel, _, address )
-    local value = self:Visit( rel )
+function Compiler:visitRelative( rel, _, address )
+    local value = self:visit( rel )
     print( address, value )
     local offset = value - ( address + 2 )
 
@@ -136,15 +125,15 @@ function Compiler:VisitRelative( rel, _, address )
         offset = bit.bxor( 0xff, bit.bnot( offset ) )
     end
 
-    self:Write( offset )
+    self:write( offset )
 end
 
 --* Operations
 
-function Compiler:VisitOperation( data )
+function Compiler:visitOperation( data )
     local op = data.operator.value
-    local left = self:Visit( data.left )
-    local right = self:Visit( data.right )
+    local left = self:visit( data.left )
+    local right = self:visit( data.right )
 
     if op == "+" then
         return left + right
@@ -159,18 +148,18 @@ end
 
 --* Literals
 
-function Compiler:VisitNumber( num )
+function Compiler:visitNumber( num )
     return num
 end
 
-function Compiler:VisitIdentifier( id )
+function Compiler:visitIdentifier( id )
     return self.preprocessor.labels[id] or self.preprocessor.definitions[id]
 end
 
 --* Preprocessor directives
 
-function Compiler:VisitDirective( data )
-    if not self.Directives[data.directive.value] then return end
+function Compiler:visitDirective( data )
+    if not self.directives[data.directive.value] then return end
 
-    self.Directives[data.directive.value]( self, data.arguments, data.value )
+    self.directives[data.directive.value]( self, data.arguments, data.value )
 end

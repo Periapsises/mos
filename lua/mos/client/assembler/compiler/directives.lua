@@ -1,7 +1,7 @@
-Mos.Compiler.Directives = Mos.Compiler.Directives or {}
-local Directives = Mos.Compiler.Directives
+Mos.Compiler.directives = Mos.Compiler.directives or {}
+local directives = Mos.Compiler.directives
 
-function Directives:db( arguments )
+function directives:db( arguments )
     for _, arg in ipairs( arguments ) do
         local t = arg.type
 
