@@ -20,12 +20,13 @@ function Assembler.Assemble()
         main = main,
         files = {},
         preprocessor = preprocessor,
-        compiler = compiler,
-        storage = {}
+        compiler = compiler
     }
 
     preprocessor.assembly = assembly
     compiler.assembly = assembly
+
+    preprocessor:process()
 
     return setmetatable( assembly, Assembler )
 end

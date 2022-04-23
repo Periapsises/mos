@@ -1,7 +1,7 @@
-Mos.Compiler.Preprocessor.Directives = Mos.Compiler.Preprocessor.Directives or {}
-local Directives = Mos.Compiler.Preprocessor.Directives
+Mos.Compiler.Preprocessor.directives = Mos.Compiler.Preprocessor.directives or {}
+local directives = Mos.Compiler.Preprocessor.directives
 
-function Directives:db( arguments )
+function directives:db( arguments )
     local size = 0
 
     for _, arg in ipairs( arguments ) do
@@ -23,7 +23,7 @@ function Directives:db( arguments )
     self.address = self.address + size
 end
 
-function Directives:define( arguments )
+function directives:define( arguments )
     local definition = tostring( arguments[1].value )
 
     self.definitions[definition] = arguments[2] or ""

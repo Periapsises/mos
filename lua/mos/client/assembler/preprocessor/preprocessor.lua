@@ -1,7 +1,7 @@
 Mos.Compiler.Preprocessor = Mos.Compiler.Preprocessor or {}
 local Preprocessor = Mos.Compiler.Preprocessor
 
-include( "mos/client/compiler/directives/preprocessor.lua" )
+include( "mos/client/assembler/preprocessor/directives.lua" )
 
 setmetatable( Preprocessor, Mos.Compiler.NodeVisitor )
 
@@ -13,20 +13,18 @@ Preprocessor.__index = Preprocessor
 function Preprocessor.Create()
     local preprocessor = {}
 
+    preprocessor.address = 0
+    preprocessor.definitions = {
+        ["SERVER"] = {type = "Bool", value = SERVER},
+        ["CLIENT"] = {type = "Bool", value = CLIENT}
+    }
+
     return setmetatable( preprocessor, Preprocessor )
 end
 
 function Preprocessor:process()
-    local preprocessor = setmetatable( {}, self )
-    preprocessor.address = 0
-    preprocessor.labels = {}
-    preprocessor.definitions = {
-        ["SERVER"] = SERVER,
-        ["CLIENT"] = CLIENT
-    }
-    preprocessor:visit( ast )
-
-    return preprocessor
+    self.ast = self.assembly:parseFile( self.assembly.main )
+    preprocessor:visit( self.ast )
 end
 
 --------------------------------------------------
@@ -39,12 +37,12 @@ function Preprocessor:visitProgram( statements )
 end
 
 function Preprocessor:visitLabel( name )
-    if self.labels[name.value] then
+    if self.definitions[name.value] then
         -- TODO: Properly throw errors
         error( "A label with name '" .. name .. "' already exists!" )
     end
 
-    self.labels[name.value] = self.address
+    self.labels[name.value] = {type = "Label", value = self.address}
 end
 
 function Preprocessor:visitInstruction( data )
@@ -59,7 +57,7 @@ function Preprocessor:visitAdressingMode( mode )
 end
 
 function Preprocessor:visitDirective( data )
-    self.Directives[data.directive.value]( self, data.arguments, data.value )
+    self.directives[data.directive.value]( self, data.arguments, data.value )
 end
 
 function Preprocessor:visitNumber( number, node )

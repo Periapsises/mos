@@ -16,6 +16,10 @@ local Instructions = Mos.Compiler.Instructions
 Compiler.__index = Compiler
 setmetatable( Compiler, Mos.Compiler.NodeVisitor )
 
+function Compiler.Create()
+    
+end
+
 function Compiler:Compile()
     local activeTab = Mos.Editor:GetActiveTab()
     if not activeTab or not activeTab.file then return end
