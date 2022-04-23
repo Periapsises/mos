@@ -1,7 +1,7 @@
 local lower, len, explode = string.lower, string.len, string.Explode
 
-Mos.Compiler.Lexer = Mos.Compiler.Lexer or {}
-local Lexer = Mos.Compiler.Lexer
+Mos.Assembler.Lexer = Mos.Assembler.Lexer or {}
+local Lexer = Mos.Assembler.Lexer
 
 Lexer.__index = Lexer
 

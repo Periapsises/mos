@@ -1,17 +1,15 @@
-Mos.Compiler = Mos.Compiler or {}
-local Compiler = Mos.Compiler
+Mos.Assembler.Compiler = Mos.Assembler.Compiler or {}
+local Compiler = Mos.Assembler.Compiler
 
-include( "mos/client/assembler/compiler/instructions.lua" )
-include( "mos/client/assembler/compiler/ast/node_visitor.lua" )
 include( "mos/client/assembler/compiler/directives.lua" )
 
-local Instructions = Mos.Compiler.Instructions
+local Instructions = Mos.Assembler.Instructions
 
 --------------------------------------------------
 -- Compiler API
 
 Compiler.__index = Compiler
-setmetatable( Compiler, Mos.Compiler.NodeVisitor )
+setmetatable( Compiler, Mos.Assembler.NodeVisitor )
 
 function Compiler.Create()
     local compiler = {}

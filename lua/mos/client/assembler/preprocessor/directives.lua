@@ -1,5 +1,5 @@
-Mos.Compiler.Preprocessor.directives = Mos.Compiler.Preprocessor.directives or {}
-local directives = Mos.Compiler.Preprocessor.directives
+Mos.Assembler.Preprocessor.directives = Mos.Assembler.Preprocessor.directives or {}
+local directives = Mos.Assembler.Preprocessor.directives
 
 function directives:db( arguments )
     local size = 0

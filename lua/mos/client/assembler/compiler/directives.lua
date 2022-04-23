@@ -1,5 +1,5 @@
-Mos.Compiler.directives = Mos.Compiler.directives or {}
-local directives = Mos.Compiler.directives
+Mos.Assembler.Compiler.directives = Mos.Assembler.Compiler.directives or {}
+local directives = Mos.Assembler.Compiler.directives
 
 function directives:db( arguments )
     for _, arg in ipairs( arguments ) do

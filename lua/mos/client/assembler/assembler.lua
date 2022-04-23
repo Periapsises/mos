@@ -1,6 +1,9 @@
 Mos.Assembler = Mos.Assembler or {}
 local Assembler = Mos.Assembler
 
+include( "mos/client/assembler/ast/node_visitor.lua" )
+include( "mos/client/assembler/instructions.lua" )
+include( "mos/client/assembler/parser.lua" )
 include( "mos/client/assembler/preprocessor/preprocessor.lua" )
 include( "mos/client/assembler/compiler/compiler.lua" )
 
@@ -23,12 +26,14 @@ function Assembler.Assemble()
         compiler = compiler
     }
 
+    setmetatable( assembly, Assembler )
+
     preprocessor.assembly = assembly
     compiler.assembly = assembly
 
     preprocessor:process()
 
-    return setmetatable( assembly, Assembler )
+    return assembly
 end
 
 function Assembler.GetActiveFile()

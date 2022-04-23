@@ -1,9 +1,9 @@
-Mos.Compiler.Parser = Mos.Compiler.Parser or {}
-local Parser = Mos.Compiler.Parser
+Mos.Assembler.Parser = Mos.Assembler.Parser or {}
+local Parser = Mos.Assembler.Parser
 
-local Instructions = Mos.Compiler.Instructions
+local Instructions = Mos.Assembler.Instructions
 
-include( "mos/client/compiler/lexer.lua" )
+include( "mos/client/assembler/lexer.lua" )
 
 local function errorf( str, ... )
     error( string.format( str, ... ), 3 )
@@ -16,7 +16,7 @@ Parser.__index = Parser
 
 function Parser.Create( code )
     local parser = {}
-    parser.lexer = Mos.Compiler.Lexer:create( code )
+    parser.lexer = Mos.Assembler.Lexer.Create( code )
 
     return setmetatable( parser, Parser )
 end
@@ -127,8 +127,9 @@ local adressingMode = {
 function Parser:addressingMode( instruction )
     local token = self.token
     local mode = adressingMode[token.type] or "MaybeAbsolute"
+    local func = string.lower( mode[1] ) .. string.sub( mode, 2 )
 
-    return self[mode]( self, instruction )
+    return self[func]( self, instruction )
 end
 
 function Parser:indirect()

@@ -1,10 +1,9 @@
-Mos.Compiler.Preprocessor = Mos.Compiler.Preprocessor or {}
-local Preprocessor = Mos.Compiler.Preprocessor
+Mos.Assembler.Preprocessor = Mos.Assembler.Preprocessor or {}
+local Preprocessor = Mos.Assembler.Preprocessor
 
-include( "mos/client/assembler/ast/node_visitor.lua" )
 include( "mos/client/assembler/preprocessor/directives.lua" )
 
-setmetatable( Preprocessor, Mos.Compiler.NodeVisitor )
+setmetatable( Preprocessor, Mos.Assembler.NodeVisitor )
 
 --------------------------------------------------
 -- Preprocessor API
@@ -25,7 +24,7 @@ end
 
 function Preprocessor:process()
     self.ast = self.assembly:parseFile( self.assembly.main )
-    preprocessor:visit( self.ast )
+    self:visit( self.ast )
 end
 
 --------------------------------------------------
@@ -54,7 +53,7 @@ function Preprocessor:visitInstruction( data )
 end
 
 function Preprocessor:visitAdressingMode( mode )
-    return Mos.Compiler.Instructions.modeByteSize[mode.type]
+    return Mos.Assembler.Instructions.modeByteSize[mode.type]
 end
 
 function Preprocessor:visitDirective( data )
