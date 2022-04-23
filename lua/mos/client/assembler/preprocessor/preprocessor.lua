@@ -43,7 +43,7 @@ function Preprocessor:visitProgram( statements )
     end
 end
 
-function Preprocessor:visitLabel( name ) end
+function Preprocessor:visitLabel() end
 
 function Preprocessor:visitInstruction( data )
     self:visit( data.operand )
@@ -65,7 +65,7 @@ function Preprocessor:visitOperation( data )
     self:visit( data.right )
 end
 
-function Preprocessor:visitIdentifier( value, token )
+function Preprocessor:visitIdentifier( value )
     if not self.definitions[value] then return end
     if self.definitions[value].type == "Bool" then return end
 
