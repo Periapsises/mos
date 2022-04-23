@@ -83,7 +83,7 @@ function Compiler:VisitAdressingMode( mode, _, address )
     self:Visit( mode, address )
 end
 
---* Adressing modes
+--* Addressing modes
 
 function Compiler:VisitAccumulator() end
 function Compiler:VisitImplied() end
