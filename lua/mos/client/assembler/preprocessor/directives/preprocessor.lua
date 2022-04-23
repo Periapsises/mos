@@ -24,12 +24,7 @@ function Directives:db( arguments )
 end
 
 function Directives:define( arguments )
-    local definition = tostring( self:Visit( arguments[1] ) )
-    local value = true
+    local definition = tostring( arguments[1].value )
 
-    if arguments[2] then
-        value = self:Visit( arguments[2] )
-    end
-
-    self.definitions[definition] = value
+    self.definitions[definition] = arguments[2] or ""
 end

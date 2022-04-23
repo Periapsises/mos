@@ -14,11 +14,11 @@ end
 
 Parser.__index = Parser
 
-function Parser:Create( code )
+function Parser.Create( code )
     local parser = {}
     parser.lexer = Mos.Compiler.Lexer:Create( code )
 
-    return setmetatable( parser, self )
+    return setmetatable( parser, Parser )
 end
 
 --------------------------------------------------

@@ -6,9 +6,7 @@ include( "mos/client/compiler/parser.lua" )
 include( "mos/client/compiler/ast/node_visitor.lua" )
 include( "mos/client/compiler/preprocessor.lua" )
 
-include( "mos/compiler/directives/compiler.lua" )
-
-include( "mos/compiler/directives/compiler.lua" )
+include( "mos/client/compiler/directives/compiler.lua" )
 
 local Instructions = Mos.Compiler.Instructions
 
@@ -172,20 +170,3 @@ function Compiler:VisitDirective( data )
 
     self.Directives[data.directive.value]( self, data.arguments, data.value )
 end
-
---------------------------------------------------
--- Editor interactions
-
-local function addCompilerOptions( editor )
-    local runButton = vgui.Create( "MosEditor_HeaderButton", editor.header )
-    runButton:SetName( "Run" )
-    runButton:Dock( LEFT )
-
-    function runButton:BuildMenu( menu )
-        menu:AddOption( "Compile", function()
-            Compiler:Compile()
-        end )
-    end
-end
-
-hook.Add( "MosEditor_CreateEditor", "MosCompiler_AddCompilerOptions", addCompilerOptions )
