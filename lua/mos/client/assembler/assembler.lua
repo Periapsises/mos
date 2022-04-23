@@ -32,6 +32,7 @@ function Assembler.Assemble()
     compiler.assembly = assembly
 
     preprocessor:process()
+    PrintTable( preprocessor.ast )
 
     return assembly
 end

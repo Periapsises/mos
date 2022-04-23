@@ -13,7 +13,6 @@ Preprocessor.__index = Preprocessor
 function Preprocessor.Create()
     local preprocessor = {}
 
-    preprocessor.address = 0
     preprocessor.definitions = {
         ["SERVER"] = {type = "Bool", value = SERVER},
         ["CLIENT"] = {type = "Bool", value = CLIENT}
@@ -36,28 +35,33 @@ function Preprocessor:visitProgram( statements )
     end
 end
 
-function Preprocessor:visitLabel( name )
-    if self.definitions[name.value] then
-        -- TODO: Properly throw errors
-        error( "A label with name '" .. name .. "' already exists!" )
-    end
-
-    self.labels[name.value] = {type = "Label", value = self.address}
-end
+function Preprocessor:visitLabel( name ) end
 
 function Preprocessor:visitInstruction( data )
-    data.address = self.address
-    local byteCount = 1 + self:visit( data.operand )
-
-    self.address = self.address + byteCount
+    self:visit( data.operand )
 end
 
 function Preprocessor:visitAdressingMode( mode )
-    return Mos.Assembler.Instructions.modeByteSize[mode.type]
+    local result = self:visit( mode.value )
+
+    --? Allows for replacing nodes with others
+    mode.value = result or mode.value
 end
 
 function Preprocessor:visitDirective( data )
     self.directives[data.directive.value]( self, data.arguments, data.value )
+end
+
+function Preprocessor:visitOperation( data )
+    self:visit( data.left )
+    self:visit( data.right )
+end
+
+function Preprocessor:visitIdentifier( value, token )
+    if not self.definitions[value] then return end
+    if self.definitions[value].type == "Bool" then return end
+
+    return self.definitions[value].value
 end
 
 function Preprocessor:visitNumber( number, node )

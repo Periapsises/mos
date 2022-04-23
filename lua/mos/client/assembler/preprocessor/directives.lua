@@ -26,5 +26,11 @@ end
 function directives:define( arguments )
     local definition = tostring( arguments[1].value )
 
-    self.definitions[definition] = arguments[2] or ""
+    if not arguments[2] then
+        self.definitions[definition] = {type = "Bool", value = true}
+    end
+
+    self:visit( arguments[2] )
+
+    self.definitions[definition] = {type = "Definition", value = arguments[2]}
 end
