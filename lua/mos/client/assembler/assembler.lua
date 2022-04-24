@@ -31,8 +31,8 @@ function Assembler.Assemble()
     preprocessor.assembly = assembly
     compiler.assembly = assembly
 
-    preprocessor:process()
-    PrintTable( preprocessor.ast )
+    assembly.ast = preprocessor:process()
+    compiler:compile()
 
     return assembly
 end

@@ -23,33 +23,33 @@ function Compiler:compile()
     Mos.FileSystem.Write( self.output, "" )
     self.file = Mos.FileSystem.Open( self.output, "wb" )
 
-    self.file:write( "GMOS6502" )
+    self.file:Write( "GMOS6502" )
     self:startBlock()
-    local sucess, msg = pcall( function() self:visit( ast ) end )
+    local sucess, msg = pcall( function() self:visit( self.assembly.ast ) end )
     if not sucess then
         ErrorNoHalt( msg )
     end
 
     self:endBlock()
-    self.file:close()
+    self.file:Close()
 end
 
 function Compiler:startBlock( address )
-    self.block = self.file:tell()
-    self.file:writeUShort( 0x0000 )
-    self.file:writeUShort( address )
+    self.block = self.file:Tell()
+    self.file:WriteUShort( 0x0000 )
+    self.file:WriteUShort( address )
 end
 
 function Compiler:endBlock()
-    local pos = self.file:tell()
-    self.file:seek( self.block )
-    self.file:writeUShort( pos - self.block - 4 )
-    self.file:seek( pos )
+    local pos = self.file:Tell()
+    self.file:Seek( self.block )
+    self.file:WriteUShort( pos - self.block - 4 )
+    self.file:Seek( pos )
     self.block = nil
 end
 
 function Compiler:write( byte )
-    self.file:writeByte( byte )
+    self.file:WriteByte( byte )
 end
 
 --------------------------------------------------
@@ -89,8 +89,8 @@ function Compiler:visitAbsolute( abs )
     self:write( hb )
 end
 
-Compiler.VisitAbsoluteX = Compiler.VisitAbsolute
-Compiler.VisitAbsoluteY = Compiler.VisitAbsolute
+Compiler.visitAbsoluteX = Compiler.visitAbsolute
+Compiler.visitAbsoluteY = Compiler.visitAbsolute
 
 function Compiler:visitImmediate( imm )
     self:write( self:visit( imm ) )

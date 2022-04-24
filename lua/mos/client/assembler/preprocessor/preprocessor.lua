@@ -24,6 +24,8 @@ end
 function Preprocessor:process()
     self.ast = self.assembly:parseFile( self.assembly.main )
     self:visit( self.ast )
+
+    return self.ast
 end
 
 --------------------------------------------------
@@ -33,13 +35,11 @@ function Preprocessor:visitProgram( statements )
     local i = 1
 
     while statements[i] do
-        local replacement = self:visit( statements[i] )
+        local result = {self:visit( statements[i] )}
+        callback = table.remove( result, 1 )
 
-        if replacement == true then
-            table.remove( statements, i )
-        elseif replacement then
-            statements[i] = replacement
-            i = i + 1
+        if callback then
+            i = callback( statements, i, unpack( result ) ) or ( i + 1 )
         else
             i = i + 1
         end
