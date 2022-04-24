@@ -52,7 +52,9 @@ function Preprocessor:visitInstruction( data )
     self:visit( data.operand )
 end
 
-function Preprocessor:visitAdressingMode( mode )
+function Preprocessor:visitAddressingMode( mode )
+    if not mode.value then return end
+
     local result = self:visit( mode.value )
 
     --? Allows for replacing nodes with others
