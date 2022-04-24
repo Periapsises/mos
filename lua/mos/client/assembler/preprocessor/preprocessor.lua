@@ -33,10 +33,13 @@ function Preprocessor:visitProgram( statements )
     local i = 1
 
     while statements[i] do
-        local statement = statements[i]
+        local replacement = self:visit( statements[i] )
 
-        if self:visit( statement ) then
+        if replacement == true then
             table.remove( statements, i )
+        elseif replacement then
+            statements[i] = replacement
+            i = i + 1
         else
             i = i + 1
         end

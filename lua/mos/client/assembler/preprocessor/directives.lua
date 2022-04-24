@@ -24,11 +24,24 @@ function directives:ifdef( arguments, value )
     local definition = tostring( arguments[1].value )
     if not self.definitions[definition] then return true end
 
-    if self.definitions[definition].type == "Bool" and not self.definitions[definition].value then return true end
-
-    for _, statement in ipairs( value ) do
-        self:visit( statement )
+    if self.definitions[definition].type == "Bool" then
+        if self.definitions[definition].value then
+            return #value.default > 0 and value.default or true
+        else
+            return #value.fallback > 0 and value.fallback or true
+        end
     end
 end
 
-function directives:endif() end
+function directives:ifndef( arguments, value )
+    local definition = tostring( arguments[1].value )
+    if not self.definitions[definition] then return true end
+
+    if self.definitions[definition].type == "Bool" then
+        if self.definitions[definition].value then
+            return #value.fallback > 0 and value.fallback or true
+        else
+            return #value.default > 0 and value.default or true
+        end
+    end
+end

@@ -17,6 +17,11 @@ Parser.__index = Parser
 function Parser.Create( code )
     local parser = {}
     parser.lexer = Mos.Assembler.Lexer.Create( code )
+    parser.allowedDirectives = {
+        ["define"] = true,
+        ["ifdef"] = true,
+        ["ifndef"] = true
+    }
 
     return setmetatable( parser, Parser )
 end
@@ -49,40 +54,35 @@ function Parser:parse()
     --? Make sure there is a token we can read
     self.token = self.lexer:getNextToken()
 
-    local program = {type = "Program", value = self:statements( "Eof" ), line = 1, char = 1}
+    local program = self:program()
     self:eat( "Eof" )
 
     return program
 end
 
-function Parser:statements( condition )
+function Parser:program()
     local statements = {}
 
-    local shouldContinue = true
-    local function exit()
-        shouldContinue = false
-    end
+    while self.token.type ~= "Eof" do
+        local statement = self:statement()
 
-    while shouldContinue and self.token.type ~= "Eof" do
-        local token = self.token
-        local node
-
-        if token.type == "Hash" or token.type == "Dot" then
-            node = self:directive( exit )
-        elseif token.type == "Newline" then
-            self:eat( "Newline" )
-        else
-            node = self:identifier()
+        if statement then
+            table.insert( statements, statement )
         end
-
-        table.insert( statements, node )
     end
 
-    if shouldContinue and condition ~= self.token.type then
-        errorf( "Expected %s got %s at line %d, char %d", condition, self.token.type, self.token.line, self.token.char )
-    end
+    return {type = "Program", value = statements, line = 1, char = 1}
+end
 
-    return statements
+function Parser:statement()
+    if self.token.type == "Hash" or self.token.type == "Dot" then
+        return self:directive()
+    elseif self.token.type == "Newline" then
+        self:eat( "Newline" )
+        return
+    else
+        return self:identifier()
+    end
 end
 
 function Parser:identifier()
@@ -228,17 +228,20 @@ function Parser:registerIndex()
     return register
 end
 
-function Parser:directive( exit )
+function Parser:directive()
     self:eat( self.token.type )
 
     local directive = self:eat( "Identifier" )
     local arguments = self:arguments()
     self:eat( "Newline" )
 
-    local value
+    if not self.allowedDirectives[directive.value] then
+        errorf( "Unexpected directive %s at line %d, char %d", directive.value, directive.line, directive.char )
+    end
 
+    local value
     if self[directive.value] then
-        value = self[directive.value]( self, exit )
+        value = self[directive.value]( self )
     end
 
     return {type = "Directive", value = {directive = directive, arguments = arguments, value = value}, line = directive.line, char = directive.char}
@@ -319,9 +322,36 @@ end
 -- Directives
 
 function Parser:ifdef()
-    return self:statements( "#endif" )
+    local result = {default = {}, fallback = {}}
+    local statements = result.default
+    local accepts = {["else"] = true, ["endif"] = true}
+
+    self.allowedDirectives["else"] = true
+    self.allowedDirectives["endif"] = true
+
+    while true do
+        local statement = self:statement()
+        if statement.type == "Directive" then
+            local value = string.sub( statement.value.directive.value, 1 )
+
+            if accepts[value] and value == "else" then
+                statements = result.fallback
+                accepts[value] = false
+                statement = nil
+            elseif accepts[value] then
+                break
+            end
+        end
+
+        if statement then table.insert( statements, statement ) end
+    end
+
+    self.allowedDirectives["else"] = false
+    self.allowedDirectives["endif"] = false
+
+    return result
 end
 
-function Parser:endif( exit )
-    exit()
-end
+Parser.ifndef = Parser.ifdef
+
+function Parser:define() end
