@@ -104,10 +104,8 @@ function Preprocessor:visitNumber( number, node )
     end
 
     node.value = result
-    return result
 end
 
 function Preprocessor:visitString( str, node )
     node.value = string.gsub( string.sub( str, 2, -2 ), "\\([nt])", {n = "\n", t = "\t"} )
-    return node.value
 end
