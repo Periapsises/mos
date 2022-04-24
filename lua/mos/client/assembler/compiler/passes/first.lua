@@ -1,4 +1,5 @@
-local Instructions = Mos.Assembler.Instructions
+local instructions = Mos.Assembler.Instructions
+local directives = Mos.Assembler.Compiler.directives
 
 Mos.Assembler.Compiler.passes[1] = Mos.Assembler.Compiler.passes[1] or {}
 local Pass = Mos.Assembler.Compiler.passes[1]
@@ -11,6 +12,7 @@ function Pass.Perform( ast )
 
     pass.address = 0
     pass.labels = {}
+    pass.isFirstPass = true
 
     pass:visit( ast )
 
@@ -36,18 +38,22 @@ end
 
 function Pass:visitInstruction( instruction )
     local name = string.lower( instruction.instruction.value )
-    local data = Instructions.bytecodes[name]
+    local data = instructions.bytecodes[name]
 
     if not data then
         error( "Invalid instruction " .. name .. " at line " .. instruction.line )
     end
 
     local mode = instruction.operand.value.type
-    local id = Instructions.modeLookup[mode]
+    local id = instructions.modeLookup[mode]
 
     if not data[id] then
         error( "Invalid addressing mode for " .. name .. ", '" .. mode .. "' not supported" )
     end
 
-    self.address = self.address + Instructions.modeByteSize[mode] + 1
+    self.address = self.address + instructions.modeByteSize[mode] + 1
+end
+
+function Pass:visitDirective( directive )
+    directives[directive.directive.value]( self, directive.arguments )
 end

@@ -1,4 +1,5 @@
-local Instructions = Mos.Assembler.Instructions
+local instructions = Mos.Assembler.Instructions
+local directives = Mos.Assembler.Compiler.directives
 
 Mos.Assembler.Compiler.passes[2] = Mos.Assembler.Compiler.passes[2] or {}
 local Pass = Mos.Assembler.Compiler.passes[2]
@@ -27,13 +28,13 @@ function Pass:visitLabel() end
 function Pass:visitInstruction( instruction )
     local name = string.lower( instruction.instruction.value )
     local mode = instruction.operand.value.type
-    local shortName = Instructions.modeLookup[mode]
+    local shortName = instructions.modeLookup[mode]
 
-    self.compiler:write( Instructions.bytecodes[name][shortName] )
+    self.compiler:write( instructions.bytecodes[name][shortName] )
 
     self:visit( instruction.operand )
 
-    self.address = self.address + Instructions.modeByteSize[mode] + 1
+    self.address = self.address + instructions.modeByteSize[mode] + 1
 end
 
 function Pass:visitAddressingMode( mode )
@@ -117,4 +118,8 @@ function Pass:visitIdentifier( id )
     end
 
     return self.labels[id].address
+end
+
+function Pass:visitDirective( directive )
+    directives[directive.directive.value]( self, directive.arguments )
 end
