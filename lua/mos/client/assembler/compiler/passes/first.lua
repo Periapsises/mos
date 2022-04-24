@@ -35,7 +35,7 @@ function Pass:visitLabel( label )
 end
 
 function Pass:visitInstruction( instruction )
-    local name = instruction.instruction.value
+    local name = string.lower( instruction.instruction.value )
     local data = Instructions.bytecodes[name]
 
     if not data then

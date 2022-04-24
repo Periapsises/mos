@@ -20,7 +20,9 @@ function Parser.Create( code )
     parser.allowedDirectives = {
         ["define"] = true,
         ["ifdef"] = true,
-        ["ifndef"] = true
+        ["ifndef"] = true,
+        ["org"] = true,
+        ["db"] = true
     }
 
     return setmetatable( parser, Parser )

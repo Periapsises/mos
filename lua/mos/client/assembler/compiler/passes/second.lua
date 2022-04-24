@@ -25,7 +25,7 @@ end
 function Pass:visitLabel() end
 
 function Pass:visitInstruction( instruction )
-    local name = instruction.instruction.value
+    local name = string.lower( instruction.instruction.value )
     local mode = instruction.operand.value.type
     local shortName = Instructions.modeLookup[mode]
 
