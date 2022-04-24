@@ -28,14 +28,15 @@ function Compiler:compile()
 
     self.file:Write( "GMOS6502" )
     self:startBlock()
-    --local sucess, msg = pcall( function()
+
+    local sucess, msg = pcall( function()
         local labels = self.passes[1].Perform( self.assembly.ast )
         self.passes[2].Perform( self.assembly.ast, labels, self )
-    --end )
+    end )
 
-    --if not sucess then
-    --    ErrorNoHalt( msg )
-    --end
+    if not sucess then
+        ErrorNoHalt( msg )
+    end
 
     self:endBlock()
     self.file:Close()
