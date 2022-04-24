@@ -1,22 +1,22 @@
-Mos.Compiler.NodeVisitor = Mos.Compiler.NodeVisitor or {}
-local NodeVisitor = Mos.Compiler.NodeVisitor
+Mos.Assembler.NodeVisitor = Mos.Assembler.NodeVisitor or {}
+local NodeVisitor = Mos.Assembler.NodeVisitor
 
 NodeVisitor.__index = NodeVisitor
 
-function NodeVisitor:Visit( node, ... )
+function NodeVisitor:visit( node, ... )
     if not node then error( "Trying to visit a nil value", 2 ) end
 
     local nodeType = string.gsub( node.type or "", ",", "")
-    local visitor = self["Visit" .. nodeType]
+    local visitor = self["visit" .. nodeType]
 
     if not visitor then
-        self:GenericVisit( node )
+        self:genericVisit( node )
         return
     end
 
     return visitor( self, node.value, node, ... )
 end
 
-function NodeVisitor:GenericVisit( node )
+function NodeVisitor:genericVisit( node )
     error( "No visitor for " .. node.type, 3 )
 end

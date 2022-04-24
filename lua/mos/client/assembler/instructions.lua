@@ -1,5 +1,5 @@
-Mos.Compiler.Instructions = Mos.Compiler.Instructions or {}
-local Instructions = Mos.Compiler.Instructions
+Mos.Assembler.Instructions = Mos.Assembler.Instructions or {}
+local Instructions = Mos.Assembler.Instructions
 
 --? Lookup for an instruction's name[addressing mode] -> Bytecode
 Instructions.bytecodes = {

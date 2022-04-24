@@ -1,14 +1,14 @@
 local lower, len, explode = string.lower, string.len, string.Explode
 
-Mos.Compiler.Lexer = Mos.Compiler.Lexer or {}
-local Lexer = Mos.Compiler.Lexer
+Mos.Assembler.Lexer = Mos.Assembler.Lexer or {}
+local Lexer = Mos.Assembler.Lexer
 
 Lexer.__index = Lexer
 
 --------------------------------------------------
 -- Lexer API
 
-function Lexer:Create( text )
+function Lexer.Create( text )
     local lexer = {}
     lexer.text = string.gsub( lower( text ), "\n+", "\n" ) .. "\n"
     lexer.pos = 1
@@ -16,7 +16,7 @@ function Lexer:Create( text )
     lexer.line = 1
     lexer.char = 1
 
-    return setmetatable( lexer, self )
+    return setmetatable( lexer, Lexer )
 end
 
 --------------------------------------------------
@@ -43,11 +43,11 @@ Lexer.patterns = {
     {token = "Comment", pattern = "^/%*.-%*/", discard = true}
 }
 
-function Lexer:Token( type, value )
+function Lexer:token( type, value )
     return {type = type, value = value, line = self.line, char = self.char}
 end
 
-function Lexer:GetNextToken()
+function Lexer:getNextToken()
     local text = string.sub( self.text, self.pos )
     local match, size, info = "", 0, {}
 
@@ -75,11 +75,11 @@ function Lexer:GetNextToken()
         end
 
         if info.discard then
-            return self:GetNextToken()
+            return self:getNextToken()
         end
 
-        return self:Token( info.token, match )
+        return self:token( info.token, match )
     end
 
-    return self:Token( "Eof", "" )
+    return self:token( "Eof", "" )
 end
