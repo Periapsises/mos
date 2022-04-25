@@ -14,8 +14,11 @@ function Preprocessor.Create()
     local preprocessor = {}
 
     preprocessor.definitions = {
-        ["server"] = {type = "Bool", value = SERVER},
-        ["client"] = {type = "Bool", value = CLIENT}
+        ["SERVER"] = {type = "Bool", value = SERVER},
+        ["CLIENT"] = {type = "Bool", value = CLIENT},
+        ["VECTOR_IRQ"] = {type = "Definition", value = {type = "Number", value = "0xfffe"}},
+        ["VECTOR_NMI"] = {type = "Definition", value = {type = "Number", value = "0xfffa"}},
+        ["VECTOR_RESET"] = {type = "NuDefinitioner", value = {type = "Number", value = "0xfffc"}}
     }
 
     return setmetatable( preprocessor, Preprocessor )
