@@ -1,4 +1,4 @@
-local lower, len, explode = string.lower, string.len, string.Explode
+local len, explode = string.len, string.Explode
 
 Mos.Assembler.Lexer = Mos.Assembler.Lexer or {}
 local Lexer = Mos.Assembler.Lexer
@@ -10,7 +10,7 @@ Lexer.__index = Lexer
 
 function Lexer.Create( text )
     local lexer = {}
-    lexer.text = string.gsub( lower( text ), "\n+", "\n" ) .. "\n"
+    lexer.text = string.gsub( text, "\n+", "\n" ) .. "\n"
     lexer.pos = 1
 
     lexer.line = 1
@@ -25,7 +25,7 @@ end
 Lexer.patterns = {
     {token = "Identifier", pattern = "^[_%a][_%.%w]*"},
     {token = "Number", pattern = "^%d+"},
-    {token = "Number", pattern = "^0[bdhx]%x+"},
+    {token = "Number", pattern = "^0[bdhxBDHX]%x+"},
     {token = "String", pattern = "^\".-[^\\]\""},
     {token = "String", pattern = "^'.-[^\\]'"},
     {token = "LParen", pattern = "^%("},

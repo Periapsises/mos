@@ -14,8 +14,11 @@ function Preprocessor.Create()
     local preprocessor = {}
 
     preprocessor.definitions = {
-        ["server"] = {type = "Bool", value = SERVER},
-        ["client"] = {type = "Bool", value = CLIENT}
+        ["SERVER"] = {type = "Bool", value = SERVER},
+        ["CLIENT"] = {type = "Bool", value = CLIENT},
+        ["VECTOR_IRQ"] = {type = "Definition", value = {type = "Number", value = "0xfffe"}},
+        ["VECTOR_NMI"] = {type = "Definition", value = {type = "Number", value = "0xfffa"}},
+        ["VECTOR_RESET"] = {type = "NuDefinitioner", value = {type = "Number", value = "0xfffc"}}
     }
 
     return setmetatable( preprocessor, Preprocessor )
@@ -52,7 +55,9 @@ function Preprocessor:visitInstruction( data )
     self:visit( data.operand )
 end
 
-function Preprocessor:visitAdressingMode( mode )
+function Preprocessor:visitAddressingMode( mode )
+    if not mode.value then return end
+
     local result = self:visit( mode.value )
 
     --? Allows for replacing nodes with others
@@ -102,10 +107,8 @@ function Preprocessor:visitNumber( number, node )
     end
 
     node.value = result
-    return result
 end
 
 function Preprocessor:visitString( str, node )
     node.value = string.gsub( string.sub( str, 2, -2 ), "\\([nt])", {n = "\n", t = "\t"} )
-    return node.value
 end

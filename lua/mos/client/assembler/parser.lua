@@ -20,7 +20,10 @@ function Parser.Create( code )
     parser.allowedDirectives = {
         ["define"] = true,
         ["ifdef"] = true,
-        ["ifndef"] = true
+        ["ifndef"] = true,
+        ["org"] = true,
+        ["db"] = true,
+        ["dw"] = true
     }
 
     return setmetatable( parser, Parser )
@@ -104,9 +107,9 @@ end
 
 function Parser:instruction( instruction )
     local name = instruction.value
-    local adressingModes = Instructions.bytecodes[name]
+    local addressingModes = Instructions.bytecodes[name]
 
-    if not adressingModes then
+    if not addressingModes then
         -- TODO: Properly throw errors
         errorf( "Invalid instruction name '%s' at line %d, char %d", name, instruction.line, instruction.char )
     end
@@ -118,7 +121,7 @@ function Parser:instruction( instruction )
     return {type = "Instruction", value = value, line = instruction.line, char = instruction.char}
 end
 
-local adressingMode = {
+local addressingMode = {
     LSqrBracket = "Indirect",
     Hash = "Immediate",
     Newline = "Implied"
@@ -126,7 +129,7 @@ local adressingMode = {
 
 function Parser:addressingMode( instruction )
     local token = self.token
-    local mode = adressingMode[token.type] or "MaybeAbsolute"
+    local mode = addressingMode[token.type] or "MaybeAbsolute"
     local func = string.lower( mode[1] ) .. string.sub( mode, 2 )
 
     return self[func]( self, instruction )
@@ -160,20 +163,20 @@ function Parser:indirect()
         mode = "Indirect,Y"
     end
 
-    return {type = "AdressingMode", value = {type = mode, value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
+    return {type = "AddressingMode", value = {type = mode, value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
 end
 
 function Parser:immediate()
     self:eat( "Hash" )
     local operand = self:operand()
 
-    return {type = "AdressingMode", value = {type = "Immediate", value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
+    return {type = "AddressingMode", value = {type = "Immediate", value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
 end
 
 function Parser:implied( instruction )
     --! Don't eat the newline. All instructions are expected to end with one and :instruction() will take care of it
 
-    return {type = "AdressingMode", value = {type = "Implied", value = nil, line = instruction.line, char = instruction.char}, line = instruction.line, char = instruction.char}
+    return {type = "AddressingMode", value = {type = "Implied", value = nil, line = instruction.line, char = instruction.char}, line = instruction.line, char = instruction.char}
 end
 
 local isBranchInstruction = {
@@ -198,22 +201,22 @@ function Parser:maybeAbsolute( instruction )
     end
 
     if isBranchInstruction[instruction.value] then
-        return {type = "AdressingMode", value = {type = "Relative", value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
+        return {type = "AddressingMode", value = {type = "Relative", value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
     end
 
     if self.token.type == "Comma" then
         local register = string.upper( self:registerIndex().value )
 
-        return {type = "AdressingMode", value = {type = "Absolute," .. register, value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
+        return {type = "AddressingMode", value = {type = "Absolute," .. register, value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
     end
 
-    return {type = "AdressingMode", value = {type = "Absolute", value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
+    return {type = "AddressingMode", value = {type = "Absolute", value = operand, line = operand.line, char = operand.char}, line = operand.line, char = operand.char}
 end
 
 function Parser:accumulator()
     local acc = self:eat( "Identifier" )
 
-    return {type = "AdressingMode", value = {type = "Accumulator", value = acc, line = acc.line, char = acc.char}, line = acc.line, char = acc.char}
+    return {type = "AddressingMode", value = {type = "Accumulator", value = acc, line = acc.line, char = acc.char}, line = acc.line, char = acc.char}
 end
 
 function Parser:registerIndex()
