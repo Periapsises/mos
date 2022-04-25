@@ -1,5 +1,5 @@
 local len, byte = string.len, string.byte
-local bor, lshift = bit.bor, bit.lshift
+local bor, band, lshift = bit.bor, bit.band, bit.lshift
 
 local Processor = Mos.Processor
 
@@ -11,13 +11,13 @@ function Processor:GenerateMemory( code )
     local memory = self.memory
     local address = 0
 
-    local i = 8
+    local i = 9
     while i <= len( code ) do
         local lo, hi = byte( code[i] ), byte( code[i + 1] )
         local blockSize = bor( lshift( hi, 8 ), lo )
 
         lo, hi = byte( code[i + 2] ), byte( code[i + 3] )
-        address = bor( lshift( hi, 8 ), lo ) - 1
+        address = band( bor( lshift( hi, 8 ), lo ), 0xffff )
 
         i = i + 4
 

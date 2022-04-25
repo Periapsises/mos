@@ -22,3 +22,16 @@ function directives:db( arguments )
         end
     end
 end
+
+function directives:org( arguments )
+    if not arguments[1] or arguments[1].type ~= "Number" then
+        error( "Invalid argument for org" )
+    end
+
+    self.address = arguments[1].value
+
+    if self.isFirstPass then return end
+
+    self.compiler:endBlock()
+    self.compiler:startBlock( self.address )
+end
