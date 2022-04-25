@@ -1,4 +1,4 @@
-local len, explode = string.lower, string.len, string.Explode
+local len, explode = string.len, string.Explode
 
 Mos.Assembler.Lexer = Mos.Assembler.Lexer or {}
 local Lexer = Mos.Assembler.Lexer
