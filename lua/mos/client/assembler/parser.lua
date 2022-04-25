@@ -22,7 +22,8 @@ function Parser.Create( code )
         ["ifdef"] = true,
         ["ifndef"] = true,
         ["org"] = true,
-        ["db"] = true
+        ["db"] = true,
+        ["dw"] = true
     }
 
     return setmetatable( parser, Parser )

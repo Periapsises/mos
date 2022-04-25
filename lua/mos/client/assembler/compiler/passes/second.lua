@@ -13,6 +13,7 @@ function Pass.Perform( ast, labels, compiler )
     pass.address = 0
     pass.labels = labels
     pass.compiler = compiler
+    pass.isSecondPass = true
 
     pass:visit( ast )
 end
