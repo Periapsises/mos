@@ -60,4 +60,5 @@ end
 
 function ENT:SetCode( code )
     self.cpu:GenerateMemory( code )
+    self.cpu:Reset()
 end

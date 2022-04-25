@@ -38,8 +38,10 @@ function Processor:Clock()
 
     local instruction = lookup[opcode]
 
-    local value = addressingModes[instruction[3]]( self )
-    instructions[instruction[2]]( self, value )
+    if addressingModes[instruction[3]] then
+        local value = addressingModes[instruction[3]]( self )
+        instructions[instruction[2]]( self, value )
+    end
 
     self:SetFlag( u, 1 )
 end
@@ -231,6 +233,7 @@ function addressingModes.rel( cpu )
         addr = bor( addr, 0xff00 )
     end
 
+    cpu.addrAbs = addr
     return addr
 end
 
@@ -463,7 +466,7 @@ function instructions.iny( cpu )
 end
 
 function instructions.jmp( cpu, value )
-    cpu.pc = value
+    cpu.pc = cpu.addrAbs
 end
 
 function instructions.jsr( cpu, value )
