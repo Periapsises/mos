@@ -465,7 +465,7 @@ function instructions.iny( cpu )
     cpu:SetFlag( n, band( result, 0x80 ) )
 end
 
-function instructions.jmp( cpu, value )
+function instructions.jmp( cpu )
     cpu.pc = cpu.addrAbs
 end
 
