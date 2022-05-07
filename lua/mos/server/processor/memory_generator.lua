@@ -3,6 +3,7 @@ local bor, band, lshift = bit.bor, bit.band, bit.lshift
 
 local Processor = Mos.Processor
 
+-- Given a formated binary file from the client, this function generates a memory for a processor entity
 function Processor:GenerateMemory( code )
     self.memory = {}
 
