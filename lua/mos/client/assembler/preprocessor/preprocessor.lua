@@ -10,6 +10,11 @@ setmetatable( Preprocessor, Mos.Assembler.NodeVisitor )
 
 Preprocessor.__index = Preprocessor
 
+--[[
+    @name Preprocessor.Create()
+    @desc Creates a new preprocessor object and initializes its default values
+    @return Table - The newly created preprocessor
+]]
 function Preprocessor.Create()
     local preprocessor = {}
 
@@ -24,6 +29,11 @@ function Preprocessor.Create()
     return setmetatable( preprocessor, Preprocessor )
 end
 
+--[[
+    @name Preprocessor:process()
+    @desc Fetches and processes the ast of the the main source file
+    @return Table - The processed ast
+]]
 function Preprocessor:process()
     self.ast = self.assembly:parseFile( self.assembly.main )
     self:visit( self.ast )

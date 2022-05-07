@@ -4,12 +4,27 @@ local directives = Mos.Assembler.Preprocessor.directives
 --------------------------------------------------
 -- Callbacks for preprocessor
 
+--[[
+    @name discard( statements, index )
+    @desc Helper function to discard a statement. Used as a callback for the preprocessor
+    @param Table statements - The statements from which to discard one
+    @param number index - The index of the statement to discard
+    @return number - The index given
+]]
 local function discard( statements, index )
     table.remove( statements, index )
 
     return index
 end
 
+--[[
+    @name insertStatements( statements, index, toInsert )
+    @desc Helper function to insert statements. Used as a callback for the preprocessor
+    @param Table statements - The statements to insert into
+    @param number index - The index at which to insert the statements
+    @param Table toInsert - The statements to insert
+    @return number - The last index that was inserted to
+]]
 local function insertStatements( statements, index, toInsert )
     table.remove( statements, index )
 

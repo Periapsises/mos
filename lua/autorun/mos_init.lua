@@ -2,6 +2,7 @@ AddCSLuaFile()
 
 Mos = {}
 
+-- Recursively adds clientside files from a specified folder
 local function AddCSLuaFiles( path )
     local files, folders = file.Find( path .. "*", "LUA" )
 

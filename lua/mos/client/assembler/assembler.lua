@@ -12,6 +12,11 @@ include( "mos/client/assembler/compiler/compiler.lua" )
 
 Assembler.__index = Assembler
 
+--[[
+    @name Assembler.Assemble()
+    @desc Create a new assembler object and initializes default values based on the currently open file
+    @return Table - A generated assembly
+]]
 function Assembler.Assemble()
     local main = Assembler.GetActiveFile()
     if not main then error( "No file currently open" ) end
@@ -37,6 +42,11 @@ function Assembler.Assemble()
     return assembly
 end
 
+--[[
+    @name Assembler.GetActiveFile()
+    @desc Returns the file opened in the editor
+    @return string - The path to the file
+]]
 function Assembler.GetActiveFile()
     local activeTab = Mos.Editor:GetActiveTab()
     if not activeTab then return end
@@ -47,6 +57,12 @@ end
 --------------------------------------------------
 -- Assembly metamethods
 
+--[[
+    @name Assembler:parseFile( path )
+    @desc Fetches the contents of a file and parses them to produce an ast
+    @param string path - The path of the file
+    @return Table - The generated ast
+]]
 function Assembler:parseFile( path )
     if self.files[path] then return end
 

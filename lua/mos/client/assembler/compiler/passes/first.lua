@@ -7,6 +7,12 @@ local Pass = Mos.Assembler.Compiler.passes[1]
 Pass.__index = Pass
 setmetatable( Pass, Mos.Assembler.NodeVisitor )
 
+--[[
+    @name Pass.Perform( ast )
+    @desc Performs a pass on the given AST
+    @param AST ast - The ast to pass over
+    @return Table - The labels dsicovered
+]]
 function Pass.Perform( ast )
     local pass = setmetatable( {}, Pass )
 
@@ -18,6 +24,11 @@ function Pass.Perform( ast )
 
     return pass.labels
 end
+
+--[[
+    Visitor methods for the pass.
+    They are called automatically with the Pass:visit() method
+]]
 
 function Pass:visitProgram( statements )
     for _, statement in ipairs( statements ) do

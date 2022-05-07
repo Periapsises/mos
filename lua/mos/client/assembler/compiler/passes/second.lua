@@ -7,6 +7,13 @@ local Pass = Mos.Assembler.Compiler.passes[2]
 Pass.__index = Pass
 setmetatable( Pass, Mos.Assembler.NodeVisitor )
 
+--[[
+    @name Pass.Perform( ast, labels, compiler )
+    @desc Performs a pass on the given AST
+    @param AST ast - The ast to pass over
+    @param Table labels - The labels taken from the previous pass
+    @param Compiler compiler - The compiler currently running
+]]
 function Pass.Perform( ast, labels, compiler )
     local pass = setmetatable( {}, Pass )
 
@@ -17,6 +24,11 @@ function Pass.Perform( ast, labels, compiler )
 
     pass:visit( ast )
 end
+
+--[[
+    Visitor methods for the pass.
+    They are called automatically with the Pass:visit() method
+]]
 
 function Pass:visitProgram( statements )
     for _, statement in ipairs( statements ) do
