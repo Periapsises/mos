@@ -1,3 +1,7 @@
+--[[
+    @class Preprocessor
+    @desc Generates the ast and processes it before the compilation
+]]
 Mos.Assembler.Preprocessor = Mos.Assembler.Preprocessor or {}
 local Preprocessor = Mos.Assembler.Preprocessor
 
@@ -13,7 +17,8 @@ Preprocessor.__index = Preprocessor
 --[[
     @name Preprocessor.Create()
     @desc Creates a new preprocessor object and initializes its default values
-    @return Table - The newly created preprocessor
+
+    @return Table: The newly created preprocessor
 ]]
 function Preprocessor.Create()
     local preprocessor = {}
@@ -32,7 +37,8 @@ end
 --[[
     @name Preprocessor:process()
     @desc Fetches and processes the ast of the the main source file
-    @return Table - The processed ast
+
+    @return Table: The processed ast
 ]]
 function Preprocessor:process()
     self.ast = self.assembly:parseFile( self.assembly.main )
@@ -41,8 +47,10 @@ function Preprocessor:process()
     return self.ast
 end
 
---------------------------------------------------
--- Visitor methods
+--[[
+    Visitor methods for the pass.
+    They are called automatically with the Pass:visit() method
+]]
 
 function Preprocessor:visitProgram( statements )
     local i = 1

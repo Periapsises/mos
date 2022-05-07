@@ -1,3 +1,7 @@
+--[[
+    @class Parser
+    @desc Generates an AST from a stream of tokens
+]]
 Mos.Assembler.Parser = Mos.Assembler.Parser or {}
 local Parser = Mos.Assembler.Parser
 
@@ -5,6 +9,7 @@ local Instructions = Mos.Assembler.Instructions
 
 include( "mos/client/assembler/lexer.lua" )
 
+-- Formated error message, takes a string and extra arguments like string.format and generates an error from it.
 local function errorf( str, ... )
     error( string.format( str, ... ), 3 )
 end
@@ -14,6 +19,14 @@ end
 
 Parser.__index = Parser
 
+--[[
+    @name Parser.Create()
+    @desc Creates a new parser object
+
+    @param string code: The code to generate an AST for
+
+    @return Parser: The newly created object
+]]
 function Parser.Create( code )
     local parser = {}
     parser.lexer = Mos.Assembler.Lexer.Create( code )
@@ -36,7 +49,7 @@ end
     @name Parser:eat( type )
     @desc Pops a token from the stream and returns it. Throws an error if the type isn't the one we expect
 
-    @param string type - The type of token expected
+    @param string type: The type of token expected
 ]]
 function Parser:eat( type )
     local token = self.token
@@ -53,6 +66,12 @@ end
 --------------------------------------------------
 -- Parsing
 
+--[[
+    @name Parser:parse()
+    @desc Starts generating the AST
+
+    @return AST: The generated AST
+]]
 function Parser:parse()
     --? Make sure there is a token we can read
     self.token = self.lexer:getNextToken()

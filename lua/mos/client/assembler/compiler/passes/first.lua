@@ -1,6 +1,11 @@
 local instructions = Mos.Assembler.Instructions
 local directives = Mos.Assembler.Compiler.directives
 
+--[[
+    @class FirstPass
+    @desc The first pass performed by the compiler.
+    @desc Locates and stores all labels
+]]
 Mos.Assembler.Compiler.passes[1] = Mos.Assembler.Compiler.passes[1] or {}
 local Pass = Mos.Assembler.Compiler.passes[1]
 
@@ -8,10 +13,12 @@ Pass.__index = Pass
 setmetatable( Pass, Mos.Assembler.NodeVisitor )
 
 --[[
-    @name Pass.Perform( ast )
-    @desc Performs a pass on the given AST
-    @param AST ast - The ast to pass over
-    @return Table - The labels dsicovered
+    @name FirstPass.Perform()
+    @desc Passes over the ast and stores all labels
+
+    @param AST ast: The ast to pass over
+
+    @return Table: The labels discovered
 ]]
 function Pass.Perform( ast )
     local pass = setmetatable( {}, Pass )

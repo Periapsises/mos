@@ -4,27 +4,14 @@ local directives = Mos.Assembler.Preprocessor.directives
 --------------------------------------------------
 -- Callbacks for preprocessor
 
---[[
-    @name discard( statements, index )
-    @desc Helper function to discard a statement. Used as a callback for the preprocessor
-    @param Table statements - The statements from which to discard one
-    @param number index - The index of the statement to discard
-    @return number - The index given
-]]
+-- Discards a statement at the given index
 local function discard( statements, index )
     table.remove( statements, index )
 
     return index
 end
 
---[[
-    @name insertStatements( statements, index, toInsert )
-    @desc Helper function to insert statements. Used as a callback for the preprocessor
-    @param Table statements - The statements to insert into
-    @param number index - The index at which to insert the statements
-    @param Table toInsert - The statements to insert
-    @return number - The last index that was inserted to
-]]
+-- Inserts a list of statements at a given index
 local function insertStatements( statements, index, toInsert )
     table.remove( statements, index )
 
@@ -39,12 +26,38 @@ end
 --------------------------------------------------
 -- Directives
 
+--- directive: db
+-- [byte | word | string]+
+-- Define bytes: Adds raw bytes at the current address in the order given.
 function directives:db( arguments )
     for _, arg in ipairs( arguments ) do
         self:visit( arg )
     end
 end
 
+--- directive: dw
+-- [byte | word]+
+-- Define words: Adds raw words at the current address in the order given.
+-- Unlike 'Define bytes', the bytes will be added in little-endian mode.
+function directives:dw( arguments )
+    for _, arg in ipairs( arguments ) do
+        self:visit( arg )
+    end
+end
+
+--- directive: org
+-- [byte | word]
+-- Changes the address at which the following code will be located
+function directives:org( arguments )
+    for _, arg in ipairs( arguments ) do
+        self:visit( arg )
+    end
+end
+
+--- directive: define
+-- [identifier], [expression]?
+-- Defines an identifier in the preprocessor
+-- If an expression is specified, the value of the identifier will equal its result
 function directives:define( arguments )
     local definition = tostring( arguments[1].value )
 
@@ -58,6 +71,10 @@ function directives:define( arguments )
     return discard
 end
 
+--- directive: ifdef
+-- [expression]
+-- Evaluates if the given expression is true
+-- If not, the following code will be ignored up to the closing #endif
 function directives:ifdef( arguments, value )
     local definition = tostring( arguments[1].value )
     if not self.definitions[definition] then return discard end
@@ -71,6 +88,10 @@ function directives:ifdef( arguments, value )
     end
 end
 
+--- directive: ifndef
+-- [expression]
+-- Evaluates if the given expression is false
+-- If not, the following code will be ignored up to the closing #endif
 function directives:ifndef( arguments, value )
     local definition = tostring( arguments[1].value )
     if not self.definitions[definition] then return discard end
@@ -83,3 +104,7 @@ function directives:ifndef( arguments, value )
         end
     end
 end
+
+--- directive: endif
+-- Ends a segment of code started with either #ifdef or #ifndef
+function directives:endif() end

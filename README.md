@@ -43,10 +43,17 @@ The Api documentation comments have a specific format so that (*in the future*) 
 
 ```lua
 --[[
+    @class SomeLib
+    @desc Class that provides this and that to do something
+]]
+local SomeLib = {}
+
+--[[
     @name SomeLib:SomeFunction()
     @desc Some description about that function
-    @param type someArg - What this arguemnt does
-    @return type - What this function returns
+
+    @param type someArg: What this arguemnt does
+    @return type: What this function returns
 ]]
 function SomeLib:SomeFunction( someArg )
 ```

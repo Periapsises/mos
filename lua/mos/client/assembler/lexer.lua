@@ -1,5 +1,9 @@
 local len, explode = string.len, string.Explode
 
+--[[
+    @class Lexer
+    @desc Takes raw text and attempts to convert it into a stream of tokens
+]]
 Mos.Assembler.Lexer = Mos.Assembler.Lexer or {}
 local Lexer = Mos.Assembler.Lexer
 
@@ -9,10 +13,12 @@ Lexer.__index = Lexer
 -- Lexer API
 
 --[[
-    @name Lexer.Create( text )
+    @name Lexer.Create()
     @desc Creates a new lexer object
-    @param string text - The text input to tokenize
-    @return Lexer - The newly created lexer
+
+    @param string text: The text input to tokenize
+
+    @return Lexer: The newly created lexer
 ]]
 function Lexer.Create( text )
     local lexer = {}
@@ -50,11 +56,13 @@ Lexer.patterns = {
 }
 
 --[[
-    @name Lexer:token( type, value )
+    @name Lexer:token()
     @desc Creates a token with a type and value and stores the current line and character
-    @param string type - The type of token
-    @param string value - The value the token holds
-    @return Token - The generated token
+
+    @param string type: The type of token
+    @param string value: The value the token holds
+
+    @return Token: The generated token
 ]]
 function Lexer:token( type, value )
     return {type = type, value = value, line = self.line, char = self.char}
@@ -63,7 +71,8 @@ end
 --[[
     @name Lexer:getNextToken()
     @desc Attempts to tokenize the text input to return the next token
-    @return Token - The next token in the stream
+
+    @return Token: The next token in the stream
 ]]
 function Lexer:getNextToken()
     local text = string.sub( self.text, self.pos )
