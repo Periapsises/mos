@@ -2,20 +2,20 @@ Mos.FileSystem.FileFunctions = {}
 local FileFunctions = Mos.FileSystem.FileFunctions
 
 --[[
-    @name File:Open( node )
+    @name File:Open()
     @desc Opens a file in a new tab
 
-    @param FileNode node - The node pointing to the file to open
+    @param FileNode node: The node pointing to the file to open
 ]]
 function FileFunctions:Open( node )
     Mos.Editor:AddTab( node:GetFileName() )
 end
 
 --[[
-    @name File:Rename( node )
+    @name File:Rename()
     @desc Renames a file
 
-    @param FileNode node - The node pointing to the file to be renamed
+    @param FileNode node: The node pointing to the file to be renamed
 ]]
 function FileFunctions:Rename( node )
     local name = node:GetFileName()
@@ -47,10 +47,10 @@ function FileFunctions:Rename( node )
 end
 
 --[[
-    @name File:Delete( node )
+    @name File:Delete()
     @desc Deletes a file
 
-    @param FileNode node - The node pointing to the file to be deleted
+    @param FileNode node: The node pointing to the file to be deleted
 ]]
 function FileFunctions:Delete( node )
     local path = node:GetFileName()
