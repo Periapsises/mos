@@ -57,3 +57,35 @@ The second pass then goes through all the code, converting it into binary form a
 ### Write the output file
 
 The output file is then saved and closed and can be read from.
+
+---
+
+# Formated Binary Files
+
+For performance reasons as well as to save network usage, the generated binary files follow a specific format that helps minimize their size.
+
+## Blocks
+
+The binary code is divided into blocks which have their own address.  
+This address defines where in memory code should be loaded.
+
+A block has the following format:
+
+| Block address | Block size    | Block data        |
+| ------------- | ------------- | ----------------- |
+| 0x0000-0xffff | 0x0000-0xffff | Up to 65536 bytes |
+
+For example, a block starting at address 10 and with 5 bytes written to it would look like this:
+
+```c
+0x00 0xa0 0x00 0x05 0x00 0x00 0x00 0x00 0x00
+```
+
+If it was followed by another block at address 2823 with 8 bytes, the result would look like this:
+
+```c
+0x00 0xa0 0x00 0x05 0x00 0x00 0x00 0x00 0x00 0x0b 0x07 0x00 0x08 0x00 0x00 0x00
+0x00 0x00 0x00 0x00 0x00
+```
+
+This format really only shows when the source code contains any change of address using the `.org` directive.
