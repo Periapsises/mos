@@ -52,6 +52,9 @@ end
     They are called automatically with the Pass:visit() method
 ]]
 
+
+
+--[[
 function Preprocessor:visitProgram( statements )
     local i = 1
 
@@ -130,3 +133,4 @@ end
 function Preprocessor:visitString( str, node )
     node.value = string.gsub( string.sub( str, 2, -2 ), "\\([nt])", {n = "\n", t = "\t"} )
 end
+--]]
