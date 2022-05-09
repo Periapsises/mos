@@ -1,6 +1,11 @@
 local instructions = Mos.Assembler.Instructions
 local directives = Mos.Assembler.Compiler.directives
 
+--[[
+    @class SecondPass
+    @desc The second pass performed by the compiler.
+    @desc Compiles the AST into binary and writes it to the output
+]]
 Mos.Assembler.Compiler.passes[2] = Mos.Assembler.Compiler.passes[2] or {}
 local Pass = Mos.Assembler.Compiler.passes[2]
 
@@ -8,11 +13,12 @@ Pass.__index = Pass
 setmetatable( Pass, Mos.Assembler.NodeVisitor )
 
 --[[
-    @name Pass.Perform( ast, labels, compiler )
-    @desc Performs a pass on the given AST
-    @param AST ast - The ast to pass over
-    @param Table labels - The labels taken from the previous pass
-    @param Compiler compiler - The compiler currently running
+    @name SecondPass.Perform()
+    @desc Passes over the ast and compiles it to binary
+
+    @param AST ast: The ast to pass over
+    @param Table labels: The labels taken from the previous pass
+    @param Compiler compiler: The compiler currently running
 ]]
 function Pass.Perform( ast, labels, compiler )
     local pass = setmetatable( {}, Pass )

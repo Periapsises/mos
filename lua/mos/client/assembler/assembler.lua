@@ -1,3 +1,7 @@
+--[[
+    @class Assembler
+    @desc Handles the entire process of compiling source code into binary executables
+]]
 Mos.Assembler = Mos.Assembler or {}
 local Assembler = Mos.Assembler
 
@@ -15,7 +19,8 @@ Assembler.__index = Assembler
 --[[
     @name Assembler.Assemble()
     @desc Create a new assembler object and initializes default values based on the currently open file
-    @return Table - A generated assembly
+
+    @return Table: A generated assembly
 ]]
 function Assembler.Assemble()
     local main = Assembler.GetActiveFile()
@@ -45,7 +50,8 @@ end
 --[[
     @name Assembler.GetActiveFile()
     @desc Returns the file opened in the editor
-    @return string - The path to the file
+
+    @return string: The path to the file
 ]]
 function Assembler.GetActiveFile()
     local activeTab = Mos.Editor:GetActiveTab()
@@ -58,10 +64,12 @@ end
 -- Assembly metamethods
 
 --[[
-    @name Assembler:parseFile( path )
+    @name Assembler:parseFile()
     @desc Fetches the contents of a file and parses them to produce an ast
-    @param string path - The path of the file
-    @return Table - The generated ast
+
+    @param string path: The path of the file
+
+    @return AST: The generated ast
 ]]
 function Assembler:parseFile( path )
     if self.files[path] then return end

@@ -1,3 +1,7 @@
+--[[
+    @class Compiler
+    @desc Takes care of performing necessary passes to compile the code into it's binary form
+]]
 Mos.Assembler.Compiler = Mos.Assembler.Compiler or {}
 local Compiler = Mos.Assembler.Compiler
 
@@ -14,12 +18,22 @@ include( "mos/client/assembler/compiler/passes/second.lua" )
 Compiler.__index = Compiler
 setmetatable( Compiler, Mos.Assembler.NodeVisitor )
 
+--[[
+    @name Compiler.Create()
+    @desc Creates a new compiler object
+
+    @return Compiler: The newly created object
+]]
 function Compiler.Create()
     local compiler = {}
 
     return setmetatable( compiler, Compiler )
 end
 
+--[[
+    @name Compiler:compile()
+    @desc Starts compilation from the assembly assigned to the compiler
+]]
 function Compiler:compile()
     self.output = Mos.FileSystem.GetCompiledPath( self.assembly.main )
 
@@ -42,12 +56,23 @@ function Compiler:compile()
     self.file:Close()
 end
 
+--[[
+    @name Compiler:startBlock()
+    @desc Starts a new address block
+    @desc Used when the effective address of the code changes
+
+    @param number address: The address of the block
+]]
 function Compiler:startBlock( address )
     self.block = self.file:Tell()
     self.file:WriteUShort( 0x0000 )
     self.file:WriteUShort( address )
 end
 
+--[[
+    @name Compiler:endBlock()
+    @desc Ends the current block and adds extra info like the block size in the header
+]]
 function Compiler:endBlock()
     local pos = self.file:Tell()
     self.file:Seek( self.block )
@@ -56,6 +81,12 @@ function Compiler:endBlock()
     self.block = nil
 end
 
+--[[
+    @name Compiler:write()
+    @desc Writes a byte to the compiler output
+    
+    @param number byte: The byte to write
+]]
 function Compiler:write( byte )
     self.file:WriteByte( byte )
 end

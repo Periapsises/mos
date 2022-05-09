@@ -2,10 +2,10 @@ Mos.FileSystem.FolderFunctions = {}
 local FolderFunctions = Mos.FileSystem.FolderFunctions
 
 --[[
-    @name Folder:AddFile( node )
+    @name Folder:AddFile()
     @desc Adds a new file in the folder
 
-    @param FolderNode node - The node pointing to the folder to which the file will be added
+    @param FolderNode node: The node pointing to the folder to which the file will be added
 ]]
 function FolderFunctions:AddFile( node )
     local new = node:AddNode( "", "icon16/page_white.png" )
@@ -34,10 +34,10 @@ function FolderFunctions:AddFile( node )
 end
 
 --[[
-    @name Folder:AddFolder( node )
+    @name Folder:AddFolder()
     @desc Adds a subfolder in the folder
 
-    @param FolderNode node - The node pointing to the folder to which a new subfolder will be added
+    @param FolderNode node: The node pointing to the folder to which a new subfolder will be added
 ]]
 function FolderFunctions:AddFolder( node )
     local new = node:AddNode( "", "icon16/folder.png" )
@@ -67,10 +67,10 @@ function FolderFunctions:AddFolder( node )
 end
 
 --[[
-    @name Folder:Rename( node )
+    @name Folder:Rename()
     @desc Renames a folder
 
-    @param FolderNode node - The node pointing to the folder to be renamed
+    @param FolderNode node: The node pointing to the folder to be renamed
 ]]
 function FolderFunctions:Rename( node )
     local name = node:GetFolder()
@@ -114,10 +114,10 @@ local function deleteRecursive( path )
 end
 
 --[[
-    @name Folder:Delete( node )
+    @name Folder:Delete()
     @desc Deletes a folder
 
-    @param FolderNode node - The node pointing to the folder to be deleted
+    @param FolderNode node: The node pointing to the folder to be deleted
 ]]
 function FolderFunctions:Delete( node )
     local path = node:GetFolder()
