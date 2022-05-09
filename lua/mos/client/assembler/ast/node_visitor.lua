@@ -19,7 +19,7 @@ NodeVisitor.__index = NodeVisitor
 function NodeVisitor:visit( node, ... )
     if not node then error( "Trying to visit a nil value", 2 ) end
 
-    local nodeType = string.gsub( node.type or "", ",", "")
+    local nodeType = string.gsub( node._type or "", ",", "")
     local visitor = self["visit" .. nodeType]
 
     if not visitor then
@@ -27,7 +27,18 @@ function NodeVisitor:visit( node, ... )
         return
     end
 
-    return visitor( self, node.value, node, ... )
+    return visitor( self, node._value, node, ... )
+end
+
+--[[
+    @name NodeVisitor:visitList()
+    @desc Default visitor for lists. Visits all nodes in the list.
+    @desc Passes the index as the first argument followed by any extra arguments from the caller.
+]]
+function NodeVisitor:visitList( node, list, ... )
+    for index, value in ipairs( list ) do
+        self:visit( value, index, ... )
+    end
 end
 
 --[[
