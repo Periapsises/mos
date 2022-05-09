@@ -1,6 +1,6 @@
 --[[
     @class Compiler
-    @desc Takes care of performing necessary passes to compile to code into it's binary form
+    @desc Takes care of performing necessary passes to compile the code into it's binary form
 ]]
 Mos.Assembler.Compiler = Mos.Assembler.Compiler or {}
 local Compiler = Mos.Assembler.Compiler

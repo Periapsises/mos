@@ -13,7 +13,7 @@ Pass.__index = Pass
 setmetatable( Pass, Mos.Assembler.NodeVisitor )
 
 --[[
-    @name SecondPass.Perform( ast, labels, compiler )
+    @name SecondPass.Perform()
     @desc Passes over the ast and compiles it to binary
 
     @param AST ast: The ast to pass over

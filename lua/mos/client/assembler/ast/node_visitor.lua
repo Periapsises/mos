@@ -31,7 +31,7 @@ function NodeVisitor:visit( node, ... )
 end
 
 --[[
-    @name NodeVisitor:genericVisit( node )
+    @name NodeVisitor:genericVisit()
     @desc If no visitor is found for a node type, it will default tho this method.
     @desc Throws an error with the missing visitor type
 
