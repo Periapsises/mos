@@ -10,7 +10,7 @@ Mos.Assembler.Compiler.passes[1] = Mos.Assembler.Compiler.passes[1] or {}
 local Pass = Mos.Assembler.Compiler.passes[1]
 
 Pass.__index = Pass
-setmetatable( Pass, Mos.Assembler.NodeVisitor )
+setmetatable( Pass, Mos.Assembler.Ast )
 
 --[[
     @name FirstPass.Perform()

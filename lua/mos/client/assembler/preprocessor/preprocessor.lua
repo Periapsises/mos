@@ -7,7 +7,7 @@ local Preprocessor = Mos.Assembler.Preprocessor
 
 include( "mos/client/assembler/preprocessor/directives.lua" )
 
-setmetatable( Preprocessor, Mos.Assembler.NodeVisitor )
+setmetatable( Preprocessor, Mos.Assembler.Ast )
 
 --------------------------------------------------
 -- Preprocessor API
