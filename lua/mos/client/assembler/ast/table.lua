@@ -14,12 +14,28 @@ setmetatable( Table, Ast )
     @name Table.Create()
     @desc Creates a new table object
 ]]
-function Table.Create()
+function Table.Create( type, reference )
     local tbl = {}
-    tbl._type = "Table"
+    tbl._type = type
     tbl._value = {}
+    tbl._line = reference.line
+    tbl._char = reference.char
 
     return setmetatable( tbl, Table )
+end
+
+function Table:_visitor( ... )
+    for key, value in pairs( self._value ) do
+        local visitorName = "visit" .. self._type .. key
+        local visitor = self[visitorName]
+
+        if not visitor then
+            error( "No visitor for " .. node._type, 2 )
+            return
+        end
+
+        visitor( self, value, key, ... )
+    end
 end
 
 function Table:__newindex( key, value )

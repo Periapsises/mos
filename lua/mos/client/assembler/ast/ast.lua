@@ -21,8 +21,12 @@ end
 
     @return any: The return values from the visitor
 ]]
-function Ast:visit( node )
+function Ast:visit( node, ... )
     if not node then error( "Trying to visit a nil value", 2 ) end
+
+    if node._visitor then
+        return node:_visitor( ... )
+    end
 
     local nodeType = string.gsub( node._type or "", ",", "")
     local visitor = self["visit" .. nodeType]
