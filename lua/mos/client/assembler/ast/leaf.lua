@@ -8,6 +8,7 @@ Ast.Leaf = Ast.Leaf or {}
 local Leaf = Ast.Leaf
 
 Leaf.__index = Leaf
+setmetatable( Leaf, Ast )
 
 --[[
     @name Leaf.Create()
@@ -38,5 +39,8 @@ end
     @param Leaf value: Another leaf type to be visted
 ]]
 function Ast:leaf( type )
-    return Leaf.Create( type )
+    local leaf = Leaf.Create( type )
+    self:_parent( leaf )
+
+    return leaf
 end

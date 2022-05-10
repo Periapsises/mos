@@ -8,6 +8,7 @@ Ast.Table = Ast.Table or {}
 local Table = Ast.Table
 
 Table.__index = Table
+setmetatable( Table, Ast )
 
 --[[
     @name Table.Create()
@@ -18,7 +19,7 @@ function Table.Create()
     tbl._type = "Table"
     tbl._value = {}
 
-    return setmetatable( tbl, Node )
+    return setmetatable( tbl, Table )
 end
 
 function Table:__newindex( key, value )
@@ -34,5 +35,8 @@ end
     @desc Creates a new table object
 ]]
 function Ast:table()
-    return Table.Create()
+    local tbl = Table.Create()
+    self:_parent( tbl )
+
+    return tbl
 end

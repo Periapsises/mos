@@ -8,6 +8,7 @@ Ast.Node = Ast.Node or {}
 local Node = Ast.Node
 
 Node.__index = Node
+setmetatable( Node, Ast )
 
 --[[
     @name Node.Create()
@@ -34,7 +35,7 @@ function Node:attach( node )
 end
 
 function Node:__tostring()
-    return string.format( "%sNode( %s )", self.type, self.value )
+    return string.format( "%sNode( %s )", self._type, self._value )
 end
 
 --[[
@@ -45,5 +46,8 @@ end
     @param Node value: Another node type to be visted
 ]]
 function Ast:node( type )
-    return Node.Create( type )
+    local node = Node.Create( type )
+    self:_parent( node )
+
+    return node
 end

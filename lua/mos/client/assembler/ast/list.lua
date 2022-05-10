@@ -8,6 +8,7 @@ Ast.List = Ast.List or {}
 local List = Ast.List
 
 List.__index = List
+setmetatable( List, Ast )
 
 --[[
     @name List.Create()
@@ -15,10 +16,10 @@ List.__index = List
 ]]
 function List.Create()
     local list = {}
-    list._type = type
+    list._type = "list"
     list._value = {}
 
-    return setmetatable( list, Node )
+    return setmetatable( list, List )
 end
 
 --[[
@@ -31,6 +32,11 @@ function List:append( child )
     table.insert( self._value, child )
 end
 
+-- Override of Ast's parent method
+function List:_parent( node )
+    self:append( node )
+end
+
 function List:__tostring()
     return string.format( "%sList( %s )", self.type, self.value )
 end
@@ -40,5 +46,8 @@ end
     @desc Creates a new list object
 ]]
 function Ast:list()
-    return List.Create()
+    local list = List.Create()
+    self:_parent( list )
+
+    return list
 end
