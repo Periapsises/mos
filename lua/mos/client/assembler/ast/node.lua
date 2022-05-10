@@ -16,12 +16,21 @@ Node.__index = Node
     @param string type: The type of the node
     @param Node value: Another node type to be visted
 ]]
-function Node.Create( type, value )
+function Node.Create( type )
     local node = {}
     node._type = type
-    node._value = value
 
     return setmetatable( node, Node )
+end
+
+--[[
+    @name Node:attach()
+    @desc Attaches a node to this one
+
+    @param Node node the node to attach
+]]
+function Node:attach( node )
+    self._value = node
 end
 
 function Node:__tostring()
@@ -35,6 +44,6 @@ end
     @param string type: The type of the node
     @param Node value: Another node type to be visted
 ]]
-function Ast:node( type, value )
-    return Node.Create( type, value )
+function Ast:node( type )
+    return Node.Create( type )
 end
