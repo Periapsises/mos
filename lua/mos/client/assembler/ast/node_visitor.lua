@@ -19,24 +19,42 @@ NodeVisitor.__index = NodeVisitor
 function NodeVisitor:visit( node, ... )
     if not node then error( "Trying to visit a nil value", 2 ) end
 
-    local nodeType = string.gsub( node.type or "", ",", "")
+    local nodeType = string.gsub( node._type or "", ",", "")
     local visitor = self["visit" .. nodeType]
 
     if not visitor then
-        self:genericVisit( node )
+        error( "No visitor for " .. node._type, 2 )
         return
     end
 
-    return visitor( self, node.value, node, ... )
+    return visitor( self, node._value, node, ... )
 end
 
 --[[
-    @name NodeVisitor:genericVisit()
-    @desc If no visitor is found for a node type, it will default tho this method.
-    @desc Throws an error with the missing visitor type
-
-    @param Node node - The node to visit
+    @name NodeVisitor:visitList()
+    @desc Default visitor for lists. Visits all nodes in the list.
+    @desc Passes the list node as the first argument followed by the index and any extra arguments from the caller.
 ]]
-function NodeVisitor:genericVisit( node )
-    error( "No visitor for " .. node.type, 3 )
+function NodeVisitor:visitList( list, node, ... )
+    for index, value in ipairs( list ) do
+        self:visit( value, node, index, ... )
+    end
+end
+
+--[[
+    @name NodeVisitor:visitTable()
+    @desc Visits all keys in a table node using the name of the key as the visit type.
+    @desc Passes the key name as the first argument followed by extra arguments from the caller.
+]]
+function NodeVisitor:visitTable( node, tbl, ... )
+    for key, value in pairs( tbl ) do
+        local visitor = self["visit" .. key]
+
+        if not visitor then
+            error( "No visitor for " .. key, 2 )
+            return
+        end
+
+        return visitor( self, value, node, key, ... )
+    end
 end

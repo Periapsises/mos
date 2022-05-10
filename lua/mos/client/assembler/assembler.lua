@@ -5,6 +5,7 @@
 Mos.Assembler = Mos.Assembler or {}
 local Assembler = Mos.Assembler
 
+include( "mos/client/assembler/ast/ast.lua" )
 include( "mos/client/assembler/ast/node_visitor.lua" )
 include( "mos/client/assembler/instructions.lua" )
 include( "mos/client/assembler/parser.lua" )
