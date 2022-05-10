@@ -23,7 +23,7 @@ function NodeVisitor:visit( node, ... )
     local visitor = self["visit" .. nodeType]
 
     if not visitor then
-        self:genericVisit( node )
+        error( "No visitor for " .. node._type, 2 )
         return
     end
 
@@ -51,21 +51,10 @@ function NodeVisitor:visitTable( node, tbl, ... )
         local visitor = self["visit" .. key]
 
         if not visitor then
-            self:genericVisit( node )
+            error( "No visitor for " .. key, 2 )
             return
         end
 
-        return visitor( self, node._value, node, key, ... )
+        return visitor( self, value, node, key, ... )
     end
-end
-
---[[
-    @name NodeVisitor:genericVisit()
-    @desc If no visitor is found for a node type, it will default tho this method.
-    @desc Throws an error with the missing visitor type
-
-    @param Node node - The node to visit
-]]
-function NodeVisitor:genericVisit( node )
-    error( "No visitor for " .. node.type, 3 )
 end
