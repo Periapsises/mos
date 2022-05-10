@@ -33,11 +33,11 @@ end
 --[[
     @name NodeVisitor:visitList()
     @desc Default visitor for lists. Visits all nodes in the list.
-    @desc Passes the index as the first argument followed by any extra arguments from the caller.
+    @desc Passes the list node as the first argument followed by the index and any extra arguments from the caller.
 ]]
 function NodeVisitor:visitList( list, node, ... )
     for index, value in ipairs( list ) do
-        self:visit( value, index, ... )
+        self:visit( value, node, index, ... )
     end
 end
 
