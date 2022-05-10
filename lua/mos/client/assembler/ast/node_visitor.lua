@@ -35,9 +35,27 @@ end
     @desc Default visitor for lists. Visits all nodes in the list.
     @desc Passes the index as the first argument followed by any extra arguments from the caller.
 ]]
-function NodeVisitor:visitList( node, list, ... )
+function NodeVisitor:visitList( list, node, ... )
     for index, value in ipairs( list ) do
         self:visit( value, index, ... )
+    end
+end
+
+--[[
+    @name NodeVisitor:visitTable()
+    @desc Visits all keys in a table node using the name of the key as the visit type.
+    @desc Passes the key name as the first argument followed by extra arguments from the caller.
+]]
+function NodeVisitor:visitTable( node, tbl, ... )
+    for key, value in pairs( tbl ) do
+        local visitor = self["visit" .. key]
+
+        if not visitor then
+            self:genericVisit( node )
+            return
+        end
+
+        return visitor( self, node._value, node, key, ... )
     end
 end
 
