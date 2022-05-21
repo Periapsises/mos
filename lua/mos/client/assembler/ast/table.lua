@@ -28,12 +28,12 @@ function Table.Create( type, reference )
 end
 
 function Table:_visitor( node, ... )
-    for key, value in pairs( self._value ) do
-        local visitorName = "visit" .. self._type .. key
+    for key, value in pairs( node._value ) do
+        local visitorName = "visit" .. node._type .. key
         local visitor = self[visitorName]
 
         if not visitor then
-            error( "No visitor for " .. node._type .. key, 2 )
+            error( "No visitor for " .. node._type .. key, 3 )
             return
         end
 

@@ -25,7 +25,7 @@ function Ast:visit( node, ... )
     if not node then error( "Trying to visit a nil value", 2 ) end
 
     if node._visitor then
-        return node:_visitor( node, ... )
+        return node._visitor( self, node, ... )
     end
 
     local nodeType = string.gsub( node._type or "", ",", "")
