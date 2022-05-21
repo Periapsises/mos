@@ -160,7 +160,7 @@ local addressingMode = {
 
 function Parser:operand( node, name )
     node.Operand = node:table( "Operand", self.token )
-    node.Operand.Value = node:node( "Exression" )
+    node.Operand.Value = node:node( "Expression" )
 
     local mode = addressingMode[self.token.type] or "maybeAbsolute"
     self[mode]( self, node.Operand, name )
