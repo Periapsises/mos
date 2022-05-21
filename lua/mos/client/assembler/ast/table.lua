@@ -28,6 +28,8 @@ function Table.Create( type, reference )
 end
 
 function Table:_visitor( node, ... )
+    local tbl = {}
+
     for key, value in pairs( node._value ) do
         local visitorName = "visit" .. node._type .. key
         local visitor = self[visitorName]
@@ -37,8 +39,10 @@ function Table:_visitor( node, ... )
             return
         end
 
-        visitor( self, value, key, ... )
+        tbl[key] = visitor( self, value, ... )
     end
+
+    return tbl
 end
 
 function Table:__index( key )
