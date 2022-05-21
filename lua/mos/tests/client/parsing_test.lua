@@ -42,6 +42,8 @@ local function test( name, code, expected, printNodes, printTree )
                     printTable( value, padding .. " |\t" )
                     print( padding .. "}" )
                 else
+                    if value == '\n' then value = '\\n' end
+
                     print( padding .. key .. ":\t" .. tostring( value ) )
                 end
             end

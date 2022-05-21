@@ -57,7 +57,7 @@ function Parser:eat( type )
     local token = self.token
     if token.type ~= type then
         -- TODO: Properly throw errors
-        errorf( "Expected %s got %s at line %d, char %d", type, token.type, token.line, token.char )
+        error( string.format( "Expected %s got %s at line %d, char %d", type, token.type, token.line, token.char ), 2 )
     end
 
     self.token = self.lexer:getNextToken()
@@ -96,7 +96,7 @@ function Parser:statement( node )
     local type = self.token.type
 
     if type == "Newline" then
-        return self:eat( "Newline" )
+        self:eat( "Newline" )
     elseif type == "Hash" or type == "Dot" then
         return self:directive( node )
     else
@@ -235,9 +235,6 @@ function Parser:maybeAbsolute( node, name )
     local mode = self.token
 
     self:expression( node.Value )
-    if not node.Operand then
-        errorf( "Expected Operand got %s at line %d, char %d", self.token.type, self.token.line, self.token.char )
-    end
 
     if isBranchInstruction[name] then
         mode.value = "Relative"
@@ -263,13 +260,14 @@ end
 
 function Parser:registerIndex()
     self:eat( "Comma" )
-    local register = self:eat( "Identifier" ).value
+    local register = self:eat( "Identifier" )
+    local name = string.lower( register.value )
 
-    if register ~= "x" and register ~= "y" then
+    if name ~= "x" and name ~= "y" then
         errorf( "Invalid register '%s' at line %d, char %d", register.value, register.line, register.char )
     end
 
-    return register
+    return register.value
 end
 
 local validTermOperation = {
@@ -337,7 +335,7 @@ function Parser:arguments( node )
     self:argument( arguments )
 
     while self.token.type == "Comma" or self.token.type ~= "Newline" do
-        self:eat( "Newline" )
+        self:eat( "Comma" )
         self:argument( arguments )
     end
 end
@@ -357,6 +355,8 @@ function Parser:ifdef( node )
 
     local statements = node.Default
     local accepts = {["else"] = true, ["endif"] = true}
+
+    local previous = self.allowedDirectives["else"]
 
     self.allowedDirectives["else"] = true
     self.allowedDirectives["endif"] = true
@@ -379,8 +379,8 @@ function Parser:ifdef( node )
         if statement then table.insert( statements, statement ) end
     end
 
-    self.allowedDirectives["else"] = false
-    self.allowedDirectives["endif"] = false
+    self.allowedDirectives["else"] = previous
+    self.allowedDirectives["endif"] = previous
 
     return result
 end
