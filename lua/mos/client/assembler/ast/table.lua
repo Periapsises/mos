@@ -27,13 +27,13 @@ function Table.Create( type, reference )
     return setmetatable( tbl, Table )
 end
 
-function Table:_visitor( ... )
+function Table:_visitor( node, ... )
     for key, value in pairs( self._value ) do
         local visitorName = "visit" .. self._type .. key
         local visitor = self[visitorName]
 
         if not visitor then
-            error( "No visitor for " .. node._type, 2 )
+            error( "No visitor for " .. node._type .. key, 2 )
             return
         end
 
