@@ -23,7 +23,6 @@ AddCSLuaFiles( "mos/tests/client/" )
 AddCSLuaFiles( "mos/tests/shared/" )
 
 include( "mos/shared/sh_init.lua" )
-include( "mos/tests/tests.lua" )
 
 if SERVER then
     include( "mos/server/sv_init.lua" )
