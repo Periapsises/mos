@@ -40,6 +40,8 @@ function FileSystem.HasAllowedExtension( path )
     for _, extension in ipairs( FileSystem.allowedExtensions ) do
         if string.EndsWith( path, extension ) then return true end
     end
+
+    return false
 end
 
 --[[
