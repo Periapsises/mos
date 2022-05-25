@@ -16,7 +16,7 @@ include( "mos/client/assembler/compiler/passes/second.lua" )
 -- Compiler API
 
 Compiler.__index = Compiler
-setmetatable( Compiler, Mos.Assembler.NodeVisitor )
+setmetatable( Compiler, Mos.Assembler.Ast )
 
 --[[
     @name Compiler.Create()

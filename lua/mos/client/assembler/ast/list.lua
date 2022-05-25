@@ -16,7 +16,7 @@ setmetatable( List, Ast )
 ]]
 function List.Create()
     local list = {}
-    list._type = "list"
+    list._type = "List"
     list._value = {}
 
     return setmetatable( list, List )

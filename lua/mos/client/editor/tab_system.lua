@@ -13,7 +13,7 @@ Tabs.__index = Tabs
 
 --[[
     @name Table Tabs:CreateHandler()
-    @desc Creates a new Tab Handler as well as it's container panel. Inherits the functions of the Tabs API.
+    @desc Creates a new Tab Handler as well as its container panel. Inherits the functions of the Tabs API.
 
     @return TabHandler: The new tab handler
 ]]

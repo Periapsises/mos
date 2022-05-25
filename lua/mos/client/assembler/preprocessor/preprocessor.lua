@@ -7,7 +7,7 @@ local Preprocessor = Mos.Assembler.Preprocessor
 
 include( "mos/client/assembler/preprocessor/directives.lua" )
 
-setmetatable( Preprocessor, Mos.Assembler.NodeVisitor )
+setmetatable( Preprocessor, Mos.Assembler.Ast )
 
 --------------------------------------------------
 -- Preprocessor API
@@ -52,6 +52,39 @@ end
     They are called automatically with the Pass:visit() method
 ]]
 
+function Preprocessor:visitProgram( statements )
+    self:visit( statements )
+end
+
+function Preprocessor:visitInstructionName( name )
+    self:visit( name )
+end
+
+function Preprocessor:visitInstructionOperand( operand )
+    self:visit( operand )
+end
+
+function Preprocessor:visitOperandMode( mode )
+    self:visit( mode )
+end
+
+function Preprocessor:visitOperandValue( value )
+    self:visit( value )
+end
+
+function Preprocessor:visitExpression( expr )
+    self:visit( expr )
+end
+
+function Preprocessor:visitIdentifier( id )
+    return id
+end
+
+function Preprocessor:visitNumber( number )
+    return tonumber( number )
+end
+
+--[[
 function Preprocessor:visitProgram( statements )
     local i = 1
 
@@ -130,3 +163,4 @@ end
 function Preprocessor:visitString( str, node )
     node.value = string.gsub( string.sub( str, 2, -2 ), "\\([nt])", {n = "\n", t = "\t"} )
 end
+--]]

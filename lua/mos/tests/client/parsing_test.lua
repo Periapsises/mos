@@ -1,4 +1,4 @@
-local Parser = Mos.Compiler.Parser
+local Parser = Mos.Assembler.Parser
 
 local padding = ""
 
@@ -30,8 +30,8 @@ local function test( name, code, expected, printNodes, printTree )
     end
 
     local success, msg = pcall( function()
-        local parser = Parser:Create( code )
-        return parser:Parse()
+        local parser = Parser.Create( code )
+        return parser:parse()
     end )
 
     if success and printTree then
@@ -42,6 +42,8 @@ local function test( name, code, expected, printNodes, printTree )
                     printTable( value, padding .. " |\t" )
                     print( padding .. "}" )
                 else
+                    if value == "\n" then value = "\\n" end
+
                     print( padding .. key .. ":\t" .. tostring( value ) )
                 end
             end
@@ -98,7 +100,7 @@ label:
 
 print( "\n----- Tests -----\n" )
 
-test( "Valid code", validCodeTest, true )
+test( "Valid code", validCodeTest, true, false, true )
 test( "Empty code", "\n", true )
 test( "Invalid Instruction", "lol\n" )
 test( "Invalid register", "adc 0,a\n" )

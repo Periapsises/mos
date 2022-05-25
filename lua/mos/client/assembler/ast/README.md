@@ -90,24 +90,24 @@ Calling the functions to create nodes from a list will automatically append them
 
 `Tables` can store multiple values like `Lists` but differ a lot from other nodes when visited.  
 Instead of storing noded in an ordered list, they are stored with a key (Hence the name Table).  
-When visited, all key-value pairs will be taken and a visitor will be fetched using the key.
+When visited, all key-value pairs will be taken and a visitor will be fetched using the type of the table and the key.
 
-For instance, a key named `Statements` will fetch a visitor called `:visitStatements()` and pass the value to it.
+For instance, a table of type `Directive` with a key named `Name` will fetch a visitor called `:visitDirectiveName()` and pass the value to it.
 
 Tables are created like other nodes.
 ```lua
-local myTable = Mos.Assembler.Ast.Table.Create()
+local myTable = Mos.Assembler.Ast.Table.Create( "type", reference )
 aNode:attach( myTable )
 ```
 ```lua
-local myTable = aNode:table()
+local myTable = aNode:table( "type", reference )
 ```
 
 The `:attach()` and `:append()` methods cannot be used on tables.  
 Instead you can just assign values to keys like you would with a normal lua table.
 
 ```lua
-local myTable = aNode:table()
+local myTable = aNode:table( "type", reference )
 
 myTable.key1 = value1
 myTable.key2 = value2

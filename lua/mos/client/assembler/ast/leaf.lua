@@ -28,7 +28,7 @@ function Leaf.Create( token )
 end
 
 function Leaf:__tostring()
-    return string.format( "%sLeaf( %s )", self.type, self.value )
+    return string.format( "%sLeaf( %s )", self._type, self._value )
 end
 
 --[[
