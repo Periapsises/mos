@@ -4,34 +4,48 @@ return {
             name = "Lexer should return the proper stream of tokens.",
             clientside = true,
             func = function()
-                local lexer = Mos.Assembler.Lexer.Create( "// Comment\n/*\nMultiline\nComment\n*/#.iD._09[],:+-*/()\"String\"'String'\"\\n\"0123456789\n0b0101\n0d1234\n0xabcd\n0hf000" )
+                local lexer = Mos.Assembler.Lexer.Create( [[
+                    // Comment
+                    /*
+                        Multiline
+                        Comment
+                    */#.iD._09[],:+-*/()"String"'String'"\\n"0123456789
+                    0b0101
+                    0d1234
+                    0xabcd
+                    0hf000
+                ]] )
 
-                expect( lexer:getNextToken().type ).to.equal( "Newline" )       -- \n
-                expect( lexer:getNextToken().type ).to.equal( "Hash" )          -- #
-                expect( lexer:getNextToken().type ).to.equal( "Dot" )           -- .
-                expect( lexer:getNextToken().type ).to.equal( "Identifier" )    -- iD._09
-                expect( lexer:getNextToken().type ).to.equal( "LSqrBracket" )   -- [
-                expect( lexer:getNextToken().type ).to.equal( "RSqrBracket" )   -- ]
-                expect( lexer:getNextToken().type ).to.equal( "Comma" )         -- ,
-                expect( lexer:getNextToken().type ).to.equal( "Colon" )         -- :
-                expect( lexer:getNextToken().type ).to.equal( "Operator" )      -- +
-                expect( lexer:getNextToken().type ).to.equal( "Operator" )      -- -
-                expect( lexer:getNextToken().type ).to.equal( "Operator" )      -- *
-                expect( lexer:getNextToken().type ).to.equal( "Operator" )      -- /
-                expect( lexer:getNextToken().type ).to.equal( "LParen" )        -- (
-                expect( lexer:getNextToken().type ).to.equal( "RParen" )        -- )
-                expect( lexer:getNextToken().type ).to.equal( "String" )        -- "String"
-                expect( lexer:getNextToken().type ).to.equal( "String" )        -- 'String'
-                expect( lexer:getNextToken().type ).to.equal( "String" )        -- "\n"
-                expect( lexer:getNextToken().type ).to.equal( "Number" )        -- 0123456789
-                expect( lexer:getNextToken().type ).to.equal( "Newline" )       -- \n
-                expect( lexer:getNextToken().type ).to.equal( "Number" )        -- 0b0101
-                expect( lexer:getNextToken().type ).to.equal( "Newline" )       -- \n
-                expect( lexer:getNextToken().type ).to.equal( "Number" )        -- 0d1234
-                expect( lexer:getNextToken().type ).to.equal( "Newline" )       -- \n
-                expect( lexer:getNextToken().type ).to.equal( "Number" )        -- 0xabcd
-                expect( lexer:getNextToken().type ).to.equal( "Newline" )       -- \n
-                expect( lexer:getNextToken().type ).to.equal( "Number" )        -- 0hf000
+                local function getNextToken()
+                    return lexer:getNextToken().type
+                end
+
+                expect( getNextToken() ).to.equal( "Newline" )       -- \n
+                expect( getNextToken() ).to.equal( "Hash" )          -- #
+                expect( getNextToken() ).to.equal( "Dot" )           -- .
+                expect( getNextToken() ).to.equal( "Identifier" )    -- iD._09
+                expect( getNextToken() ).to.equal( "LSqrBracket" )   -- [
+                expect( getNextToken() ).to.equal( "RSqrBracket" )   -- ]
+                expect( getNextToken() ).to.equal( "Comma" )         -- ,
+                expect( getNextToken() ).to.equal( "Colon" )         -- :
+                expect( getNextToken() ).to.equal( "Operator" )      -- +
+                expect( getNextToken() ).to.equal( "Operator" )      -- -
+                expect( getNextToken() ).to.equal( "Operator" )      -- *
+                expect( getNextToken() ).to.equal( "Operator" )      -- /
+                expect( getNextToken() ).to.equal( "LParen" )        -- (
+                expect( getNextToken() ).to.equal( "RParen" )        -- )
+                expect( getNextToken() ).to.equal( "String" )        -- "String"
+                expect( getNextToken() ).to.equal( "String" )        -- 'String'
+                expect( getNextToken() ).to.equal( "String" )        -- "\n"
+                expect( getNextToken() ).to.equal( "Number" )        -- 0123456789
+                expect( getNextToken() ).to.equal( "Newline" )       -- \n
+                expect( getNextToken() ).to.equal( "Number" )        -- 0b0101
+                expect( getNextToken() ).to.equal( "Newline" )       -- \n
+                expect( getNextToken() ).to.equal( "Number" )        -- 0d1234
+                expect( getNextToken() ).to.equal( "Newline" )       -- \n
+                expect( getNextToken() ).to.equal( "Number" )        -- 0xabcd
+                expect( getNextToken() ).to.equal( "Newline" )       -- \n
+                expect( getNextToken() ).to.equal( "Number" )        -- 0hf000
             end
         }
     }
