@@ -2,7 +2,7 @@ AddCSLuaFile()
 
 Mos = {}
 
--- Recursively adds serverside files from a specified folder only if the file is a lua file
+-- Recursively adds clientside files from a specified folder only if the file is a lua file
 local function AddCSLuaFiles( path )
     local files, folders = file.Find( path .. "*", "LUA" )
 
