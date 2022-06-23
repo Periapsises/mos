@@ -2,7 +2,7 @@ AddCSLuaFile()
 
 Mos = {}
 
--- Recursively adds clientside files from a specified folder
+-- Recursively adds clientside files from a specified folder only if the file is a lua file
 local function AddCSLuaFiles( path )
     local files, folders = file.Find( path .. "*", "LUA" )
 
@@ -11,7 +11,9 @@ local function AddCSLuaFiles( path )
     end
 
     for _, f in ipairs( files ) do
-        AddCSLuaFile( path .. f )
+        if f:sub( -4 ) == ".lua" then
+            AddCSLuaFile( path .. f )
+        end
     end
 end
 
@@ -23,7 +25,6 @@ AddCSLuaFiles( "mos/tests/client/" )
 AddCSLuaFiles( "mos/tests/shared/" )
 
 include( "mos/shared/sh_init.lua" )
-include( "mos/tests/tests.lua" )
 
 if SERVER then
     include( "mos/server/sv_init.lua" )

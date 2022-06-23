@@ -89,6 +89,8 @@ function Lexer:getNextToken()
     end
 
     if size > 0 then
+        local token = self:token( info.token, match )
+
         local lines = explode( "\n", match, false )
         local lcount = #lines
 
@@ -105,7 +107,7 @@ function Lexer:getNextToken()
             return self:getNextToken()
         end
 
-        return self:token( info.token, match )
+        return token
     end
 
     return self:token( "Eof", "" )
