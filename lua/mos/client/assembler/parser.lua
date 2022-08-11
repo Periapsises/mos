@@ -6,9 +6,9 @@ Mos.Assembler.Parser = Mos.Assembler.Parser or {}
 local Parser = Mos.Assembler.Parser
 
 include( "mos/client/assembler/lexer.lua" )
-include( "mos/client/assembler/ast/ast.lua" )
+include( "mos/client/assembler/ast/visitor.lua" )
 
-local Ast = Mos.Assembler.Ast
+local Visitor = Mos.Assembler.Visitor
 local instructions = Mos.Assembler.Instructions
 
 -- Formated error message, takes a string and extra arguments like string.format and generates an error from it.
@@ -69,7 +69,8 @@ end
 function Parser:parse()
     self.token = self.lexer:getNextToken()
 
-    local program = Ast.Node.Create( "Program" )
+    local ast = Visitor.Create()
+    local program = ast:node( "Program" )
     self:program( program )
     self:eat( "Eof" )
 
@@ -77,10 +78,11 @@ function Parser:parse()
 end
 
 function Parser:program( node )
-    local statements = node:list()
+    node.statements = node:node( "Statements" )
 
     while self.token.type ~= "Eof" do
-        self:statement( statements )
+        local statement = self:statement( node.statements )
+        node.statements:insert( statement )
     end
 end
 
@@ -96,21 +98,21 @@ end
 
 function Parser:identifier( node )
     local id = self:eat( "Identifier" )
+    local statement = node:node( "Statement" )
 
     if self.token.type == "Colon" then
         self:eat( "Colon" )
         self:eat( "Newline" )
 
-        local label = node:node( "Label" )
-        label:leaf( id )
-
-        return
+        statement.LABEL = statement:token( id )
+        return statement
     end
 
-    local instruction = node:table( "Instruction", id )
-    instruction.Name = instruction:leaf( id )
+    statement.instruction = node:node( "Instruction" )
+    statement.instruction.NAME = statement.instruction:token( id )
 
-    self:instruction( instruction, string.lower( id.value ) )
+    self:instruction( statement.instruction, string.lower( id.value ) )
+    return statement
 end
 
 function Parser:instruction( node, name )
@@ -130,18 +132,17 @@ local addressingMode = {
 }
 
 function Parser:operand( node, name )
-    node.Operand = node:table( "Operand", self.token )
-    node.Operand.Value = node:node( "Expression" )
+    node.operand = node:node( "Operand" )
 
     local mode = addressingMode[self.token.type] or "maybeAbsolute"
-    self[mode]( self, node.Operand, name )
+    self[mode]( self, node.operand, name )
 end
 
 function Parser:indirect( node )
     local mode = self:eat( "LSqrBracket" )
     mode.value = "Indirect"
 
-    self:expression( node.Value )
+    node.value = self:expression( node )
 
     if self.token.type == "Comma" then
         local register = self:registerIndex()
@@ -169,22 +170,22 @@ function Parser:indirect( node )
         mode.value = "Indirect,Y"
     end
 
-    node.Mode = node:leaf( mode )
+    node.MODE = node:token( mode )
 end
 
 function Parser:immediate( node )
     local mode = self:eat( "Hash" )
     mode.value = "Immediate"
-    node.Mode = node:leaf( mode )
+    node.MODE = node:token( mode )
 
-    self:expression( node.Value )
+    node.value = self:expression( node )
 end
 
 function Parser:implied( node )
     --! Don't eat the newline. All instructions are expected to end with one and :instruction() will take care of it
     local mode = self.token
     mode.Value = "Implied"
-    node.Mode = node:leaf( mode )
+    node.MODE = node:token( mode )
 end
 
 local isBranchInstruction = {
@@ -205,7 +206,7 @@ function Parser:maybeAbsolute( node, name )
 
     local mode = self.token
 
-    self:expression( node.Value )
+    node.value = self:expression( node )
 
     if isBranchInstruction[name] then
         mode.value = "Relative"
@@ -220,13 +221,13 @@ function Parser:maybeAbsolute( node, name )
         mode.value = "Absolute," .. register
     end
 
-    node.Mode = node:leaf( mode )
+    node.MODE = node:token( mode )
 end
 
 function Parser:accumulator( node )
     local mode = self:eat( "Identifier" )
     mode.value = "Accumulator"
-    node.Mode = node:leaf( mode )
+    node.MODE = node:token( mode )
 end
 
 function Parser:registerIndex()
@@ -249,14 +250,14 @@ local validTermOperation = {
 function Parser:expression( node )
     local left = self:term( node )
     if not validTermOperation[self.token.value] then
-        return node:attach( left )
+        return left
     end
 
     local operator = self:eat( "Operator" )
 
     local operation = node:table( "Operation", operator )
     operation.Left = left
-    operation.Operator = operation:leaf( operator )
+    operation.OPERATOR = operation:token( operator )
     operation.Right = self:term( node )
 end
 
@@ -275,7 +276,7 @@ function Parser:term( node )
 
     local operation = Ast.Table.Create( "Operation", operator )
     operation.Left = left
-    operation.Operator = operation:leaf( operator )
+    operation.OPERATOR = operation:token( operator )
     operation.Right = self:factor( node )
 end
 
@@ -288,15 +289,16 @@ local validFactor = {
 function Parser:factor( node )
     if self.token.type == "LParen" then
         self:eat( "LParen" )
-        self:expression( node )
+        local expr = self:expression( node )
         self:eat( "RParen" )
 
-        return
+        return expr
     end
 
     if not validFactor[self.token.type] then return end
 
-    node:leaf( self:eat( self.token.type ) )
+    local factor = self:eat( self.token.type )
+    node:token( factor )
 end
 
 function Parser:arguments( node )
