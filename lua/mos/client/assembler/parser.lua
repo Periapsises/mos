@@ -8,7 +8,7 @@ local Parser = Mos.Assembler.Parser
 include( "mos/client/assembler/lexer.lua" )
 include( "mos/client/assembler/ast/visitor.lua" )
 
-local Visitor = Mos.Assembler.Visitor
+local Ast = Mos.Assembler.Ast
 local instructions = Mos.Assembler.Instructions
 
 -- Formated error message, takes a string and extra arguments like string.format and generates an error from it.
@@ -69,8 +69,7 @@ end
 function Parser:parse()
     self.token = self.lexer:getNextToken()
 
-    local ast = Visitor.Create()
-    local program = ast:node( "Program" )
+    local program = Ast.Node( "Program" )
     self:program( program )
     self:eat( "Eof" )
 
@@ -78,7 +77,7 @@ function Parser:parse()
 end
 
 function Parser:program( node )
-    node.statements = node:node( "Statements" )
+    node.statements = Ast.Node( "Statements" )
 
     while self.token.type ~= "Eof" do
         local statement = self:statement( node.statements )
@@ -98,18 +97,18 @@ end
 
 function Parser:identifier( node )
     local id = self:eat( "Identifier" )
-    local statement = node:node( "Statement" )
+    local statement = Ast.Node( "Statement" )
 
     if self.token.type == "Colon" then
         self:eat( "Colon" )
         self:eat( "Newline" )
 
-        statement.LABEL = statement:token( id )
+        statement.LABEL = Ast.Token( id )
         return statement
     end
 
-    statement.instruction = node:node( "Instruction" )
-    statement.instruction.NAME = statement.instruction:token( id )
+    statement.instruction = Ast.Node( "Instruction" )
+    statement.instruction.NAME = Ast.Token( id )
 
     self:instruction( statement.instruction, string.lower( id.value ) )
     return statement
@@ -132,7 +131,7 @@ local addressingMode = {
 }
 
 function Parser:operand( node, name )
-    node.operand = node:node( "Operand" )
+    node.operand = Ast.Node( "Operand" )
 
     local mode = addressingMode[self.token.type] or "maybeAbsolute"
     self[mode]( self, node.operand, name )
@@ -170,13 +169,13 @@ function Parser:indirect( node )
         mode.value = "Indirect,Y"
     end
 
-    node.MODE = node:token( mode )
+    node.MODE = Ast.Token( mode )
 end
 
 function Parser:immediate( node )
     local mode = self:eat( "Hash" )
     mode.value = "Immediate"
-    node.MODE = node:token( mode )
+    node.MODE = Ast.Token( mode )
 
     node.value = self:expression( node )
 end
@@ -185,7 +184,7 @@ function Parser:implied( node )
     --! Don't eat the newline. All instructions are expected to end with one and :instruction() will take care of it
     local mode = self.token
     mode.Value = "Implied"
-    node.MODE = node:token( mode )
+    node.MODE = Ast.Token( mode )
 end
 
 local isBranchInstruction = {
@@ -210,7 +209,7 @@ function Parser:maybeAbsolute( node, name )
 
     if isBranchInstruction[name] then
         mode.value = "Relative"
-        node.Mode = node:leaf( mode )
+        node.MODE = Ast.Token( mode )
         return
     end
 
@@ -221,13 +220,13 @@ function Parser:maybeAbsolute( node, name )
         mode.value = "Absolute," .. register
     end
 
-    node.MODE = node:token( mode )
+    node.MODE = Ast.Token( mode )
 end
 
 function Parser:accumulator( node )
     local mode = self:eat( "Identifier" )
     mode.value = "Accumulator"
-    node.MODE = node:token( mode )
+    node.MODE = Ast.Token( mode )
 end
 
 function Parser:registerIndex()
@@ -255,7 +254,7 @@ function Parser:expression( node )
 
     local operator = self:eat( "Operator" )
 
-    local operation = node:table( "Operation", operator )
+    local operation = Ast.Node( "Operation" )
     operation.Left = left
     operation.OPERATOR = operation:token( operator )
     operation.Right = self:term( node )
@@ -274,7 +273,7 @@ function Parser:term( node )
 
     local operator = self:eat( "Operator" )
 
-    local operation = Ast.Table.Create( "Operation", operator )
+    local operation = Ast.Node( "Operation" )
     operation.Left = left
     operation.OPERATOR = operation:token( operator )
     operation.Right = self:factor( node )
@@ -298,7 +297,7 @@ function Parser:factor( node )
     if not validFactor[self.token.type] then return end
 
     local factor = self:eat( self.token.type )
-    node:token( factor )
+    return Node.Token( factor )
 end
 
 function Parser:arguments( node )
@@ -314,6 +313,6 @@ function Parser:arguments( node )
 end
 
 function Parser:argument( node )
-    local arg = node:node( "Argument" )
+    local arg = Ast.Node( "Argument" )
     self:expression( arg )
 end
