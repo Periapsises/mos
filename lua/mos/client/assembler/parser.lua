@@ -32,14 +32,6 @@ Parser.__index = Parser
 function Parser.Create( code )
     local parser = {}
     parser.lexer = Mos.Assembler.Lexer.Create( code )
-    parser.allowedDirectives = {
-        ["define"] = true,
-        ["ifdef"] = true,
-        ["ifndef"] = true,
-        ["org"] = true,
-        ["db"] = true,
-        ["dw"] = true
-    }
 
     return setmetatable( parser, Parser )
 end
@@ -97,30 +89,9 @@ function Parser:statement( node )
 
     if type == "Newline" then
         self:eat( "Newline" )
-    elseif type == "Hash" or type == "Dot" then
-        return self:directive( node )
     else
         return self:identifier( node )
     end
-end
-
-function Parser:directive( node )
-    local reference = self:eat( self.token.type )
-    local directive = node:table( "Directive", reference )
-
-    local name = self:eat( "Identifier" )
-    directive.Name = directive:leaf( name )
-    self:arguments( directive )
-    self:eat( "Newline" )
-
-    if not self.allowedDirectives[name.value] then
-        errorf( "Unexpected directive %s at line %d, character %d", name.value, name.line, name.char )
-    end
-
-    directive.Value = directive:list( "Statements" )
-    if self[name.value] then self[name.value]( self, directive ) end
-
-    return name.value
 end
 
 function Parser:identifier( node )
@@ -344,45 +315,3 @@ function Parser:argument( node )
     local arg = node:node( "Argument" )
     self:expression( arg )
 end
-
---------------------------------------------------
--- Directives
-
-function Parser:ifdef( node )
-    node.Default = node.Value
-    node.Value = nil
-    node.Fallback = node:list( "Statements" )
-
-    local statements = node.Default
-    local accepts = {["else"] = true, ["endif"] = true}
-
-    local previous = self.allowedDirectives["else"]
-
-    self.allowedDirectives["else"] = true
-    self.allowedDirectives["endif"] = true
-
-    while true do
-        local directive = self:statement( statements )
-
-        if directive then
-            local value = string.sub( directive, 1 )
-
-            if accepts[value] and value == "else" then
-                statements = node.Fallback
-                accepts[value] = false
-                statement = nil
-            elseif accepts[value] then
-                break
-            end
-        end
-
-        if statement then table.insert( statements, statement ) end
-    end
-
-    self.allowedDirectives["else"] = previous
-    self.allowedDirectives["endif"] = previous
-
-    return result
-end
-
-Parser.ifndef = Parser.ifdef

@@ -5,8 +5,6 @@
 Mos.Assembler.Compiler = Mos.Assembler.Compiler or {}
 local Compiler = Mos.Assembler.Compiler
 
-include( "mos/client/assembler/compiler/directives.lua" )
-
 Compiler.passes = {}
 
 include( "mos/client/assembler/compiler/passes/first.lua" )

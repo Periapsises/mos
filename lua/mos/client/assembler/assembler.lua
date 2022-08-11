@@ -8,7 +8,6 @@ local Assembler = Mos.Assembler
 include( "mos/client/assembler/ast/ast.lua" )
 include( "mos/client/assembler/instructions.lua" )
 include( "mos/client/assembler/parser.lua" )
-include( "mos/client/assembler/preprocessor/preprocessor.lua" )
 include( "mos/client/assembler/compiler/compiler.lua" )
 
 --------------------------------------------------
@@ -26,22 +25,16 @@ function Assembler.Assemble()
     local main = Assembler.GetActiveFile()
     if not main then error( "No file currently open" ) end
 
-    local preprocessor = Assembler.Preprocessor.Create()
     local compiler = Assembler.Compiler.Create()
-
     local assembly = {
         main = main,
         files = {},
-        preprocessor = preprocessor,
         compiler = compiler
     }
 
     setmetatable( assembly, Assembler )
 
-    preprocessor.assembly = assembly
     compiler.assembly = assembly
-
-    assembly.ast = preprocessor:process()
     compiler:compile()
 
     return assembly
