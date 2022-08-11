@@ -34,6 +34,7 @@ function Assembler.Assemble()
 
     setmetatable( assembly, Assembler )
 
+    assembly.ast = assembly:parseFile( main )
     compiler.assembly = assembly
     compiler:compile()
 

@@ -1,5 +1,4 @@
 local instructions = Mos.Assembler.Instructions
-local directives = Mos.Assembler.Compiler.directives
 
 --[[
     @class FirstPass
@@ -27,6 +26,7 @@ function Pass.Perform( ast )
     pass.labels = {}
     pass.isFirstPass = true
 
+    PrintTable( ast )
     pass:visit( ast )
 
     return pass.labels
@@ -38,18 +38,16 @@ end
 ]]
 
 function Pass:visitProgram( statements )
-    for _, statement in ipairs( statements ) do
-        self:visit( statement )
-    end
+    self:visit( statements )
 end
 
 function Pass:visitLabel( label )
-    if self.labels[label.value] then
-        error( "Label '" .. label.value .. "' already exists at line " .. self.labels[label.value].line )
+    if self.labels[label._value] then
+        error( "Label '" .. label._value .. "' already exists at line " .. self.labels[label._value].line )
     end
 
-    self.labels[label.value] = {
-        line = label.line,
+    self.labels[label._value] = {
+        line = label._line,
         address = self.address
     }
 end
@@ -70,8 +68,4 @@ function Pass:visitInstruction( instruction )
     end
 
     self.address = self.address + instructions.modeByteSize[mode] + 1
-end
-
-function Pass:visitDirective( directive )
-    directives[directive.directive.value]( self, directive.arguments )
 end

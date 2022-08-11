@@ -1,5 +1,4 @@
 local instructions = Mos.Assembler.Instructions
-local directives = Mos.Assembler.Compiler.directives
 
 --[[
     @class SecondPass
@@ -137,8 +136,4 @@ function Pass:visitIdentifier( id )
     end
 
     return self.labels[id].address
-end
-
-function Pass:visitDirective( directive )
-    directives[directive.directive.value]( self, directive.arguments )
 end
