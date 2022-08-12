@@ -9,7 +9,7 @@ Mos.Assembler.Compiler.passes[1] = Mos.Assembler.Compiler.passes[1] or {}
 local Pass = Mos.Assembler.Compiler.passes[1]
 
 Pass.__index = Pass
-setmetatable( Pass, Mos.Assembler.Ast )
+setmetatable( Pass, Mos.Assembler.Visitor )
 
 --[[
     @name FirstPass.Perform()
@@ -26,7 +26,6 @@ function Pass.Perform( ast )
     pass.labels = {}
     pass.isFirstPass = true
 
-    PrintTable( ast )
     pass:visit( ast )
 
     return pass.labels
@@ -36,11 +35,6 @@ end
     Visitor methods for the pass.
     They are called automatically with the Pass:visit() method
 ]]
-
-function Pass:visitProgram( statements )
-    self:visit( statements )
-end
-
 function Pass:visitLabel( label )
     if self.labels[label._value] then
         error( "Label '" .. label._value .. "' already exists at line " .. self.labels[label._value].line )
@@ -53,14 +47,14 @@ function Pass:visitLabel( label )
 end
 
 function Pass:visitInstruction( instruction )
-    local name = string.lower( instruction.instruction.value )
+    local name = string.lower( instruction.NAME:getText() )
     local data = instructions.bytecodes[name]
 
     if not data then
         error( "Invalid instruction " .. name .. " at line " .. instruction.line )
     end
 
-    local mode = instruction.operand.value.type
+    local mode = instruction.operand.MODE:getText()
     local id = instructions.modeLookup[mode]
 
     if not data[id] then

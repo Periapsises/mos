@@ -10,12 +10,6 @@ function Node.Create( type )
     return setmetatable( node, Node )
 end
 
-function Node:visitChildren()
-    for _, child in pairs( self._children ) do
-        self:visit( child )
-    end
-end
-
 function Node:insert( node )
     self._children[#self._children + 1] = node
 end

@@ -297,7 +297,7 @@ function Parser:factor( node )
     if not validFactor[self.token.type] then return end
 
     local factor = self:eat( self.token.type )
-    return Node.Token( factor )
+    return Ast.Token( factor )
 end
 
 function Parser:arguments( node )
