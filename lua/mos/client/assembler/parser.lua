@@ -183,7 +183,7 @@ end
 function Parser:implied( node )
     --! Don't eat the newline. All instructions are expected to end with one and :instruction() will take care of it
     local mode = self.token
-    mode.Value = "Implied"
+    mode.value = "Implied"
     node.MODE = Ast.Token( mode )
 end
 
@@ -281,8 +281,7 @@ end
 
 local validFactor = {
     ["Identifier"] = true,
-    ["Number"] = true,
-    ["String"] = true
+    ["Number"] = true
 }
 
 function Parser:factor( node )
@@ -297,7 +296,6 @@ function Parser:factor( node )
     if not validFactor[self.token.type] then return end
 
     local subNode = Ast.Node( self.token.type )
-
     local factor = self:eat( self.token.type )
     subNode.VALUE = Ast.Token( factor )
     return subNode

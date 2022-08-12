@@ -22,14 +22,15 @@ function Node:__newindex( key, value )
     self._children[key] = value
 end
 
-function Node:prettyPrint( spacing )
+function Node:prettyPrint( spacing, key )
     spacing = spacing or ""
+    key = key and key .. " = " or ""
 
-    print( spacing .. self._type )
+    print( spacing .. key .. "Node( " .. self._type .. " ) {" )
     for name, node in pairs( self._children ) do
-        print( spacing .. "  [" .. name .. "]" )
-        node:prettyPrint( spacing .. "    " )
+        node:prettyPrint( spacing .. "    ", name )
     end
+    print( spacing .. "}" )
 end
 
 return Node
