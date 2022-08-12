@@ -40,7 +40,6 @@ function Pass:visitLabel( node )
         error( "Label '" .. name .. "' already exists at line " .. self.labels[label._value].line )
     end
 
-    print( "Defining label " .. name )
     self.labels[name] = {
         line = node.LABEL._line,
         address = self.address
