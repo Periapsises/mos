@@ -147,7 +147,7 @@ function CONTAINER:Init()
 end
 
 function CONTAINER:Paint( w, h )
-    surface.SetDrawColor( 52, 52, 52, 255 )
+    surface.SetDrawColor( 30, 34, 39, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 
@@ -243,7 +243,7 @@ end
 function TAB:Paint( w, h )
     if not self.isActive then return end
 
-    surface.SetDrawColor( 22, 24, 25, 255 )
+    surface.SetDrawColor( 35, 39, 46, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 

@@ -120,12 +120,15 @@ function EDITOR:Init()
         return self:_SetDragging( isDragging )
     end
 
+    --[[
+    -- Use when editor customization is added
     function horizontalDivider:Paint( _, height )
         local pos = self:GetLeftWidth() + self:GetDividerWidth() - 1
 
         surface.SetDrawColor( 169, 115, 255, 255 )
         surface.DrawLine( pos, 0, pos, height )
     end
+    ]]
 
     local browser = vgui.Create( "MosEditor_FileBrowser" )
     browser:Dock( LEFT )
@@ -168,7 +171,7 @@ function EDITOR:Open()
 end
 
 function EDITOR:Paint( w, h )
-    surface.SetDrawColor( 18, 18, 18, 255 )
+    surface.SetDrawColor( 35, 39, 46, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 
