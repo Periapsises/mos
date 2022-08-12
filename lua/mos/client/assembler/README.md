@@ -9,8 +9,7 @@ When creating a new assembler, these are the steps that happen.
 
 - Get the currently open file from the editor
 - Create an assembly to hold the important data about the current program
-- Start the preprocessor and make it process the given code
-- Start the compiler using the AST given in the previous step
+- Start the compiler using the AST given by the parser
     - Perform the first pass to get information about addresses
     - Perform the second and final pass to generate the binary code
 - Write the binary code to the output file
@@ -31,20 +30,13 @@ Initially it holds:
 | -------------- | ------------------------------------------------ |
 | `main`         | The path to the main file                        |
 | `files`        | An empty list to wich to add included file paths |
-| `preprocessor` | The preprocessor object to be used               |
 | `compiler`     | The compiler object to be used                   |
 
-Before starting, the compiler and preprocessor will be assigned this assembly so they can fetch the data they need.
-
-### Start the preprocessor
-
-With all that info, the preprocessor can start.  
-It will generate an ast with the main file and fetch all included files it will find.  
-Once done, the generated ast is stored on the assembly for the compiler.
+Before starting, the compiler will be assigned this assembly so it can fetch the data it needs.
 
 ### Start the compiler
 
-With the ast complete, the compiler can start converting the code into binary.
+With the ast generated, the compiler can start converting the code into binary.
 
 #### First pass:
 
@@ -88,4 +80,4 @@ If it was followed by another block at address 2823 with 8 bytes, the result wou
 0x00 0x00 0x00 0x00 0x00
 ```
 
-This format really only shows when the source code contains any change of address using the `.org` directive.
+This format will really only show when the source code contains any change of address when the `.org` directive will be added.

@@ -1,5 +1,4 @@
 local instructions = Mos.Assembler.Instructions
-local directives = Mos.Assembler.Compiler.directives
 
 --[[
     @class SecondPass
@@ -10,7 +9,7 @@ Mos.Assembler.Compiler.passes[2] = Mos.Assembler.Compiler.passes[2] or {}
 local Pass = Mos.Assembler.Compiler.passes[2]
 
 Pass.__index = Pass
-setmetatable( Pass, Mos.Assembler.Ast )
+setmetatable( Pass, Mos.Assembler.Visitor )
 
 --[[
     @name SecondPass.Perform()
@@ -36,38 +35,26 @@ end
     They are called automatically with the Pass:visit() method
 ]]
 
-function Pass:visitProgram( statements )
-    for _, statement in ipairs( statements ) do
-        self:visit( statement )
+function Pass:visitInstruction( node )
+    local name = string.lower( node.NAME:getText() )
+    local mode = node.operand.MODE:getText()
+    local shortMode = instructions.modeLookup[mode]
+
+    self.compiler:write( instructions.bytecodes[name][shortMode] )
+    local value = self:visit( node.operand.value )
+
+    if shortMode == "abs" or shortMode == "absx" or shortMode == "absy" then
+        self:writeAbsolute( value )
+    elseif shortMode == "rel" then
+        self:writeRelative( value )
+    else
+        self.compiler:write( value )
     end
-end
-
-function Pass:visitLabel() end
-
-function Pass:visitInstruction( instruction )
-    local name = string.lower( instruction.instruction.value )
-    local mode = instruction.operand.value.type
-    local shortName = instructions.modeLookup[mode]
-
-    self.compiler:write( instructions.bytecodes[name][shortName] )
-
-    self:visit( instruction.operand )
 
     self.address = self.address + instructions.modeByteSize[mode] + 1
 end
 
-function Pass:visitAddressingMode( mode )
-    if not mode.value then return end
-
-    self:visit( mode )
-end
-
-function Pass:visitAccumulator() end
-function Pass:visitImplied() end
-
-function Pass:visitAbsolute( abs )
-    local value = self:visit( abs )
-
+function Pass:writeAbsolute( value )
     local hb = bit.rshift( bit.band( value, 0xff00 ), 8 )
     local lb = bit.band( value, 0xff )
 
@@ -75,27 +62,7 @@ function Pass:visitAbsolute( abs )
     self.compiler:write( hb )
 end
 
-Pass.visitAbsoluteX = Pass.visitAbsolute
-Pass.visitAbsoluteY = Pass.visitAbsolute
-
-function Pass:visitImmediate( imm )
-    self.compiler:write( self:visit( imm ) )
-end
-
-function Pass:visitIndirect( ind )
-    self.compiler:write( self:visit( ind ) )
-end
-
-function Pass:visitXIndirect( xind )
-    self.compiler:write( self:visit( xind ) )
-end
-
-function Pass:visitIndirectY( indy )
-    self.compiler:write( self:visit( indy ) )
-end
-
-function Pass:visitRelative( rel )
-    local value = self:visit( rel )
+function Pass:writeRelative( value )
     local offset = value - ( self.address + 2 )
 
     if offset < -128 or offset > 127 then
@@ -111,10 +78,10 @@ function Pass:visitRelative( rel )
     self.compiler:write( offset )
 end
 
-function Pass:visitOperation( data )
-    local op = data.operator.value
-    local left = self:visit( data.left )
-    local right = self:visit( data.right )
+function Pass:visitOperation( node )
+    local op = node.OPERATOR:getText()
+    local left = self:visit( node.left )
+    local right = self:visit( node.right )
 
     if op == "+" then
         return left + right
@@ -127,18 +94,16 @@ function Pass:visitOperation( data )
     end
 end
 
-function Pass:visitNumber( num )
-    return num
+function Pass:visitNumber( node )
+    return tonumber( node.VALUE:getText() )
 end
 
-function Pass:visitIdentifier( id )
-    if not self.labels[id] then
-        error( "Label '" .. id .. "' does not exists" )
+function Pass:visitIdentifier( node )
+    local name = node.VALUE:getText()
+
+    if not self.labels[name] then
+        error( "Label '" .. name .. "' does not exist" )
     end
 
-    return self.labels[id].address
-end
-
-function Pass:visitDirective( directive )
-    directives[directive.directive.value]( self, directive.arguments )
+    return self.labels[name].address
 end

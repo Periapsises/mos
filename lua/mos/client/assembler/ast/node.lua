@@ -1,53 +1,36 @@
-local Ast = Mos.Assembler.Ast
+local Node = {}
+setmetatable( Node, Mos.Assembler.Visitor )
 
---[[
-    @class Node
-    @desc The standard node for assembling an Ast
-]]
-Ast.Node = Ast.Node or {}
-local Node = Ast.Node
-
-Node.__index = Node
-setmetatable( Node, Ast )
-
---[[
-    @name Node.Create()
-    @desc Creates a new node object
-
-    @param string type: The type of the node
-    @param Node value: Another node type to be visted
-]]
 function Node.Create( type )
-    local node = {}
-    node._type = type
+    local node = {
+        _type = type,
+        _children = {}
+    }
 
     return setmetatable( node, Node )
 end
 
---[[
-    @name Node:attach()
-    @desc Attaches a node to this one
-
-    @param Node node the node to attach
-]]
-function Node:attach( node )
-    self._value = node
+function Node:insert( node )
+    self._children[#self._children + 1] = node
 end
 
-function Node:__tostring()
-    return string.format( "%sNode( %s )", self._type, self._value )
+function Node:__index( key )
+    return self._children[key] or Node[key]
 end
 
---[[
-    @name Ast:node()
-    @desc Creates a new node object
-    
-    @param string type: The type of the node
-    @param Node value: Another node type to be visted
-]]
-function Ast:node( type )
-    local node = Node.Create( type )
-    self:_parent( node )
-
-    return node
+function Node:__newindex( key, value )
+    self._children[key] = value
 end
+
+function Node:prettyPrint( spacing, key )
+    spacing = spacing or ""
+    key = key and key .. " = " or ""
+
+    print( spacing .. key .. "Node( " .. self._type .. " ) {" )
+    for name, node in pairs( self._children ) do
+        node:prettyPrint( spacing .. "    ", name )
+    end
+    print( spacing .. "}" )
+end
+
+return Node

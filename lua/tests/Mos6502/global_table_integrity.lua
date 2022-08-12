@@ -15,7 +15,6 @@ return {
                 expect( Mos.Assembler.Instructions ).to.exist()
                 expect( Mos.Assembler.Lexer ).to.exist()
                 expect( Mos.Assembler.Parser ).to.exist()
-                expect( Mos.Assembler.Preprocessor ).to.exist()
 
                 -- Editor
                 expect( Mos.Editor ).to.exist()

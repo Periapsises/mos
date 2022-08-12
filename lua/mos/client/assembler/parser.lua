@@ -6,7 +6,7 @@ Mos.Assembler.Parser = Mos.Assembler.Parser or {}
 local Parser = Mos.Assembler.Parser
 
 include( "mos/client/assembler/lexer.lua" )
-include( "mos/client/assembler/ast/ast.lua" )
+include( "mos/client/assembler/ast/visitor.lua" )
 
 local Ast = Mos.Assembler.Ast
 local instructions = Mos.Assembler.Instructions
@@ -32,14 +32,6 @@ Parser.__index = Parser
 function Parser.Create( code )
     local parser = {}
     parser.lexer = Mos.Assembler.Lexer.Create( code )
-    parser.allowedDirectives = {
-        ["define"] = true,
-        ["ifdef"] = true,
-        ["ifndef"] = true,
-        ["org"] = true,
-        ["db"] = true,
-        ["dw"] = true
-    }
 
     return setmetatable( parser, Parser )
 end
@@ -77,7 +69,7 @@ end
 function Parser:parse()
     self.token = self.lexer:getNextToken()
 
-    local program = Ast.Node.Create( "Program" )
+    local program = Ast.Node( "Program" )
     self:program( program )
     self:eat( "Eof" )
 
@@ -85,10 +77,11 @@ function Parser:parse()
 end
 
 function Parser:program( node )
-    local statements = node:list()
+    node.statements = Ast.Node( "Statements" )
 
     while self.token.type ~= "Eof" do
-        self:statement( statements )
+        local statement = self:statement( node.statements )
+        node.statements:insert( statement )
     end
 end
 
@@ -97,49 +90,28 @@ function Parser:statement( node )
 
     if type == "Newline" then
         self:eat( "Newline" )
-    elseif type == "Hash" or type == "Dot" then
-        return self:directive( node )
     else
         return self:identifier( node )
     end
 end
 
-function Parser:directive( node )
-    local reference = self:eat( self.token.type )
-    local directive = node:table( "Directive", reference )
-
-    local name = self:eat( "Identifier" )
-    directive.Name = directive:leaf( name )
-    self:arguments( directive )
-    self:eat( "Newline" )
-
-    if not self.allowedDirectives[name.value] then
-        errorf( "Unexpected directive %s at line %d, character %d", name.value, name.line, name.char )
-    end
-
-    directive.Value = directive:list( "Statements" )
-    if self[name.value] then self[name.value]( self, directive ) end
-
-    return name.value
-end
-
-function Parser:identifier( node )
+function Parser:identifier()
     local id = self:eat( "Identifier" )
 
     if self.token.type == "Colon" then
         self:eat( "Colon" )
         self:eat( "Newline" )
 
-        local label = node:node( "Label" )
-        label:leaf( id )
-
-        return
+        local statement = Ast.Node( "Label" )
+        statement.LABEL = Ast.Token( id )
+        return statement
     end
 
-    local instruction = node:table( "Instruction", id )
-    instruction.Name = instruction:leaf( id )
+    local instruction = Ast.Node( "Instruction" )
+    instruction.NAME = Ast.Token( id )
 
     self:instruction( instruction, string.lower( id.value ) )
+    return instruction
 end
 
 function Parser:instruction( node, name )
@@ -159,18 +131,17 @@ local addressingMode = {
 }
 
 function Parser:operand( node, name )
-    node.Operand = node:table( "Operand", self.token )
-    node.Operand.Value = node:node( "Expression" )
+    node.operand = Ast.Node( "Operand" )
 
     local mode = addressingMode[self.token.type] or "maybeAbsolute"
-    self[mode]( self, node.Operand, name )
+    self[mode]( self, node.operand, name )
 end
 
 function Parser:indirect( node )
     local mode = self:eat( "LSqrBracket" )
     mode.value = "Indirect"
 
-    self:expression( node.Value )
+    node.value = self:expression( node )
 
     if self.token.type == "Comma" then
         local register = self:registerIndex()
@@ -198,22 +169,22 @@ function Parser:indirect( node )
         mode.value = "Indirect,Y"
     end
 
-    node.Mode = node:leaf( mode )
+    node.MODE = Ast.Token( mode )
 end
 
 function Parser:immediate( node )
     local mode = self:eat( "Hash" )
     mode.value = "Immediate"
-    node.Mode = node:leaf( mode )
+    node.MODE = Ast.Token( mode )
 
-    self:expression( node.Value )
+    node.value = self:expression( node )
 end
 
 function Parser:implied( node )
     --! Don't eat the newline. All instructions are expected to end with one and :instruction() will take care of it
     local mode = self.token
-    mode.Value = "Implied"
-    node.Mode = node:leaf( mode )
+    mode.value = "Implied"
+    node.MODE = Ast.Token( mode )
 end
 
 local isBranchInstruction = {
@@ -234,11 +205,11 @@ function Parser:maybeAbsolute( node, name )
 
     local mode = self.token
 
-    self:expression( node.Value )
+    node.value = self:expression( node )
 
     if isBranchInstruction[name] then
         mode.value = "Relative"
-        node.Mode = node:leaf( mode )
+        node.MODE = Ast.Token( mode )
         return
     end
 
@@ -249,13 +220,13 @@ function Parser:maybeAbsolute( node, name )
         mode.value = "Absolute," .. register
     end
 
-    node.Mode = node:leaf( mode )
+    node.MODE = Ast.Token( mode )
 end
 
 function Parser:accumulator( node )
     local mode = self:eat( "Identifier" )
     mode.value = "Accumulator"
-    node.Mode = node:leaf( mode )
+    node.MODE = Ast.Token( mode )
 end
 
 function Parser:registerIndex()
@@ -278,14 +249,14 @@ local validTermOperation = {
 function Parser:expression( node )
     local left = self:term( node )
     if not validTermOperation[self.token.value] then
-        return node:attach( left )
+        return left
     end
 
     local operator = self:eat( "Operator" )
 
-    local operation = node:table( "Operation", operator )
+    local operation = Ast.Node( "Operation" )
     operation.Left = left
-    operation.Operator = operation:leaf( operator )
+    operation.OPERATOR = operation:token( operator )
     operation.Right = self:term( node )
 end
 
@@ -302,87 +273,30 @@ function Parser:term( node )
 
     local operator = self:eat( "Operator" )
 
-    local operation = Ast.Table.Create( "Operation", operator )
+    local operation = Ast.Node( "Operation" )
     operation.Left = left
-    operation.Operator = operation:leaf( operator )
+    operation.OPERATOR = operation:token( operator )
     operation.Right = self:factor( node )
 end
 
 local validFactor = {
     ["Identifier"] = true,
-    ["Number"] = true,
-    ["String"] = true
+    ["Number"] = true
 }
 
 function Parser:factor( node )
     if self.token.type == "LParen" then
         self:eat( "LParen" )
-        self:expression( node )
+        local expr = self:expression( node )
         self:eat( "RParen" )
 
-        return
+        return expr
     end
 
     if not validFactor[self.token.type] then return end
 
-    node:leaf( self:eat( self.token.type ) )
+    local subNode = Ast.Node( self.token.type )
+    local factor = self:eat( self.token.type )
+    subNode.VALUE = Ast.Token( factor )
+    return subNode
 end
-
-function Parser:arguments( node )
-    local arguments = node:list()
-    node.Arguments = arguments
-
-    self:argument( arguments )
-
-    while self.token.type == "Comma" or self.token.type ~= "Newline" do
-        self:eat( "Comma" )
-        self:argument( arguments )
-    end
-end
-
-function Parser:argument( node )
-    local arg = node:node( "Argument" )
-    self:expression( arg )
-end
-
---------------------------------------------------
--- Directives
-
-function Parser:ifdef( node )
-    node.Default = node.Value
-    node.Value = nil
-    node.Fallback = node:list( "Statements" )
-
-    local statements = node.Default
-    local accepts = {["else"] = true, ["endif"] = true}
-
-    local previous = self.allowedDirectives["else"]
-
-    self.allowedDirectives["else"] = true
-    self.allowedDirectives["endif"] = true
-
-    while true do
-        local directive = self:statement( statements )
-
-        if directive then
-            local value = string.sub( directive, 1 )
-
-            if accepts[value] and value == "else" then
-                statements = node.Fallback
-                accepts[value] = false
-                statement = nil
-            elseif accepts[value] then
-                break
-            end
-        end
-
-        if statement then table.insert( statements, statement ) end
-    end
-
-    self.allowedDirectives["else"] = previous
-    self.allowedDirectives["endif"] = previous
-
-    return result
-end
-
-Parser.ifndef = Parser.ifdef

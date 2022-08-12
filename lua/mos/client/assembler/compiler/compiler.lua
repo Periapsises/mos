@@ -5,8 +5,6 @@
 Mos.Assembler.Compiler = Mos.Assembler.Compiler or {}
 local Compiler = Mos.Assembler.Compiler
 
-include( "mos/client/assembler/compiler/directives.lua" )
-
 Compiler.passes = {}
 
 include( "mos/client/assembler/compiler/passes/first.lua" )
@@ -64,9 +62,9 @@ end
     @param number address: The address of the block
 ]]
 function Compiler:startBlock( address )
+    self.file:WriteUShort( address )
     self.block = self.file:Tell()
     self.file:WriteUShort( 0x0000 )
-    self.file:WriteUShort( address )
 end
 
 --[[
@@ -76,7 +74,7 @@ end
 function Compiler:endBlock()
     local pos = self.file:Tell()
     self.file:Seek( self.block )
-    self.file:WriteUShort( pos - self.block - 4 )
+    self.file:WriteUShort( pos - self.block - 2 )
     self.file:Seek( pos )
     self.block = nil
 end
