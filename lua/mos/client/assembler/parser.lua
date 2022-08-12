@@ -296,23 +296,9 @@ function Parser:factor( node )
 
     if not validFactor[self.token.type] then return end
 
+    local subNode = Ast.Node( self.token.type )
+
     local factor = self:eat( self.token.type )
-    return Ast.Token( factor )
-end
-
-function Parser:arguments( node )
-    local arguments = node:list()
-    node.Arguments = arguments
-
-    self:argument( arguments )
-
-    while self.token.type == "Comma" or self.token.type ~= "Newline" do
-        self:eat( "Comma" )
-        self:argument( arguments )
-    end
-end
-
-function Parser:argument( node )
-    local arg = Ast.Node( "Argument" )
-    self:expression( arg )
+    subNode.VALUE = Ast.Token( factor )
+    return subNode
 end

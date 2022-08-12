@@ -21,4 +21,10 @@ function Token:getText()
     return self._value
 end
 
+function Token:prettyPrint( spacing )
+    spacing = spacing or ""
+
+    print( spacing .. "Token( " .. self._type .. ", " .. self._value .. " )" )
+end
+
 return Token

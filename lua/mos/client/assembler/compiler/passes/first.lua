@@ -35,13 +35,15 @@ end
     Visitor methods for the pass.
     They are called automatically with the Pass:visit() method
 ]]
-function Pass:visitLabel( label )
-    if self.labels[label._value] then
-        error( "Label '" .. label._value .. "' already exists at line " .. self.labels[label._value].line )
+function Pass:visitLabel( node )
+    local name = node.VALUE:getText()
+
+    if self.labels[name] then
+        error( "Label '" .. name .. "' already exists at line " .. self.labels[label._value].line )
     end
 
-    self.labels[label._value] = {
-        line = label._line,
+    self.labels[name] = {
+        line = node.VALUE._line,
         address = self.address
     }
 end
