@@ -97,21 +97,21 @@ end
 
 function Parser:identifier( node )
     local id = self:eat( "Identifier" )
-    local statement = Ast.Node( "Statement" )
 
     if self.token.type == "Colon" then
         self:eat( "Colon" )
         self:eat( "Newline" )
 
+        local statement = Ast.Node( "Label" )
         statement.LABEL = Ast.Token( id )
         return statement
     end
 
-    statement.instruction = Ast.Node( "Instruction" )
-    statement.instruction.NAME = Ast.Token( id )
+    local instruction = Ast.Node( "Instruction" )
+    instruction.NAME = Ast.Token( id )
 
-    self:instruction( statement.instruction, string.lower( id.value ) )
-    return statement
+    self:instruction( instruction, string.lower( id.value ) )
+    return instruction
 end
 
 function Parser:instruction( node, name )

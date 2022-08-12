@@ -5,11 +5,9 @@ local instructions = Mos.Assembler.Instructions
     @desc The first pass performed by the compiler.
     @desc Locates and stores all labels
 ]]
-Mos.Assembler.Compiler.passes[1] = Mos.Assembler.Compiler.passes[1] or {}
-local Pass = Mos.Assembler.Compiler.passes[1]
-
+local Pass = Mos.Assembler.Visitor.Create()
 Pass.__index = Pass
-setmetatable( Pass, Mos.Assembler.Visitor )
+Mos.Assembler.Compiler.passes[1] = Pass
 
 --[[
     @name FirstPass.Perform()
@@ -36,27 +34,28 @@ end
     They are called automatically with the Pass:visit() method
 ]]
 function Pass:visitLabel( node )
-    local name = node.VALUE:getText()
+    local name = node.LABEL:getText()
 
     if self.labels[name] then
         error( "Label '" .. name .. "' already exists at line " .. self.labels[label._value].line )
     end
 
+    print( "Defining label " .. name )
     self.labels[name] = {
-        line = node.VALUE._line,
+        line = node.LABEL._line,
         address = self.address
     }
 end
 
-function Pass:visitInstruction( instruction )
-    local name = string.lower( instruction.NAME:getText() )
+function Pass:visitInstruction( node )
+    local name = string.lower( node.NAME:getText() )
     local data = instructions.bytecodes[name]
 
     if not data then
-        error( "Invalid instruction " .. name .. " at line " .. instruction.line )
+        error( "Invalid instruction " .. name .. " at line " .. node.line )
     end
 
-    local mode = instruction.operand.MODE:getText()
+    local mode = node.operand.MODE:getText()
     local id = instructions.modeLookup[mode]
 
     if not data[id] then

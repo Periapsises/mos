@@ -11,7 +11,10 @@ end
 
 function Visitor:visit( node )
     if not node then error( "Cannot visit a nil value", 2 ) end
-    if not node._type or not node._children then return end
+    if not node._children then
+        if not node._type then error( "Visitor can only visit nodes and tokens" ) end
+        return
+    end
 
     local visitorName = "visit" .. node._type
     local visitor = self[visitorName] or self.visitChildren
@@ -20,7 +23,7 @@ function Visitor:visit( node )
 end
 
 function Visitor:visitChildren( node )
-    for name, child in pairs( node._children ) do
+    for _, child in pairs( node._children ) do
         self:visit( child )
     end
 end
