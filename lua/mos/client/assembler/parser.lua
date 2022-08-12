@@ -95,7 +95,7 @@ function Parser:statement( node )
     end
 end
 
-function Parser:identifier( node )
+function Parser:identifier()
     local id = self:eat( "Identifier" )
 
     if self.token.type == "Colon" then
