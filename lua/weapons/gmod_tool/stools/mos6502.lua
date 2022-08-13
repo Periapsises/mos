@@ -32,6 +32,11 @@ function TOOL:LeftClick( trace )
     chip:SetAngles( ang )
     chip:Spawn()
 
+    local phys = chip:GetPhysicsObject()
+    if IsValid( phys ) then
+        phys:EnableMotion( false )
+    end
+
     undo.Create( "Mos6502 Processor" )
     undo.AddEntity( chip )
     undo.SetPlayer( self:GetOwner() )
