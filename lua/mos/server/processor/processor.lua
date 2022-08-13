@@ -626,15 +626,15 @@ function instructions.sei( cpu )
 end
 
 function instructions.sta( cpu )
-    write( cpu.addrAbs, cpu.a )
+    write( cpu, cpu.addrAbs, cpu.a )
 end
 
 function instructions.stx( cpu )
-    write( cpu.addrAbs, cpu.x )
+    write( cpu, cpu.addrAbs, cpu.x )
 end
 
 function instructions.sty( cpu )
-    write( cpu.addrAbs, cpu.y )
+    write( cpu, cpu.addrAbs, cpu.y )
 end
 
 function instructions.tax( cpu )

@@ -14,15 +14,15 @@ function Processor:GenerateMemory( code )
 
     local i = 9
     while i <= len( code ) do
-        local lo, hi = byte( code[i + 2] ), byte( code[i + 3] )
+        local lo, hi = byte( code[i] ), byte( code[i + 1] )
         address = band( bor( lshift( hi, 8 ), lo ), 0xffff )
 
-        lo, hi = byte( code[i] ), byte( code[i + 1] )
+        lo, hi = byte( code[i + 2] ), byte( code[i + 3] )
         local blockSize = bor( lshift( hi, 8 ), lo )
 
         i = i + 4
 
-        for j = 1, blockSize do
+        for j = 0, blockSize - 1 do
             memory[address + j] = byte( code[i + j] )
         end
 

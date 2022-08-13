@@ -255,9 +255,11 @@ function Parser:expression( node )
     local operator = self:eat( "Operator" )
 
     local operation = Ast.Node( "Operation" )
-    operation.Left = left
-    operation.OPERATOR = operation:token( operator )
-    operation.Right = self:term( node )
+    operation.left = left
+    operation.OPERATOR = Ast.Token( operator )
+    operation.right = self:term( node )
+
+    return operation
 end
 
 local validFactorOperation = {
@@ -274,9 +276,11 @@ function Parser:term( node )
     local operator = self:eat( "Operator" )
 
     local operation = Ast.Node( "Operation" )
-    operation.Left = left
-    operation.OPERATOR = operation:token( operator )
-    operation.Right = self:factor( node )
+    operation.left = left
+    operation.OPERATOR = Ast.Token( operator )
+    operation.right = self:factor( node )
+
+    return operation
 end
 
 local validFactor = {
