@@ -18,8 +18,8 @@ function ENT:Initialize()
     self.cpu:Reset()
 
     if WireLib then
-        self.Inputs = WireLib.CreateSpecialInputs( self, {"On", "Clock", "ClockSpeed", "Reset", "Nmi", "Irq"} )
-        self.Outputs = WireLib.CreateSpecialOutputs( self, {"ProgramCounter"} )
+        self.Inputs = WireLib.CreateInputs( self, {"On", "Clock", "ClockSpeed", "Reset", "Nmi", "Irq"} )
+        self.Outputs = WireLib.CreateOutputs( self, {"ProgramCounter", "Memory"} )
     end
 end
 
@@ -57,6 +57,20 @@ function ENT:TriggerInput( name, value )
     if WireLib then
         Wire_TriggerOutput( self, "ProgramCounter", self.cpu.pc )
     end
+end
+
+function ENT:ReadCell( address )
+    if address < 0 then return nil end
+    if address > 0xffff then return nil end
+
+    return self.cpu.memory[address] or 0
+end
+
+function ENT:WriteCell( address )
+    if address < 0 then return false end
+    if address > 0xffff then return false end
+
+    self.cpu.memory = bit.band( math.floor( address ), 0xff )
 end
 
 function ENT:SetCode( code )
