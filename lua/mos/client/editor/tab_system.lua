@@ -68,7 +68,7 @@ function Tabs:SelectTab( tab )
 
     local oldtab = self.activeTab
 
-    if oldtab then
+    if IsValid( oldtab ) then
         oldtab:Deselect()
     end
 
