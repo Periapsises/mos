@@ -32,7 +32,7 @@ Emulator.__index = Emulator
 
 function Emulator.Create( memory )
     local emulator = setmetatable( { memory = memory }, Emulator )
-    emulator:Reset()
+    emulator:reset()
 
     return emulator
 end
@@ -715,3 +715,5 @@ lookup = {
     { "beq", "beq", "rel" },{ "sbc", "sbc", "izy" },{ "???", "xxx", "imp" },{ "???", "xxx", "imp" },{ "???", "nop", "imp" },{ "sbc", "sbc", "zpx" },{ "inc", "inc", "zpx" },{ "???", "xxx", "imp" },{ "sed", "sed", "imp" },{ "sbc", "sbc", "aby" },{ "nop", "nop", "imp" },{ "???", "xxx", "imp" },{ "???", "nop", "imp" },{ "sbc", "sbc", "abx" },{ "inc", "inc", "abx" },{ "???", "xxx", "imp" }
 }
 lookup[0x00] = { "brk", "brk", "imm" }
+
+return Emulator
