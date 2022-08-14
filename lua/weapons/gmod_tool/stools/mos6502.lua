@@ -21,30 +21,32 @@ function TOOL:LeftClick( trace )
 
     if CLIENT then return true end
 
-    local chip = ents.Create( "mos6502" )
-    if not IsValid( chip ) then return false end
+    local chip = trace.Entity
 
-    local ang = trace.HitNormal:Angle()
-    ang.pitch = ang.pitch + 90
+    if not IsValid( chip ) or chip:GetClass() ~= "mos6502" then
+        chip = ents.Create( "mos6502" )
+        if not IsValid( chip ) then return false end
 
-    chip:SetModel( "models/mos6502/mos6502.mdl" )
-    chip:SetPos( trace.HitPos - trace.HitNormal * chip:OBBMins().z )
-    chip:SetAngles( ang )
-    chip:Spawn()
+        local ang = trace.HitNormal:Angle()
+        ang.pitch = ang.pitch + 90
 
-    local phys = chip:GetPhysicsObject()
-    if IsValid( phys ) then
-        phys:EnableMotion( false )
+        chip:SetModel( "models/mos6502/mos6502.mdl" )
+        chip:SetPos( trace.HitPos - trace.HitNormal * chip:OBBMins().z )
+        chip:SetAngles( ang )
+        chip:Spawn()
+
+        local phys = chip:GetPhysicsObject()
+        if IsValid( phys ) then
+            phys:EnableMotion( false )
+        end
+
+        undo.Create( "Mos6502 Processor" )
+        undo.AddEntity( chip )
+        undo.SetPlayer( self:GetOwner() )
+        undo.Finish()
     end
 
-    undo.Create( "Mos6502 Processor" )
-    undo.AddEntity( chip )
-    undo.SetPlayer( self:GetOwner() )
-    undo.Finish()
-
-    net.Start( "mos_code_request" )
-    net.WriteUInt( chip:EntIndex(), 16 )
-    net.Send( self:GetOwner() )
+    chip:RequestCode()
 end
 
 local function openEditor() end
@@ -85,22 +87,22 @@ end
 function TOOL:Think()
     local ghost = self.GhostEntity or self:MakeGhostEntity( "models/mos6502/mos6502.mdl", Vector(), Angle() )
 
-    if IsValid( ghost ) then
-        local trace = self:GetOwner():GetEyeTrace()
-        local ent = trace.Entity
+    if not IsValid( ghost ) then return end
 
-        if IsValid( ent ) and ( ent:GetClass() == "mos6502" or ent:IsPlayer() ) then
-            ghost:SetNoDraw( true )
-        else
-            local ang = trace.HitNormal:Angle()
-            ang.pitch = ang.pitch + 90
+    local trace = self:GetOwner():GetEyeTrace()
+    local ent = trace.Entity
 
-            local min = ghost:OBBMins()
+    if IsValid( ent ) and ( ent:GetClass() == "mos6502" or ent:IsPlayer() ) then
+        ghost:SetNoDraw( true )
+    else
+        local ang = trace.HitNormal:Angle()
+        ang.pitch = ang.pitch + 90
 
-            ghost:SetPos( trace.HitPos - trace.HitNormal * min.z )
-            ghost:SetAngles( ang )
+        local min = ghost:OBBMins()
 
-            ghost:SetNoDraw( false )
-        end
+        ghost:SetPos( trace.HitPos - trace.HitNormal * min.z )
+        ghost:SetAngles( ang )
+
+        ghost:SetNoDraw( false )
     end
 end

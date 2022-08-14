@@ -58,6 +58,12 @@ function ENT:WriteCell( address, value )
     self.Processor.memory:write( address, value )
 end
 
+function ENT:RequestCode()
+    net.Start( "mos_code_request" )
+    net.WriteUInt( self:EntIndex(), 16 )
+    net.Send( self:GetOwner() )
+end
+
 function ENT:SetCode( code )
     self.Processor.memory:generate( code )
 end
