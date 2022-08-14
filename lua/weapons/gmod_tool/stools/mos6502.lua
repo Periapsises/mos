@@ -33,6 +33,7 @@ function TOOL:LeftClick( trace )
         chip:SetModel( "models/mos6502/mos6502.mdl" )
         chip:SetPos( trace.HitPos - trace.HitNormal * chip:OBBMins().z )
         chip:SetAngles( ang )
+        chip:SetOwner( self:GetOwner() )
         chip:Spawn()
 
         local phys = chip:GetPhysicsObject()

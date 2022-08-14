@@ -40,11 +40,16 @@ local function onCodeRequest()
     local entIndex = net.ReadUInt( 16 )
 
     local tab = Editor:GetActiveTab()
-    if not tab or not tab.file then return end
+    if not tab or not tab.file then
+        return notification.AddLegacy( "No file is currently open!", NOTIFY_ERROR, 4 )
+    end
 
     local path = Mos.FileSystem.GetCompiledPath( tab.file )
-    if not Mos.FileSystem.Exists( path ) then return end
+    if not Mos.FileSystem.Exists( path ) then
+        return notification.AddLegacy( "The current code hasn't been compiled yet!", NOTIFY_ERROR, 4 )
+    end
 
+    notification.AddLegacy( "Uploading code", NOTIFY_GENERIC, 4 )
     local code = util.Compress( Mos.FileSystem.Read( path ) )
     local length = string.len( code )
 
