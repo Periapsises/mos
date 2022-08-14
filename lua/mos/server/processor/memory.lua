@@ -1,15 +1,16 @@
+local Memory = {}
+Memory.__index = Memory
+
 local len, byte = string.len, string.byte
 local bor, band, lshift = bit.bor, bit.band, bit.lshift
 
-local Processor = Mos.Processor
+function Memory.Create()
+    return setmetatable( {}, Memory )
+end
 
--- Given a formated binary file from the client, this function generates a memory for a processor entity
-function Processor:GenerateMemory( code )
-    self.memory = {}
-
+function Memory:generate( code )
     if not string.StartWith( code, "GMOS6502" ) then return end
 
-    local memory = self.memory
     local address = 0
 
     local i = 9
@@ -23,9 +24,19 @@ function Processor:GenerateMemory( code )
         i = i + 4
 
         for j = 0, blockSize - 1 do
-            memory[address + j] = byte( code[i + j] )
+            self[address + j] = byte( code[i + j] )
         end
 
         i = i + blockSize
     end
 end
+
+function Memory:write( address, value )
+    self[address] = value
+end
+
+function Memory:read( address )
+    return self[address] or 0
+end
+
+return Memory

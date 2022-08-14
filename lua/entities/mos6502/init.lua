@@ -3,8 +3,6 @@ AddCSLuaFile( "sh_init.lua" )
 include( "sh_init.lua" )
 
 include( "mos/server/processor/processor.lua" )
-include( "mos/server/processor/memory_generator.lua" )
-local Processor = Mos.Processor
 
 function ENT:Initialize()
     self:PhysicsInit( SOLID_VPHYSICS )
@@ -13,9 +11,7 @@ function ENT:Initialize()
     self:SetSolid( SOLID_VPHYSICS )
     self:AddEFlags( EFL_FORCE_CHECK_TRANSMIT )
 
-    self.cpu = setmetatable( {}, Processor )
-    self.cpu.memory = {}
-    self.cpu:Reset()
+    self.Processor = Mos.Processor.Create()
 
     if WireLib then
         self.Inputs = WireLib.CreateInputs( self, {"On", "Clock", "ClockSpeed", "Reset", "Nmi", "Irq"} )
@@ -33,7 +29,7 @@ function ENT:Think()
     local maxTime = os.clock() + 0.001
 
     while os.clock() < maxTime do
-        self.cpu:Clock()
+        self.Processor.emulator:clock()
     end
 
     if WireLib then
@@ -41,18 +37,13 @@ function ENT:Think()
     end
 end
 
-local isMethod = {
-    Clock = true,
-    Reset = true,
-    Nmi = true,
-    Irq = true
-}
-
 function ENT:TriggerInput( name, value )
     if not isMethod[name] then return end
     if value == 0 then return end
 
-    self.cpu[name]( self.cpu )
+    if self.Processor.emulator[name] then
+        self.Processor.emulator[name]()
+    end
 
     if WireLib then
         Wire_TriggerOutput( self, "ProgramCounter", self.cpu.pc )
@@ -60,20 +51,13 @@ function ENT:TriggerInput( name, value )
 end
 
 function ENT:ReadCell( address )
-    if address < 0 then return nil end
-    if address > 0xffff then return nil end
-
-    return self.cpu.memory[address] or 0
+    return self.Processor.memory:read( address )
 end
 
-function ENT:WriteCell( address )
-    if address < 0 then return false end
-    if address > 0xffff then return false end
-
-    self.cpu.memory = bit.band( math.floor( address ), 0xff )
+function ENT:WriteCell( address, value )
+    self.Processor.memory:write( address, value )
 end
 
 function ENT:SetCode( code )
-    self.cpu:GenerateMemory( code )
-    self.cpu:Reset()
+    self.Processor.memory:generate( code )
 end
