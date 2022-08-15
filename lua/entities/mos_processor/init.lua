@@ -11,8 +11,6 @@ function ENT:Initialize()
     self:SetSolid( SOLID_VPHYSICS )
     self:AddEFlags( EFL_FORCE_CHECK_TRANSMIT )
 
-    self.Processor = Mos.Processor.Create()
-
     if WireLib then
         self.Inputs = WireLib.CreateInputs( self, {"On", "Clock", "ClockSpeed", "Reset", "Nmi", "Irq"} )
         self.Outputs = WireLib.CreateOutputs( self, {"ProgramCounter", "Memory"} )
@@ -24,38 +22,43 @@ function ENT:UpdateTransmitState()
 end
 
 function ENT:Think()
+    if not self.Inputs then return end
     if self.Inputs.On.Value == 0 then return end
 
     local maxTime = os.clock() + 0.001
 
     while os.clock() < maxTime do
-        self.Processor.emulator:clock()
+        self.emulator:clock()
     end
 
     if WireLib then
-        Wire_TriggerOutput( self, "ProgramCounter", self.cpu.pc )
+        Wire_TriggerOutput( self, "ProgramCounter", self.emulator.pc )
     end
 end
 
+local validMethods = {
+    Clock = "clock"
+}
+
 function ENT:TriggerInput( name, value )
-    if not isMethod[name] then return end
     if value == 0 then return end
 
-    if self.Processor.emulator[name] then
-        self.Processor.emulator[name]()
+    local method = validMethods[name]
+    if method then
+        self.emulator[method]( self.emulator )
     end
 
     if WireLib then
-        Wire_TriggerOutput( self, "ProgramCounter", self.cpu.pc )
+        WireLib.TriggerOutput( self, "ProgramCounter", self.emulator.pc )
     end
 end
 
 function ENT:ReadCell( address )
-    return self.Processor.memory:read( address )
+    return self.memory:read( address )
 end
 
 function ENT:WriteCell( address, value )
-    self.Processor.memory:write( address, value )
+    self.memory:write( address, value )
 end
 
 function ENT:RequestCode()
@@ -65,5 +68,5 @@ function ENT:RequestCode()
 end
 
 function ENT:SetCode( code )
-    self.Processor.memory:generate( code )
+    self.memory:generate( code )
 end
