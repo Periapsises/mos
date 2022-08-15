@@ -12,8 +12,28 @@ function ENT:Initialize()
     self:AddEFlags( EFL_FORCE_CHECK_TRANSMIT )
 
     if WireLib then
-        self.Inputs = WireLib.CreateInputs( self, {"On", "Clock", "ClockSpeed", "Reset", "Nmi", "Irq"} )
-        self.Outputs = WireLib.CreateOutputs( self, {"ProgramCounter", "Memory"} )
+        local inputNames = { "On", "Clock", "Frequency", "Reset", "Nmi", "Irq" }
+        local inputTypes = { "NORMAL", "NORMAL", "NORMAL", "NORMAL", "NORMAL", "NORMAL" }
+        local inputDescriptions = {
+            "Automatically run at the specified frequency",
+            "Trigger one clock cycle",
+            "Frequency of clock cycles when on",
+            "Trigger a reset interrupt",
+            "Trigger a non-maskable interrupt",
+            "Trigger an interrupt request"
+        }
+
+        self.Inputs = WireLib.CreateSpecialInputs( self, inputNames, inputTypes, inputDescriptions )
+
+        local outputNames = { "ProgramCounter", "Memory" }
+        local outputTypes = { "NORMAL", "WIRELINK" }
+        local outputDescriptions = {
+            "The address at which the processor is currently reading instructions",
+            "Interface with the processor's memory"
+        }
+
+        self.Outputs = WireLib.CreateSpecialOutputs( self, outputNames, outputTypes, outputDescriptions )
+        self.WirelinkEnt = NULL;
     end
 end
 
@@ -51,6 +71,12 @@ function ENT:TriggerInput( name, value )
     if WireLib then
         WireLib.TriggerOutput( self, "ProgramCounter", self.emulator.pc )
     end
+end
+
+function ENT:OnOutputWireLink( name, _, ent )
+    if name ~= "Memory" then return end
+
+    self.WirelinkEnt = ent
 end
 
 function ENT:ReadCell( address )
