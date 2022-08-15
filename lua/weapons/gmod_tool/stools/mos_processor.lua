@@ -5,14 +5,16 @@ TOOL.Command = nil
 TOOL.ConfigName = ""
 
 if CLIENT then
-    language.Add( "tool.mos6502.name", "Mos6502 Processor" )
-    language.Add( "tool.mos6502.desc", "Spawn or open the editor for a Mos6502 Processor." )
-    language.Add( "tool.mos6502.left", "Spawn a processor" )
-    language.Add( "tool.mos6502.right", "Open the editor" )
-    language.Add( "tool.mos6502.reload", "Reload the currently running code" )
+    language.Add( "tool.mos_processor.name", "Mos6502 Processor" )
+    language.Add( "tool.mos_processor.desc", "Spawn or open the editor for a Mos6502 Processor." )
+    language.Add( "tool.mos_processor.left", "Spawn a processor" )
+    language.Add( "tool.mos_processor.right", "Open the editor" )
+    language.Add( "tool.mos_processor.reload", "Reload the currently running code" )
 
     TOOL.Information = { "left", "right", "reload" }
 end
+
+TOOL.ClientConVar.model = "models/mos6502/mos6502.mdl"
 
 function TOOL:LeftClick( trace )
     if not trace.HitPos or trace.Entity:IsPlayer() then
@@ -23,14 +25,14 @@ function TOOL:LeftClick( trace )
 
     local chip = trace.Entity
 
-    if not IsValid( chip ) or chip:GetClass() ~= "mos6502" then
-        chip = ents.Create( "mos6502" )
+    if not IsValid( chip ) or chip:GetClass() ~= "mos_processor" then
+        chip = ents.Create( "mos_processor" )
         if not IsValid( chip ) then return false end
 
         local ang = trace.HitNormal:Angle()
         ang.pitch = ang.pitch + 90
 
-        chip:SetModel( "models/mos6502/mos6502.mdl" )
+        chip:SetModel( self:GetClientInfo( "model" ) )
         chip:SetPos( trace.HitPos - trace.HitNormal * chip:OBBMins().z )
         chip:SetAngles( ang )
         chip:SetOwner( self:GetOwner() )
@@ -86,9 +88,14 @@ function TOOL:Reload( trace )
 end
 
 function TOOL:Think()
-    local ghost = self.GhostEntity or self:MakeGhostEntity( "models/mos6502/mos6502.mdl", Vector(), Angle() )
+    local model = self:GetClientInfo( "model" )
+    local ghost = self.GhostEntity or self:MakeGhostEntity( model, Vector(), Angle() )
 
     if not IsValid( ghost ) then return end
+
+    if ghost:GetModel() ~= model then
+        ghost:SetModel( model )
+    end
 
     local trace = self:GetOwner():GetEyeTrace()
     local ent = trace.Entity
@@ -106,4 +113,42 @@ function TOOL:Think()
 
         ghost:SetNoDraw( false )
     end
+end
+
+function TOOL.BuildCPanel( panel )
+    local availableModels = { ["models/mos6502/mos6502.mdl"] = true }
+
+    local wireModels = list.Get( "Wire_gate_Models" )
+    if next( wireModels ) then
+        table.Merge( availableModels, wireModels )
+    end
+
+    local starfallModels = list.Get( "Wire_gate_Models" )
+    if next( starfallModels ) then
+        table.Merge( availableModels, starfallModels )
+    end
+
+    local models = {}
+    for model in pairs( availableModels ) do
+        models[model] = { model = model }
+    end
+
+    panel:PropSelect( "Model", "mos_processor_model", models )
+
+    panel:Help( "Settings Preset" )
+
+    local presetContainer = vgui.Create( "DPanel" )
+    presetContainer:SetHeight( 24 )
+
+    local presetSave = vgui.Create( "DButton", presetContainer )
+    presetSave:SetWide( 24 )
+    presetSave:Dock( RIGHT )
+    presetSave:SetText( "" )
+    presetSave:SetIcon( "icon16/disk.png" )
+
+    local presetSelection = vgui.Create( "DComboBox", presetContainer )
+    presetSelection:Dock( FILL )
+    presetSelection:AddChoice( "Default", nil, true )
+
+    panel:AddItem( presetContainer )
 end
