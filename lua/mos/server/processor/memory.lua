@@ -4,8 +4,8 @@ Memory.__index = Memory
 local len, byte = string.len, string.byte
 local bor, band, lshift = bit.bor, bit.band, bit.lshift
 
-function Memory.Create()
-    return setmetatable( {}, Memory )
+function Memory.Create( processor )
+    return setmetatable( { processor = processor }, Memory )
 end
 
 function Memory:generate( code )
@@ -32,6 +32,12 @@ function Memory:generate( code )
 end
 
 function Memory:write( address, value )
+    if self.processor.Outputs.wirelink then
+        for _, connection in ipairs( self.processor.Outputs.wirelink.Connected ) do
+            connection.Entity:WriteCell( address, value )
+        end
+    end
+
     self[address] = value
 end
 
