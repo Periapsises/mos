@@ -1,12 +1,12 @@
 TOOL.Tab = "Wire"
 TOOL.Category = "Chips, Gates"
-TOOL.Name = "Mos6502"
+TOOL.Name = "Mos 6502 Processor"
 TOOL.Command = nil
 TOOL.ConfigName = ""
 
 if CLIENT then
-    language.Add( "tool.mos_processor.name", "Mos6502 Processor" )
-    language.Add( "tool.mos_processor.desc", "Spawn or open the editor for a Mos6502 Processor." )
+    language.Add( "tool.mos_processor.name", "Mos 6502 Processor" )
+    language.Add( "tool.mos_processor.desc", "Spawn or open the editor for a Mos 6502 Processor." )
     language.Add( "tool.mos_processor.left", "Spawn a processor" )
     language.Add( "tool.mos_processor.right", "Open the editor" )
     language.Add( "tool.mos_processor.reload", "Reload the currently running code" )
@@ -14,7 +14,7 @@ if CLIENT then
     TOOL.Information = { "left", "right", "reload" }
 end
 
-TOOL.ClientConVar.model = "models/mos6502/mos6502.mdl"
+TOOL.ClientConVar.model = "models/mos/processor.mdl"
 
 function TOOL:LeftClick( trace )
     if not trace.HitPos or trace.Entity:IsPlayer() then
@@ -28,7 +28,7 @@ function TOOL:LeftClick( trace )
         local pos = trace.HitPos - trace.HitNormal * chip:OBBMins().z
         local ang = trace.HitNormal:Angle()
         ang.pitch = ang.pitch + 90
-        local model = self:GetClientInfo( "model" )
+        local model = self:GetClientInfo( "model" ) or "models/mos/processor.mdl"
         local owner = self:GetOwner()
 
         chip = Mos.Processor.Create( pos, ang, model, owner )
@@ -85,7 +85,7 @@ function TOOL:Think()
     local trace = self:GetOwner():GetEyeTrace()
     local ent = trace.Entity
 
-    if IsValid( ent ) and ( ent:GetClass() == "mos6502" or ent:IsPlayer() ) then
+    if IsValid( ent ) and ( ent:GetClass() == "mos_processor" or ent:IsPlayer() ) then
         ghost:SetNoDraw( true )
     else
         local ang = trace.HitNormal:Angle()
