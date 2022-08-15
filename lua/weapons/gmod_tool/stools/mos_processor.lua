@@ -119,21 +119,4 @@ function TOOL.BuildCPanel( panel )
     end
 
     panel:PropSelect( "Model", "mos_processor_model", models )
-
-    panel:Help( "Settings Preset" )
-
-    local presetContainer = vgui.Create( "DPanel" )
-    presetContainer:SetHeight( 24 )
-
-    local presetSave = vgui.Create( "DButton", presetContainer )
-    presetSave:SetWide( 24 )
-    presetSave:Dock( RIGHT )
-    presetSave:SetText( "" )
-    presetSave:SetIcon( "icon16/disk.png" )
-
-    local presetSelection = vgui.Create( "DComboBox", presetContainer )
-    presetSelection:Dock( FILL )
-    presetSelection:AddChoice( "Default", nil, true )
-
-    panel:AddItem( presetContainer )
 end
