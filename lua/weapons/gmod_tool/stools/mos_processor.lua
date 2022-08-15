@@ -43,7 +43,7 @@ function TOOL:LeftClick( trace )
             phys:EnableMotion( false )
         end
 
-        undo.Create( "Mos6502 Processor" )
+        undo.Create( "Mos 6502 Processor" )
         undo.AddEntity( chip )
         undo.SetPlayer( self:GetOwner() )
         undo.Finish()
@@ -65,7 +65,7 @@ function TOOL:RightClick( trace )
     local ply = self:GetOwner()
     local ent = trace.Entity
 
-    if IsValid( ent ) and ent:GetClass() == "mos6502" then
+    if IsValid( ent ) and ent:GetClass() == "mos_processor" then
         if gamemode.Call( "CanTool", ply, trace ) ~= false then
             openEditor( ply )
         end
@@ -80,7 +80,7 @@ function TOOL:Reload( trace )
     local ply = self:GetOwner()
     local ent = trace.Entity
 
-    if not IsValid( ent ) or ent:GetClass() ~= "mos6502" then return false end
+    if not IsValid( ent ) or ent:GetClass() ~= "mos_processor" then return false end
 
     if gamemode.Call( "CanTool", ply, trace ) ~= false then
         return true
