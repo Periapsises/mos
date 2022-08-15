@@ -28,8 +28,8 @@ function ENT:ReadCell( address )
 end
 
 function ENT:WriteCell( address, value )
-    if address < 1024 and address > 2048 then return end
+    if address < self.AddrStart or address > self.AddrEnd then return end
     if not IsValid( self.Inputs.Device.Value ) then return end
 
-    self.Inputs.Device.Value:WriteCell( address - 1024, value )
+    self.Inputs.Device.Value:WriteCell( address - self.AddrStart + self.AddrMap, value )
 end

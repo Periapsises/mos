@@ -12,6 +12,10 @@ if CLIENT then
     TOOL.Information = { "left" }
 end
 
+TOOL.ClientConVar.addr_start = 0
+TOOL.ClientConVar.addr_end = 1024
+TOOL.ClientConVar.addr_map = 0
+
 function TOOL:LeftClick( trace )
     if not trace.HitPos or trace.Entity:IsPlayer() then
         return false
@@ -29,8 +33,38 @@ function TOOL:LeftClick( trace )
     mapper:SetOwner( self:GetOwner() )
     mapper:Spawn()
 
+    mapper.AddrStart = self:GetClientNumber( "addr_start" )
+    mapper.AddrEnd = self:GetClientNumber( "addr_end" )
+    mapper.AddrMap = self:GetClientNumber( "addr_map" )
+
     undo.Create( "Mos Memory Map" )
     undo.AddEntity( mapper )
     undo.SetPlayer( self:GetOwner() )
     undo.Finish()
+end
+
+if SERVER then return end
+
+function TOOL.BuildCPanel( panel )
+    local memStartSlider = vgui.Create( "DNumSlider" )
+    memStartSlider:SetText( "Address Start" )
+    memStartSlider:SetMinMax( 0, 65535 )
+    memStartSlider:SetDecimals( 0 )
+    memStartSlider:SetConVar( "mos_memory_map_addr_start" )
+
+    local memEndSlider = vgui.Create( "DNumSlider" )
+    memEndSlider:SetText( "Address End" )
+    memEndSlider:SetMinMax( 0, 65535 )
+    memEndSlider:SetDecimals( 0 )
+    memEndSlider:SetConVar( "mos_memory_map_addr_end" )
+
+    local memMapSlider = vgui.Create( "DNumSlider" )
+    memMapSlider:SetText( "Mapped Address" )
+    memMapSlider:SetMinMax( 0, 65535 )
+    memMapSlider:SetDecimals( 0 )
+    memMapSlider:SetConVar( "mos_memory_map_addr_map" )
+
+    panel:AddItem( memStartSlider )
+    panel:AddItem( memEndSlider )
+    panel:AddItem( memMapSlider )
 end
