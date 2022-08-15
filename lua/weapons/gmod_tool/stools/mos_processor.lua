@@ -116,7 +116,7 @@ function TOOL:Think()
 end
 
 function TOOL.BuildCPanel( panel )
-    local availableModels = { ["models/mos6502/mos6502.mdl"] = true }
+    local availableModels = { ["models/mos/processor.mdl"] = true }
 
     local wireModels = list.Get( "Wire_gate_Models" )
     if next( wireModels ) then
