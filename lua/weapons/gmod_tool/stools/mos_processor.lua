@@ -22,31 +22,16 @@ function TOOL:LeftClick( trace )
     end
 
     if CLIENT then return true end
-
     local chip = trace.Entity
 
     if not IsValid( chip ) or chip:GetClass() ~= "mos_processor" then
-        chip = ents.Create( "mos_processor" )
-        if not IsValid( chip ) then return false end
-
+        local pos = trace.HitPos - trace.HitNormal * chip:OBBMins().z
         local ang = trace.HitNormal:Angle()
         ang.pitch = ang.pitch + 90
+        local model = self:GetClientInfo( "model" )
+        local owner = self:GetOwner()
 
-        chip:SetModel( self:GetClientInfo( "model" ) )
-        chip:SetPos( trace.HitPos - trace.HitNormal * chip:OBBMins().z )
-        chip:SetAngles( ang )
-        chip:SetOwner( self:GetOwner() )
-        chip:Spawn()
-
-        local phys = chip:GetPhysicsObject()
-        if IsValid( phys ) then
-            phys:EnableMotion( false )
-        end
-
-        undo.Create( "Mos 6502 Processor" )
-        undo.AddEntity( chip )
-        undo.SetPlayer( self:GetOwner() )
-        undo.Finish()
+        chip = Mos.Processor.Create( pos, ang, model, owner )
     end
 
     chip:RequestCode()
