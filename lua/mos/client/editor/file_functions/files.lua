@@ -24,7 +24,7 @@ function FileFunctions:Rename( node )
     entry:DockMargin( 38, 0, 0, 0 )
     entry:Dock( FILL )
     entry:RequestFocus()
-    entry:SetValue( string.GetFileFromFilename( name ) )
+    entry:SetValue( Mos.FileSystem.GetDirtyPath( string.GetFileFromFilename( name ) ) )
     entry:SelectAllText()
 
     function entry:OnEnter()

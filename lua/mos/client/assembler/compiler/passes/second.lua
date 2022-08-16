@@ -41,14 +41,16 @@ function Pass:visitInstruction( node )
     local shortMode = instructions.modeLookup[mode]
 
     self.compiler:write( instructions.bytecodes[name][shortMode] )
-    local value = self:visit( node.operand.value )
+    if node.operand.value then
+        local value = self:visit( node.operand.value )
 
-    if shortMode == "abs" or shortMode == "absx" or shortMode == "absy" then
-        self:writeAbsolute( value )
-    elseif shortMode == "rel" then
-        self:writeRelative( value )
-    else
-        self.compiler:write( value )
+        if shortMode == "abs" or shortMode == "absx" or shortMode == "absy" then
+            self:writeAbsolute( value )
+        elseif shortMode == "rel" then
+            self:writeRelative( value )
+        else
+            self.compiler:write( value )
+        end
     end
 
     self.address = self.address + instructions.modeByteSize[mode] + 1
