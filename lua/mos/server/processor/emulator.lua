@@ -479,13 +479,13 @@ end
 function instructions.jsr( emulator, value )
     emulator.pc = band( emulator.pc - 1, 0xffff )
 
-    write( emulator, 0x0100 + emulator.stkp, rshift( emulator.pc, 8 ) )
+    write( emulator, 0x0100 + emulator.stkp, band( rshift( emulator.pc, 8 ), 0xff ) )
     emulator.stkp = band( emulator.stkp - 1, 0xff )
 
-    write( emulator, 0x0100 + emulator.stkp, emulator.pc )
+    write( emulator, 0x0100 + emulator.stkp, band( emulator.pc, 0xff ) )
     emulator.stkp = band( emulator.stkp - 1, 0xff )
 
-    emulator.pc = value
+    emulator.pc = emulator.addrAbs
 end
 
 function instructions.lda( emulator, value )
