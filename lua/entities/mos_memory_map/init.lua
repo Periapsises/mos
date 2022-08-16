@@ -21,7 +21,7 @@ end
 function ENT:Think()
 end
 
-function ENT:TriggerInput( name, value )
+function ENT:TriggerInput()
 end
 
 function ENT:ReadCell( address )
