@@ -29,6 +29,8 @@ function Memory:generate( code )
 
         i = i + blockSize
     end
+
+    self.processor.emulator:reset()
 end
 
 function Memory:write( address, value )
