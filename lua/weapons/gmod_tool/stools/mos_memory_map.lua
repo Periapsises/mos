@@ -94,21 +94,6 @@ function TOOL.BuildCPanel( panel )
 
     panel:PropSelect( "Model", "mos_memory_map_model", models )
 
-    local presetContainer = vgui.Create( "DPanel" )
-    presetContainer:SetHeight( 24 )
-
-    local presetSave = vgui.Create( "DButton", presetContainer )
-    presetSave:SetText( "" )
-    presetSave:SetIcon( "icon16/disk.png" )
-    presetSave:SetWidth( 24 )
-    presetSave:Dock( RIGHT )
-
-    local presetSelection = vgui.Create( "DComboBox", presetContainer )
-    presetSelection:Dock( FILL )
-    presetSelection:AddChoice( "Default", nil, true )
-
-    panel:AddItem( presetContainer )
-
     local memStartSlider = vgui.Create( "DNumSlider" )
     memStartSlider:SetText( "Address Start" )
     memStartSlider:SetMinMax( 0, 65535 )
