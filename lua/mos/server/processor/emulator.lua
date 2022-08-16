@@ -477,7 +477,7 @@ function instructions.jmp( emulator )
 end
 
 function instructions.jsr( emulator, value )
-    emulator.pc = band( emulator.pc - 1, 0xffff )
+    emulator.pc = band( emulator.pc, 0xffff )
 
     write( emulator, 0x0100 + emulator.stkp, band( rshift( emulator.pc, 8 ), 0xff ) )
     emulator.stkp = band( emulator.stkp - 1, 0xff )
