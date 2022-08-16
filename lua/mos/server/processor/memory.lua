@@ -35,7 +35,7 @@ end
 
 function Memory:write( address, value )
     if IsValid( self.processor.WirelinkEnt ) then
-        return self.processor.WirelinkEnt:WriteCell( address, value )
+        self.processor.WirelinkEnt:WriteCell( address, value )
     end
 
     self[address] = value
@@ -43,7 +43,7 @@ end
 
 function Memory:read( address )
     if IsValid( self.processor.WirelinkEnt ) then
-        return self.processor.WirelinkEnt:ReadCell( address ) or 0
+        return self.processor.WirelinkEnt:ReadCell( address ) or self[address] or 0
     end
 
     return self[address] or 0

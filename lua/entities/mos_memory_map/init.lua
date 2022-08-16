@@ -25,6 +25,10 @@ function ENT:TriggerInput( name, value )
 end
 
 function ENT:ReadCell( address )
+    if address < self.AddrStart or address > self.AddrEnd then return end
+    if not IsValid( self.Inputs.Device.Value ) then return end
+
+    return self.Inputs.Device.Value:ReadCell( address - self.AddrStart + self.AddrMap )
 end
 
 function ENT:WriteCell( address, value )
