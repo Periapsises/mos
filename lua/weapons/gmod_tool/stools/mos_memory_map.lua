@@ -82,7 +82,7 @@ function TOOL.BuildCPanel( panel )
         table.Merge( availableModels, wireModels )
     end
 
-    local starfallModels = list.Get( "Wire_gate_Models" )
+    local starfallModels = list.Get( "Starfall_gate_Models" )
     if next( starfallModels ) then
         table.Merge( availableModels, starfallModels )
     end
