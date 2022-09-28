@@ -1,83 +1,85 @@
-# The Assembler
+# Mos 6502 Assembly
+## The process of turning text into bytes
 
-The assembler is what takes raw source code and processes it in order to generate a binary file which the processor can execute.  
-It creates all the necessary elements to go through all the required steps of compiling the code.
+The **assembler** is the heart of the assembly language in my opinion.  
+It is what takes the code you write and converts it into something that the processor will understand.
 
-## The Process
+There are a lot of steps involved for a good assembler, as it usually has a lot of features that give a lot of freedom but also a lot of help to the developer.
 
-When creating a new assembler, these are the steps that happen.
+Here, the whole process of assembling your program is described, from starting with a single source file, all the way through getting your final program.
 
-- Get the currently open file from the editor
-- Create an assembly to hold the important data about the current program
-- Start the compiler using the AST given by the parser
-    - Perform the first pass to get information about addresses
-    - Perform the second and final pass to generate the binary code
-- Write the binary code to the output file
+**Table of contents:**
+- [The source file](#the-source-file)
+    - [The lexer](#the-lexer)
+    - [The parser](#the-parser)
+    - [The preprocessor](#the-preprocessor)
+- [Including other files](#including-other-files)
+    - [The only difference](#the-only-difference)
+- [Generating bytes from the AST](#generating-bytes-from-the-ast)
+    - [Labels everywhere](#labels-everywhere)
+    - [Passes](#passes)
+        - [The first pass](#the-first-pass)
+        - [The second pass](#the-second-pass)
 
-### Getting the main file
+**Note:** For other languages the name *Compiler* is used.  
 
-The first step is to get the main file, that is, the file currently open in the editor.  
-This file is called `main` as it is where the entire assembly process is gonna start from.
+## The source file
 
-The output file's name will be based on the main file, its extension being changed to `.bin`
+To begin, the assembler requires a single source file form which (if present) other files will be included.  
+The first issue the assembler meets is that it has no idea what any of the text in your file means, or even if it is valid assembly.  
+This is what the **Parser** and **Lexer** are for.
 
-### Generating an assembly
+### The lexer
 
-The assembly holds important information during the process of compilation.  
-Initially it holds:
+The lexer,s job is to take the raw text from your file and turn it into a sequence of what is known as tokens.  
+During this process, a lot of the code is cleaned up as every character not needed like newlines, spaces and comments are discarded.  
+After that, instead of a stream of characters you end up with a stream of tokens that can give information on a part of the text.  
 
-| Key            | Description                                      |
-| -------------- | ------------------------------------------------ |
-| `main`         | The path to the main file                        |
-| `files`        | An empty list to wich to add included file paths |
-| `compiler`     | The compiler object to be used                   |
+### The parser
 
-Before starting, the compiler will be assigned this assembly so it can fetch the data it needs.
+The parser works with the output of the lexer.  
+It takes the stream of tokens and tries to build an *Abstract Syntax Tree* (AST).  
+The tree is what gives structure to the program and during its generation we can also see wether or not the code is valid or not.  
+This is where syntax errors will be detected in majority.
 
-### Start the compiler
+### The preprocessor
 
-With the ast generated, the compiler can start converting the code into binary.
+The preprocessor is where text starts to be replaced with something else such as bytes or different code.  
+This is how included files are added to the main code.  
+With the AST now built, the preprocesor can find and understand instructions meant to happen before the final assembly, hence the name **pre**processor.  
+From there, the next major step in assembling is reached.
 
-#### First pass:
+## Including other files
 
-The first pass calculates the position of all defined labels for use in the next step
+Including other files is pretty straight forward as it consists of repeating the same steps from the first source file recursively if that file also has includes.
 
-#### Second pass:
+### The only difference
 
-The second pass then goes through all the code, converting it into binary form and writing it to the output file given by the compiler.
+Once we have a new AST from the included file, it is inserted into the main AST in place of the include directive.  
+This means we now have more code available for the next step.
 
-### Write the output file
+## Generating bytes from the AST
 
-The output file is then saved and closed and can be read from.
+When the preprocessor has completed its task, all that should be left in the AST are instructions that tell the assembler exactly how to generate a binary file from the code.  
+There is still one problem the assembler faces at this point.
 
----
+### Labels everywhere
 
-# Formated Binary Files
+Labels are a very important part of assembly and they can happen nearly everywhere in the code.  
+An issue arises when the assembler needs to compile the address of a label that hasn't been declared yet.  
+For this reason, the assembler performs two passes.
 
-For performance reasons as well as to save network usage, the generated binary files follow a specific format that helps minimize their size.
+### Passes
 
-## Blocks
+The passes consist of two essential steps:
+- gathering info about the code
+- Using that info along with the code to generate a file
 
-The binary code is divided into blocks which have their own address.  
-This address defines where in memory code should be loaded.
+#### The first pass
 
-A block has the following format:
+The first pass is used to obtain info on how long in binary instructions take so the address of labels can be determined.  
+That info is stored for the second pass.
 
-| Block address | Block size    | Block data        |
-| ------------- | ------------- | ----------------- |
-| 0x0000-0xffff | 0x0000-0xffff | Up to 65536 bytes |
+#### The second pass
 
-For example, a block starting at address 10 and with 5 bytes written to it would look like this:
-
-```c
-0x00 0xa0 0x00 0x05 0x00 0x00 0x00 0x00 0x00
-```
-
-If it was followed by another block at address 2823 with 8 bytes, the result would look like this:
-
-```c
-0x00 0xa0 0x00 0x05 0x00 0x00 0x00 0x00 0x00 0x0b 0x07 0x00 0x08 0x00 0x00 0x00
-0x00 0x00 0x00 0x00 0x00
-```
-
-This format will really only show when the source code contains any change of address when the `.org` directive will be added.
+Now that the assembler has all the info it needs, it can finally generate the output file.
