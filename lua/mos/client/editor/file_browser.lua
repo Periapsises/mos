@@ -4,7 +4,7 @@ include( "mos/client/editor/file_functions/files.lua" )
 include( "mos/client/editor/file_functions/folders.lua" )
 
 local ERROR_FAILED_SORT = [[
-[mos6502] A set of files or folders failed to be sorted.
+[mos] A set of files or folders failed to be sorted.
 File A:
     Is file: %s
     Name: %s
@@ -86,10 +86,10 @@ function FILEBROWSER:Init()
     local root = self:Root()
     root.OnNodeAdded = onNodeAdded
 
-    local asm = root:AddFolder( "Assembly", "mos6502/asm", "DATA", true )
+    local asm = root:AddFolder( "Assembly", "mos/asm", "DATA", true )
     asm:SetIcon( "icon16/package_green.png" )
 
-    local bin = root:AddFolder( "Binaries", "mos6502/bin", "DATA", true )
+    local bin = root:AddFolder( "Binaries", "mos/bin", "DATA", true )
     bin:SetIcon( "icon16/brick.png" )
 end
 

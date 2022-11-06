@@ -19,12 +19,12 @@ FileSystem.associations = {
     @desc Ensures all default folders and files exist
 ]]
 function FileSystem.Verify()
-    file.CreateDir( "mos6502/" )
-    file.CreateDir( "mos6502/asm/" )
-    file.CreateDir( "mos6502/bin/" )
+    file.CreateDir( "mos/" )
+    file.CreateDir( "mos/asm/" )
+    file.CreateDir( "mos/bin/" )
 
-    if not FileSystem.Exists( "mos6502/asm/default.asm" ) then
-        FileSystem.Write( "mos6502/asm/default.asm", "/*\n    Mos6502 Assembly Editor\n*/\n" )
+    if not FileSystem.Exists( "mos/asm/default.asm" ) then
+        FileSystem.Write( "mos/asm/default.asm", "/*\n    Mos Assembly Editor\n*/\n" )
     end
 end
 
@@ -79,7 +79,7 @@ end
 function FileSystem.GetCompiledPath( path )
     path = FileSystem.GetDirtyPath( path )
 
-    return string.gsub( path, "mos6502/asm/(.+)%.%a+", "mos6502/bin/%1.bin" )
+    return string.gsub( path, "mos/asm/(.+)%.%a+", "mos/bin/%1.bin" )
 end
 
 --[[

@@ -154,7 +154,7 @@ function EDITOR:Init()
     dhtml:Dock( FILL )
 
     function tabs:OnTabChanged( _, newTab )
-        local text = Mos.FileSystem.Read( newTab.file or "mos6502/asm/default.asm" ) or ""
+        local text = Mos.FileSystem.Read( newTab.file or "mos/asm/default.asm" ) or ""
         Editor:SetCode( text )
     end
 
