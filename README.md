@@ -1,4 +1,4 @@
-# Mos6502 *(Work In Progress)*
+# Mos *(Work In Progress)*
 
 An emulator for the **Mos 6502 Processor** for use in Garry's Mod
 

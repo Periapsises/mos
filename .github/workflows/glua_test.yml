@@ -7,4 +7,4 @@ jobs:
   run-tests:
     uses: CFC-Servers/GLuaTest/.github/workflows/run_tests.yml@main
     with:
-      requirements: lua/tests/Mos6502/requirements.txt
+      requirements: lua/tests/mos/requirements.txt
