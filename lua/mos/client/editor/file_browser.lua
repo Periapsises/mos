@@ -13,7 +13,7 @@ File B:
     Is file: %s
     Name: %s
 
-Please report this error at: https://github.com/Periapsises/Mos6502/issues
+Please report this error at: https://github.com/Periapsises/mos/issues
 ]]
 
 local function sortFilesAndFolders( node )
