@@ -3,14 +3,7 @@ local FileSystem = Mos.FileSystem
 include( "mos/client/editor/file_functions/files.lua" )
 include( "mos/client/editor/file_functions/folders.lua" )
 
-local mRound = math.Round
-local function getRGBAForGamma( r, g, b, a, gamma )
-    local e = 1 / gamma
-    r = mRound( r + r ^ e )
-    g = mRound( g + g ^ e )
-    b = mRound( b + b ^ e )
-    return r, g, b, a
-end
+local gamma = include( "mos/client/editor/utils/gamma.lua" )
 
 local ERROR_FAILED_SORT = [[
 [mos] A set of files or folders failed to be sorted.
@@ -102,8 +95,9 @@ function FILEBROWSER:Init()
     bin:SetIcon( "icon16/brick.png" )
 end
 
+local fileBrowserR, fileBrowserG, fileBrowserB = gamma.applyToRGB( 30, 34, 39 )
 function FILEBROWSER:Paint( w, h )
-    surface.SetDrawColor( getRGBAForGamma( 30, 34, 39, 255, 2.5 ) )
+    surface.SetDrawColor( fileBrowserR, fileBrowserG, fileBrowserB, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 

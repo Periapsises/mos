@@ -1,19 +1,12 @@
 Mos.Editor.Tabs = Mos.Editor.Tabs or {}
 local Tabs = Mos.Editor.Tabs
 
+local gamma = include( "mos/client/editor/utils/gamma.lua" )
+
 local TAB_PADDING = 8
 local TAB_SPACING = 8
 local TAB_ICON_SIZE = 16
 local TAB_STATUS_WIDTH = 8
-
-local mRound = math.Round
-local function getRGBAForGamma( r, g, b, a, gamma )
-    local e = 1 / gamma
-    r = mRound( r + r ^ e )
-    g = mRound( g + g ^ e )
-    b = mRound( b + b ^ e )
-    return r, g, b, a
-end
 
 --------------------------------------------------
 -- Tab API
@@ -155,8 +148,9 @@ function CONTAINER:Init()
 
 end
 
+local containerR, containerG, containerB = gamma.applyToRGB( 30, 34, 39 )
 function CONTAINER:Paint( w, h )
-    surface.SetDrawColor( getRGBAForGamma( 30, 34, 39, 255, 2.5 ) )
+    surface.SetDrawColor( containerR, containerG, containerB, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 
@@ -249,10 +243,11 @@ function TAB:CalculateSize()
     self:InvalidateLayout()
 end
 
+local tabR, tabG, tabB = gamma.applyToRGB( 35, 39, 46 )
 function TAB:Paint( w, h )
     if not self.isActive then return end
 
-    surface.SetDrawColor( getRGBAForGamma( 35, 39, 46, 255, 2.5 ) )
+    surface.SetDrawColor( tabR, tabG, tabB, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 

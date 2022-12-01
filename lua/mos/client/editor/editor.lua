@@ -8,14 +8,7 @@ include( "mos/client/editor/utils/close_button.lua" )
 include( "mos/client/editor/utils/header_button.lua" )
 include( "mos/client/editor/utils/notifications.lua" )
 
-local mRound = math.Round
-local function getRGBAForGamma( r, g, b, a, gamma )
-    local e = 1 / gamma
-    r = mRound( r + r ^ e )
-    g = mRound( g + g ^ e )
-    b = mRound( b + b ^ e )
-    return r, g, b, a
-end
+local gamma = include( "mos/client/editor/utils/gamma.lua" )
 
 --------------------------------------------------
 -- Editor API
@@ -190,8 +183,9 @@ function EDITOR:Open()
     self:MakePopup()
 end
 
+local editorR, editorG, editorB = gamma.applyToRGB( 35, 39, 46 )
 function EDITOR:Paint( w, h )
-    surface.SetDrawColor( getRGBAForGamma( 35, 39, 46, 255, 2.5 ) )
+    surface.SetDrawColor( editorR, editorG, editorB, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 
