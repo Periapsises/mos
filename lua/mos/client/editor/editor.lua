@@ -8,6 +8,8 @@ include( "mos/client/editor/utils/close_button.lua" )
 include( "mos/client/editor/utils/header_button.lua" )
 include( "mos/client/editor/utils/notifications.lua" )
 
+local gamma = include( "mos/client/editor/utils/gamma.lua" )
+
 --------------------------------------------------
 -- Editor API
 
@@ -18,6 +20,12 @@ function Editor:Open()
 
     self.panel:Open()
 end
+
+concommand.Add( "mos_editor_reload", function()
+    if not IsValid( Editor.panel ) then return end
+    Editor.panel:Remove()
+    Editor.panel = nil
+end )
 
 function Editor:AddTab( path )
     if not self.tabs then return end
@@ -175,8 +183,9 @@ function EDITOR:Open()
     self:MakePopup()
 end
 
+local editorR, editorG, editorB = gamma.applyToRGB( 35, 39, 46 )
 function EDITOR:Paint( w, h )
-    surface.SetDrawColor( 35, 39, 46, 255 )
+    surface.SetDrawColor( editorR, editorG, editorB, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 

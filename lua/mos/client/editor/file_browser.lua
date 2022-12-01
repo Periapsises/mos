@@ -3,6 +3,8 @@ local FileSystem = Mos.FileSystem
 include( "mos/client/editor/file_functions/files.lua" )
 include( "mos/client/editor/file_functions/folders.lua" )
 
+local gamma = include( "mos/client/editor/utils/gamma.lua" )
+
 local ERROR_FAILED_SORT = [[
 [mos] A set of files or folders failed to be sorted.
 File A:
@@ -93,8 +95,9 @@ function FILEBROWSER:Init()
     bin:SetIcon( "icon16/brick.png" )
 end
 
+local fileBrowserR, fileBrowserG, fileBrowserB = gamma.applyToRGB( 30, 34, 39 )
 function FILEBROWSER:Paint( w, h )
-    surface.SetDrawColor( 30, 34, 39, 255 )
+    surface.SetDrawColor( fileBrowserR, fileBrowserG, fileBrowserB, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 
