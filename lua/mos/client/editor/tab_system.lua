@@ -6,6 +6,15 @@ local TAB_SPACING = 8
 local TAB_ICON_SIZE = 16
 local TAB_STATUS_WIDTH = 8
 
+local mRound = math.Round
+local function getRGBAForGamma( r, g, b, a, gamma )
+    local e = 1 / gamma
+    r = mRound( r + r ^ e )
+    g = mRound( g + g ^ e )
+    b = mRound( b + b ^ e )
+    return r, g, b, a
+end
+
 --------------------------------------------------
 -- Tab API
 
@@ -147,7 +156,7 @@ function CONTAINER:Init()
 end
 
 function CONTAINER:Paint( w, h )
-    surface.SetDrawColor( 30, 34, 39, 255 )
+    surface.SetDrawColor( getRGBAForGamma( 30, 34, 39, 255, 2.5 ) )
     surface.DrawRect( 0, 0, w, h )
 end
 
@@ -243,7 +252,7 @@ end
 function TAB:Paint( w, h )
     if not self.isActive then return end
 
-    surface.SetDrawColor( 35, 39, 46, 255 )
+    surface.SetDrawColor( getRGBAForGamma( 35, 39, 46, 255, 2.5 ) )
     surface.DrawRect( 0, 0, w, h )
 end
 
