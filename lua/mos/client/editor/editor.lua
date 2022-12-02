@@ -124,6 +124,12 @@ function EDITOR:Init()
     horizontalDivider:Dock( FILL )
     horizontalDivider:SetLeftWidth( editorDividerPos:GetInt() )
 
+    local divR, divG, divB = gamma.applyToRGB( 30, 34, 39 )
+    function horizontalDivider:Paint( divw, divh )
+        surface.SetDrawColor( divR, divG, divB, 255 )
+        surface.DrawRect( 0, 0, divw, divh )
+    end
+
     horizontalDivider._SetDragging = horizontalDivider.SetDragging
     function horizontalDivider:SetDragging( isDragging )
         if not isDragging then
