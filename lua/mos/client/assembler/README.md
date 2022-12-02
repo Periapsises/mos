@@ -47,7 +47,7 @@ For instance:
 .org 0x0100
 
 start:
-    lda 255
+    lda #255
 ```
 Would result in:
 ```lua
@@ -55,6 +55,7 @@ Would result in:
     Token( "directive", ".org" ),
     Token( "label", "start:" ),
     Token( "instruction", "lda" ),
+    Token( "control.hash", "#" ),
     Token( "number", "255" )
 }
 ```
