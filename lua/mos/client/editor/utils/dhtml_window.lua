@@ -6,7 +6,9 @@ function DHTMLWINDOW:Init()
     Editor.dhtml = self
 
     self:OpenURL( "https://periapsises.github.io/mos/editor/" )
+end
 
+function DHTMLWINDOW:OnDocumentReady()
     self:AddFunction( "GLua", "onTextChanged", function( _, changed )
         local activeTab = Editor:GetActiveTab()
         if not activeTab then return end
@@ -30,6 +32,8 @@ function DHTMLWINDOW:Init()
         activeTab:SetChanged( false )
         Mos.FileSystem.Write( activeTab.file, string.gsub( content, "\\\\", "\\" ) )
     end )
+
+    self:Call( "document.addEventListener('editorsave', (e) => GLua.onSave(e.text));" )
 end
 
 vgui.Register( "MosEditor_DHTMLWindow", DHTMLWINDOW, "DHTML" )
