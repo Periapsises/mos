@@ -1,85 +1,60 @@
-# Mos 6502 Assembly
-## The process of turning text into bytes
+# The Assembly Process
 
-The **assembler** is the heart of the assembly language in my opinion.  
-It is what takes the code you write and converts it into something that the processor will understand.
+Nowadays, most languages (that are not interpreted) are **compiled**.
+This is the case for assembly, but it is usually refered to as 'Assembling' which is why the program used to process assembly code is called an **Assembler**.
 
-There are a lot of steps involved for a good assembler, as it usually has a lot of features that give a lot of freedom but also a lot of help to the developer.
+These are the terms I'll be using mostly, but they are quite interchangable.
 
-Here, the whole process of assembling your program is described, from starting with a single source file, all the way through getting your final program.
+## Assembling code
 
-**Table of contents:**
-- [The source file](#the-source-file)
-    - [The lexer](#the-lexer)
-    - [The parser](#the-parser)
-    - [The preprocessor](#the-preprocessor)
-- [Including other files](#including-other-files)
-    - [The only difference](#the-only-difference)
-- [Generating bytes from the AST](#generating-bytes-from-the-ast)
-    - [Labels everywhere](#labels-everywhere)
-    - [Passes](#passes)
-        - [The first pass](#the-first-pass)
-        - [The second pass](#the-second-pass)
+Only one thing is needed to assemble code:
+<u>The path to an existing file</u>.
 
-**Note:** For other languages the name *Compiler* is used.  
+From there, the assembler can read the contents of the file and start the whole process.  
+Other files may be included, but the path to those can be found within the code itself.  
+Therefore, with only one path you can get the compiled code from your project.
 
-## The source file
+## Preparing the asembly
 
-To begin, the assembler requires a single source file form which (if present) other files will be included.  
-The first issue the assembler meets is that it has no idea what any of the text in your file means, or even if it is valid assembly.  
-This is what the **Parser** and **Lexer** are for.
+Once the assembler has the contents of the initial *main* file, it can setup everything that will be needed to complete the assembly.
 
-### The lexer
+### Tokens, so many tokens
 
-The lexer,s job is to take the raw text from your file and turn it into a sequence of what is known as tokens.  
-During this process, a lot of the code is cleaned up as every character not needed like newlines, spaces and comments are discarded.  
-After that, instead of a stream of characters you end up with a stream of tokens that can give information on a part of the text.  
+The very first thing to do is generate tokens.  
+Verry little can be done with raw text data, which is why the lexer is responsible of turning that data into a different form.  
+Not only are they useful for compilation, but tokens can also serve for syntax highlighting.  
 
-### The parser
+This is where we find the first errors, even if those are simple ones such as malformed numbers or unfinished strings.
 
-The parser works with the output of the lexer.  
-It takes the stream of tokens and tries to build an *Abstract Syntax Tree* (AST).  
-The tree is what gives structure to the program and during its generation we can also see wether or not the code is valid or not.  
-This is where syntax errors will be detected in majority.
+The lexer does not care about syntax.  
+It is just a very simple way of describing parts of the code and discarding what the assembler doesn't need such as whitespaces.
 
-### The preprocessor
+These are the important tokens generated:
 
-The preprocessor is where text starts to be replaced with something else such as bytes or different code.  
-This is how included files are added to the main code.  
-With the AST now built, the preprocesor can find and understand instructions meant to happen before the final assembly, hence the name **pre**processor.  
-From there, the next major step in assembling is reached.
+| Token type  | Example     | Description                                                                  |
+| ----------- | ----------- | ---------------------------------------------------------------------------- |
+| Directive   | `.org`      | Used mostly by preprocessor to specify special instructions at compile time. |
+| Label       | `start:`    | Used as variable, they will be used to indicate locations in the code.       |
+| Instruction | `lda`       | Actual assembly instructions, the barebone of the language.                  |
+| Number      | `0x7f`      | Plain old numbers. Can be decimal, hexadecimal or binary representations.    |
+| String      | `"Hello"`   | Represents text, within quotes or single-quotes.                             |
+| Operator    | `+` `*` `-` | To easily perform arithmetic operations at compile time.                     |
+| Control     | `(` `)` `,` | Control characters, mostly used for different addressing modes.              |
 
-## Including other files
+The lexer then outputs a stream of tokens, that is, a list of all tokens generated in the order in which they appear in the code.  
+For instance:
+```c
+.org 0x0100
 
-Including other files is pretty straight forward as it consists of repeating the same steps from the first source file recursively if that file also has includes.
-
-### The only difference
-
-Once we have a new AST from the included file, it is inserted into the main AST in place of the include directive.  
-This means we now have more code available for the next step.
-
-## Generating bytes from the AST
-
-When the preprocessor has completed its task, all that should be left in the AST are instructions that tell the assembler exactly how to generate a binary file from the code.  
-There is still one problem the assembler faces at this point.
-
-### Labels everywhere
-
-Labels are a very important part of assembly and they can happen nearly everywhere in the code.  
-An issue arises when the assembler needs to compile the address of a label that hasn't been declared yet.  
-For this reason, the assembler performs two passes.
-
-### Passes
-
-The passes consist of two essential steps:
-- gathering info about the code
-- Using that info along with the code to generate a file
-
-#### The first pass
-
-The first pass is used to obtain info on how long in binary instructions take so the address of labels can be determined.  
-That info is stored for the second pass.
-
-#### The second pass
-
-Now that the assembler has all the info it needs, it can finally generate the output file.
+start:
+    lda 255
+```
+Would result in:
+```lua
+{
+    Token( "directive", ".org" ),
+    Token( "label", "start:" ),
+    Token( "instruction", "lda" ),
+    Token( "number", "255" )
+}
+```
