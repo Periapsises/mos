@@ -9,7 +9,7 @@ function DHTMLWINDOW:Init()
 end
 
 function DHTMLWINDOW:OnDocumentReady()
-    self:AddFunction( "GLua", "onTextChanged", function( _, changed )
+    self:AddFunction( "GLua", "onTextChanged", function( changed )
         local activeTab = Editor:GetActiveTab()
         if not activeTab then return end
 
@@ -33,7 +33,17 @@ function DHTMLWINDOW:OnDocumentReady()
         Mos.FileSystem.Write( activeTab.file, string.gsub( content, "\\\\", "\\" ) )
     end )
 
-    self:Call( "document.addEventListener('editorsave', (e) => GLua.onSave(e.text));" )
+    self:Call( [[
+        document.addEventListener('editortextchanged', (e) => {
+            GLua.onTextChanged(!e.isOriginal);
+        });
+    ]] )
+
+    self:Call( [[
+        document.addEventListener('editorsave', (e) => {
+            GLua.onSave(e.text);
+        });
+    ]] )
 end
 
 vgui.Register( "MosEditor_DHTMLWindow", DHTMLWINDOW, "DHTML" )
