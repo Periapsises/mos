@@ -192,15 +192,16 @@ function TAB:Init()
         self:Remove()
     end
 
+    local hoverR, hoverG, hoverB = gamma.applyToRGB( 63, 68, 75 )
     function closeButton:Paint( w, h )
         local parent = self:GetParent()
-        local shouldPaintBackground = self:IsHovered() or parent:IsHovered()
+        local hovered = self:IsHovered()
 
-        if shouldPaintBackground then
-            draw.RoundedBox( 4, 0, 0, w, h, Color( 64, 64, 64, 255 ) )
+        if hovered then
+            draw.RoundedBox( 4, 0, 0, w, h, Color( hoverR, hoverG, hoverB, 255 ) )
         end
 
-        if not shouldPaintBackground and not parent.isActive then return end
+        if not parent.isActive and not ( parent:IsHovered() or hovered ) then return end
 
         draw.NoTexture()
         surface.SetDrawColor( 128, 128, 128, 255 )
@@ -213,6 +214,7 @@ function TAB:Init()
     self.icon = icon
     self.label = label
     self.status = status
+    self.button = closeButton
 
     self:CalculateSize()
 end
@@ -244,11 +246,19 @@ function TAB:CalculateSize()
 end
 
 local tabR, tabG, tabB = gamma.applyToRGB( 35, 39, 46 )
+local hoverR, hoverG, hoverB = gamma.applyToRGB( 50, 56, 66 )
+local lineR, lineG, lineB = gamma.applyToRGB( 24, 26, 31 )
 function TAB:Paint( w, h )
-    if not self.isActive then return end
+    if self:IsHovered() or self.button:IsHovered() then
+        surface.SetDrawColor( hoverR, hoverG, hoverB, 255 )
+        surface.DrawRect( 0, 0, w, h )
+    elseif self.isActive then
+        surface.SetDrawColor( tabR, tabG, tabB, 255 )
+        surface.DrawRect( 0, 0, w, h )
+    end
 
-    surface.SetDrawColor( tabR, tabG, tabB, 255 )
-    surface.DrawRect( 0, 0, w, h )
+    surface.SetDrawColor( lineR, lineG, lineB, 255 )
+    surface.DrawRect( w - 1, 0, 1, h )
 end
 
 function TAB:DoClick()
