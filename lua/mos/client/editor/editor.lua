@@ -8,6 +8,8 @@ include( "mos/client/editor/utils/close_button.lua" )
 include( "mos/client/editor/utils/header_button.lua" )
 include( "mos/client/editor/utils/notifications.lua" )
 
+local gamma = include( "mos/client/editor/utils/gamma.lua" )
+
 --------------------------------------------------
 -- Editor API
 
@@ -18,6 +20,12 @@ function Editor:Open()
 
     self.panel:Open()
 end
+
+concommand.Add( "mos_editor_reload", function()
+    if not IsValid( Editor.panel ) then return end
+    Editor.panel:Remove()
+    Editor.panel = nil
+end )
 
 function Editor:AddTab( path )
     if not self.tabs then return end
@@ -116,6 +124,12 @@ function EDITOR:Init()
     horizontalDivider:Dock( FILL )
     horizontalDivider:SetLeftWidth( editorDividerPos:GetInt() )
 
+    local divR, divG, divB = gamma.applyToRGB( 30, 34, 39 )
+    function horizontalDivider:Paint( divw, divh )
+        surface.SetDrawColor( divR, divG, divB, 255 )
+        surface.DrawRect( 0, 0, divw, divh )
+    end
+
     horizontalDivider._SetDragging = horizontalDivider.SetDragging
     function horizontalDivider:SetDragging( isDragging )
         if not isDragging then
@@ -154,7 +168,7 @@ function EDITOR:Init()
     dhtml:Dock( FILL )
 
     function tabs:OnTabChanged( _, newTab )
-        local text = Mos.FileSystem.Read( newTab.file or "mos6502/asm/default.asm" ) or ""
+        local text = Mos.FileSystem.Read( newTab.file or "mos/asm/default.asm" ) or ""
         Editor:SetCode( text )
     end
 
@@ -175,8 +189,9 @@ function EDITOR:Open()
     self:MakePopup()
 end
 
+local editorR, editorG, editorB = gamma.applyToRGB( 35, 39, 46 )
 function EDITOR:Paint( w, h )
-    surface.SetDrawColor( 35, 39, 46, 255 )
+    surface.SetDrawColor( editorR, editorG, editorB, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 

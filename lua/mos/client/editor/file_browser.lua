@@ -3,8 +3,10 @@ local FileSystem = Mos.FileSystem
 include( "mos/client/editor/file_functions/files.lua" )
 include( "mos/client/editor/file_functions/folders.lua" )
 
+local gamma = include( "mos/client/editor/utils/gamma.lua" )
+
 local ERROR_FAILED_SORT = [[
-[mos6502] A set of files or folders failed to be sorted.
+[mos] A set of files or folders failed to be sorted.
 File A:
     Is file: %s
     Name: %s
@@ -13,7 +15,7 @@ File B:
     Is file: %s
     Name: %s
 
-Please report this error at: https://github.com/Periapsises/Mos6502/issues
+Please report this error at: https://github.com/Periapsises/mos/issues
 ]]
 
 local function sortFilesAndFolders( node )
@@ -86,15 +88,16 @@ function FILEBROWSER:Init()
     local root = self:Root()
     root.OnNodeAdded = onNodeAdded
 
-    local asm = root:AddFolder( "Assembly", "mos6502/asm", "DATA", true )
+    local asm = root:AddFolder( "Assembly", "mos/asm", "DATA", true )
     asm:SetIcon( "icon16/package_green.png" )
 
-    local bin = root:AddFolder( "Binaries", "mos6502/bin", "DATA", true )
+    local bin = root:AddFolder( "Binaries", "mos/bin", "DATA", true )
     bin:SetIcon( "icon16/brick.png" )
 end
 
+local fileBrowserR, fileBrowserG, fileBrowserB = gamma.applyToRGB( 30, 34, 39 )
 function FILEBROWSER:Paint( w, h )
-    surface.SetDrawColor( 30, 34, 39, 255 )
+    surface.SetDrawColor( fileBrowserR, fileBrowserG, fileBrowserB, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 
