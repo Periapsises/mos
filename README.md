@@ -9,17 +9,6 @@ Commonly known for its use in old computers such as the Apple I or the Commodore
 
 This is an emulated verison of the 6502 that you can program and run, all from within Garry's Mod.
 
-This is still under developement and a lot of the cool features planned for it haven't been implemented yet.
-
-## Plans for the future
-
-Currently, you can only write assembly instructions as well as labels to help you mark specific locations of your code.  
-A preprocessor is planned to be added in the near future to allow more control over the resulting compiled code such as
-- Changing the location of the code
-- Defining bytes directly in memory
-- Defining and using macros
-- Including files
-
 # Writing Conventions
 
 ## Globals
