@@ -16,3 +16,10 @@ local function AddCSLuaFiles( path )
         end
     end
 end
+
+AddCSLuaFiles( "mos/client/vgui/" )
+
+if SERVER then
+else
+    include( "mos/client/init.lua" )
+end
