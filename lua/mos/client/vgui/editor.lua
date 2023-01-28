@@ -1,7 +1,7 @@
 local EDITOR = {}
 local EDITOR_MIN_SIZE = 50      -- The minimum size the panel can be resized to
 local EDITOR_TOOLBAR_SIZE = 24  -- The size of the toolbar
-local EDITOR_HANDLE_SIZE = 20   -- The size of the handles on the sides of the panel
+local EDITOR_HANDLE_SIZE = 6   -- The size of the handles on the sides of the panel
 
 function EDITOR:Init()
     self:SetFocusTopLevel( true )
@@ -9,9 +9,40 @@ function EDITOR:Init()
     self:SetPaintBackgroundEnabled( false )
     self:SetPaintBorderEnabled( false )
 
+    self.toolBar = vgui.Create( "DPanel", self )
+    self.toolBar:SetSize( 0, EDITOR_TOOLBAR_SIZE )
+
+    self.closeButton = vgui.Create( "DButton", self )
+    self.closeButton:SetText( "" )
+    self.closeButton:SetSize( 36, 24 )
+
+    local editor = self
+    function self.closeButton:DoClick()
+        editor:Hide()
+    end
+
+    function self.closeButton:Paint( w, h )
+        surface.SetDrawColor( 200, 200, 200, 255 )
+        surface.DrawRect( 0, 0, w, h )
+
+        local hw, hh = w / 2, h / 2
+        surface.SetDrawColor( 255, 255, 255, 255 )
+        surface.DrawLine( hw - 4, hh - 4, hw + 5, hh + 5 )
+        surface.DrawLine( hw - 4, hh + 4, hw + 5, hh - 5 )
+    end
+
+    self:DockPadding( EDITOR_HANDLE_SIZE, EDITOR_TOOLBAR_SIZE, EDITOR_HANDLE_SIZE, EDITOR_HANDLE_SIZE )
+
     local fileBrowser = vgui.Create( "MosFileBrowser", self )
     fileBrowser:SetWide( 300 )
     fileBrowser:Dock( LEFT )
+end
+
+function EDITOR:AddTool( tool )
+    tool:SetParent( self.toolBar )
+    tool:Dock( LEFT )
+
+    self:InvalidateLayout()
 end
 
 function EDITOR:Think()
@@ -117,6 +148,11 @@ function EDITOR:OnMouseReleased()
     self.Dragging = nil
 
     self:MouseCapture( false )
+end
+
+function EDITOR:PerformLayout()
+    self.toolBar:SizeToChildren( true, false )
+    self.closeButton:SetPos( self:GetWide() - 36, 0 )
 end
 
 vgui.Register( "MosEditor", EDITOR, "EditablePanel" )
