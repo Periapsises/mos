@@ -16,18 +16,3 @@ local function AddCSLuaFiles( path )
         end
     end
 end
-
-AddCSLuaFiles( "mos/client/" )
-AddCSLuaFiles( "mos/shared/" )
-
-AddCSLuaFile( "mos/tests/tests.lua" )
-AddCSLuaFiles( "mos/tests/client/" )
-AddCSLuaFiles( "mos/tests/shared/" )
-
-include( "mos/shared/sh_init.lua" )
-
-if SERVER then
-    include( "mos/server/sv_init.lua" )
-else
-    include( "mos/client/cl_init.lua" )
-end

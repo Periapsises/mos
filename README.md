@@ -9,13 +9,32 @@ Commonly known for its use in old computers such as the Apple I or the Commodore
 
 This is an emulated verison of the 6502 that you can program and run, all from within Garry's Mod.
 
-This is still under developement and a lot of the cool features planned for it haven't been implemented yet.
+# Writing Conventions
 
-## Plans for the future
+## Globals
 
-Currently, you can only write assembly instructions as well as labels to help you mark specific locations of your code.  
-A preprocessor is planned to be added in the near future to allow more control over the resulting compiled code such as
-- Changing the location of the code
-- Defining bytes directly in memory
-- Defining and using macros
-- Including files
+To keep the global space clean, avoid creating global variables and instead store them in a [namespace](#namespaces).
+
+## Namespaces
+
+Namespaces are defined as tables and stored in the global `Mos` table.  
+This allows namespaces to be accessed anywhere.
+
+Namespaces are used to group API functions.
+
+### Localizing namespace data
+
+Be careful when localizing dat stored in namespaces as if the data is changed from somewhere else, it may not be updated locally. This is the case for all data that isn't a table.
+
+## Objects and static data
+
+To differenciate objects (instanciable data) from static data, the casing of function names changes.  
+Namespaces, libraries and classes use `UpperCamelCase` as well as static functions declared in these scopes.  
+Instance data and functions use `lowerCamelCase`.
+
+**Exception:**  
+Custom VGUI panel methods use `UpperCamelCase` to respect the standard that Garry's Mod panels use.
+
+### About classes
+
+An object should be a class (instanciatable) *only* if multiple of that object are needed at once.
