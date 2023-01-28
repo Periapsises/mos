@@ -8,6 +8,10 @@ function EDITOR:Init()
 
     self:SetPaintBackgroundEnabled( false )
     self:SetPaintBorderEnabled( false )
+
+    local fileBrowser = vgui.Create( "MosFileBrowser", self )
+    fileBrowser:SetWide( 300 )
+    fileBrowser:Dock( LEFT )
 end
 
 function EDITOR:Think()
