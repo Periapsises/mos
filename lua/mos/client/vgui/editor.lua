@@ -25,6 +25,7 @@ function EDITOR:Init()
     function self.closeButton:Paint( w, h )
         self.hoverValue = Lerp( self.hoverValue + ( self.Hovered and 0.06 or -0.06 ), 0, 1 )
 
+        -- TODO: Counter gamma correction
         surface.SetDrawColor( 232, 17, 35, math.ceil( self.hoverValue * 255 ) )
         surface.DrawRect( 0, 0, w, h )
 
@@ -115,6 +116,7 @@ function EDITOR:Think()
 end
 
 function EDITOR:Paint( w, h )
+    -- TODO: Counter gamma correction
     surface.SetDrawColor( 35, 39, 46, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
