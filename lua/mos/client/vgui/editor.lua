@@ -1,4 +1,7 @@
 local EDITOR = {}
+local EDITOR_MIN_SIZE = 50      -- The minimum size the panel can be resized to
+local EDITOR_TOOLBAR_SIZE = 24  -- The size of the toolbar
+local EDITOR_HANDLE_SIZE = 20   -- The size of the handles on the sides of the panel
 
 function EDITOR:Init()
     self:SetFocusTopLevel( true )
@@ -13,7 +16,7 @@ function EDITOR:Think()
 
     if self.SizingLeft then
         local x = mouseX - self.SizingLeft[1]
-        x = math.Clamp( x, 0, self.SizingLeft[2] - 50 )
+        x = math.Clamp( x, 0, self.SizingLeft[2] - EDITOR_MIN_SIZE )
 
         local w = self.SizingLeft[2] - x
 
@@ -23,14 +26,14 @@ function EDITOR:Think()
 
     if self.SizingRight then
         local x = mouseX - self.SizingRight
-        x = math.Clamp( x, 50, ScrW() - self:GetX() )
+        x = math.Clamp( x, EDITOR_MIN_SIZE, ScrW() - self:GetX() )
 
         self:SetWide( x )
     end
 
     if self.SizingBottom then
         local y = mouseY - self.SizingBottom
-        y = math.Clamp( y, 50, ScrH() - self:GetY() )
+        y = math.Clamp( y, EDITOR_MIN_SIZE, ScrH() - self:GetY() )
 
         self:SetTall( y )
     end
@@ -47,16 +50,16 @@ function EDITOR:Think()
 
     local screenX, screenY = self:LocalToScreen( 0, 0 )
 
-    if self.Hovered and mouseY < screenY + 24 then
+    if self.Hovered and mouseY < screenY + EDITOR_TOOLBAR_SIZE then
         self:SetCursor( "sizeall" )
         return
     end
 
-    if self.Hovered and mouseY > screenY + self:GetTall() - 20 then
-        if mouseX < screenX + 20 then
+    if self.Hovered and mouseY > screenY + self:GetTall() - EDITOR_HANDLE_SIZE then
+        if mouseX < screenX + EDITOR_HANDLE_SIZE then
             self:SetCursor( "sizenesw" )
             return
-        elseif mouseX > screenX + self:GetWide() - 20 then
+        elseif mouseX > screenX + self:GetWide() - EDITOR_HANDLE_SIZE then
             self:SetCursor( "sizenwse" )
             return
         end
@@ -65,7 +68,7 @@ function EDITOR:Think()
         return
     end
 
-    if mouseX < screenX + 20 or mouseX > screenX + self:GetWide() - 20 then
+    if mouseX < screenX + EDITOR_HANDLE_SIZE or mouseX > screenX + self:GetWide() - EDITOR_HANDLE_SIZE then
         self:SetCursor( "sizewe" )
         return
     end
@@ -82,19 +85,22 @@ function EDITOR:OnMousePressed()
     local screenX, screenY = self:LocalToScreen( 0, 0 )
     local mouseX, mouseY = gui.MousePos()
 
-    if mouseX < screenX + 20 then
+    if mouseX < screenX + EDITOR_HANDLE_SIZE then
         self.SizingLeft = { mouseX - screenX, screenX + self:GetWide() }
+        self:MouseCapture( true )
     end
 
-    if mouseX > screenX + self:GetWide() - 20 then
+    if mouseX > screenX + self:GetWide() - EDITOR_HANDLE_SIZE then
         self.SizingRight = mouseX - self:GetWide()
+        self:MouseCapture( true )
     end
 
-    if mouseY > screenY + self:GetTall() - 20 then
+    if mouseY > screenY + self:GetTall() - EDITOR_HANDLE_SIZE then
         self.SizingBottom = mouseY - self:GetTall()
+        self:MouseCapture( true )
     end
 
-    if mouseY < screenY + 24 then
+    if mouseY < screenY + EDITOR_TOOLBAR_SIZE then
         self.Dragging = { mouseX - screenX, mouseY - screenY }
         self:MouseCapture( true )
     end
