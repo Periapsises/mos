@@ -1,6 +1,6 @@
 local EDITOR = {}
 local EDITOR_MIN_SIZE = 50      -- The minimum size the panel can be resized to
-local EDITOR_TOOLBAR_SIZE = 24  -- The size of the toolbar
+local EDITOR_TOOLBAR_SIZE = 34  -- The size of the toolbar
 local EDITOR_HANDLE_SIZE = 6   -- The size of the handles on the sides of the panel
 
 function EDITOR:Init()
@@ -14,7 +14,8 @@ function EDITOR:Init()
 
     self.closeButton = vgui.Create( "DButton", self )
     self.closeButton:SetText( "" )
-    self.closeButton:SetSize( 36, 24 )
+    self.closeButton:SetSize( 45, 34 )
+    self.closeButton.hoverValue = 0
 
     local editor = self
     function self.closeButton:DoClick()
@@ -22,13 +23,15 @@ function EDITOR:Init()
     end
 
     function self.closeButton:Paint( w, h )
-        surface.SetDrawColor( 200, 200, 200, 255 )
+        self.hoverValue = Lerp( self.hoverValue + ( self.Hovered and 0.06 or -0.06 ), 0, 1 )
+
+        surface.SetDrawColor( 232, 17, 35, math.ceil( self.hoverValue * 255 ) )
         surface.DrawRect( 0, 0, w, h )
 
         local hw, hh = w / 2, h / 2
         surface.SetDrawColor( 255, 255, 255, 255 )
-        surface.DrawLine( hw - 4, hh - 4, hw + 5, hh + 5 )
-        surface.DrawLine( hw - 4, hh + 4, hw + 5, hh - 5 )
+        surface.DrawLine( hw - 5, hh - 5, hw + 4, hh + 4 )
+        surface.DrawLine( hw - 5, hh + 5, hw + 4, hh - 4 )
     end
 
     self:DockPadding( EDITOR_HANDLE_SIZE, EDITOR_TOOLBAR_SIZE, EDITOR_HANDLE_SIZE, EDITOR_HANDLE_SIZE )
@@ -112,7 +115,7 @@ function EDITOR:Think()
 end
 
 function EDITOR:Paint( w, h )
-    surface.SetDrawColor( 255, 255, 255, 255 )
+    surface.SetDrawColor( 35, 39, 46, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 
@@ -152,7 +155,7 @@ end
 
 function EDITOR:PerformLayout()
     self.toolBar:SizeToChildren( true, false )
-    self.closeButton:SetPos( self:GetWide() - 36, 0 )
+    self.closeButton:SetPos( self:GetWide() - 45, 0 )
 end
 
 vgui.Register( "MosEditor", EDITOR, "EditablePanel" )
