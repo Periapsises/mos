@@ -1,3 +1,5 @@
+local gamma = include( "mos/client/utils/gamma.lua" )
+
 local EDITOR = {}
 local EDITOR_MIN_SIZE = 50      -- The minimum size the panel can be resized to
 local EDITOR_TOOLBAR_SIZE = 34  -- The size of the toolbar
@@ -22,11 +24,11 @@ function EDITOR:Init()
         editor:Hide()
     end
 
+    local cButtonR, cButtonG, cButtonB = gamma.applyToRGB( 232, 17, 35 )
     function self.closeButton:Paint( w, h )
         self.hoverValue = Lerp( self.hoverValue + ( self.Hovered and 0.06 or -0.06 ), 0, 1 )
 
-        -- TODO: Counter gamma correction
-        surface.SetDrawColor( 232, 17, 35, math.ceil( self.hoverValue * 255 ) )
+        surface.SetDrawColor( cButtonR, cButtonG, cButtonB, math.ceil( self.hoverValue * 255 ) )
         surface.DrawRect( 0, 0, w, h )
 
         local hw, hh = w / 2, h / 2
@@ -115,9 +117,9 @@ function EDITOR:Think()
     self:SetCursor( "arrow" )
 end
 
+local editorR, editorG, editorB = gamma.applyToRGB( 35, 39, 46 )
 function EDITOR:Paint( w, h )
-    -- TODO: Counter gamma correction
-    surface.SetDrawColor( 35, 39, 46, 255 )
+    surface.SetDrawColor( editorR, editorG, editorB, 255 )
     surface.DrawRect( 0, 0, w, h )
 end
 
