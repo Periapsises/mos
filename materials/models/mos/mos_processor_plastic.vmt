@@ -1,5 +1,0 @@
-VertexLitGeneric
-{
-    "$basetexture" "models/mos/mos_processor_plastic"
-    "$bumpmap" "models/mos/mos_processor_normal"
-}
