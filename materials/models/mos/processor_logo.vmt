@@ -1,0 +1,5 @@
+VertexLitGeneric
+{
+    "$basetexture" "models/mos/processor_logo"
+    "$alphatest" "1"
+}
